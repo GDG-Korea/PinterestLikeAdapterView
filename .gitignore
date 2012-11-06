@@ -1,0 +1,12 @@
+gen/
+gen/*
+bin/
+bin/*
+target/
+target/*
+tmp/
+.DS_Store
+*.orig
+.idea
+.jhw-cache
+hardcopy.*
