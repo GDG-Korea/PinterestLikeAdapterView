@@ -159,11 +159,25 @@ public class MultiColumnListView extends PLA_ListView {
 	}
 	
 	@Override
-	protected int getChildBottom() {
+	protected int getSmallestChildBottom() {
+		//return smallest bottom value.
+		//in order to determine fill down or not... (calculate below space)
 		int result = Integer.MAX_VALUE;
 		for(Column c : mColumns){
 			int bottom = c.getBottom();
 			result = result > bottom ? bottom : result;
+		}
+		return result;
+	}
+
+	@Override
+	protected int getChildBottom() {
+		//return largest bottom value.
+		//for checking scrolling region...
+		int result = Integer.MIN_VALUE;
+		for(Column c : mColumns){
+			int bottom = c.getBottom();
+			result = result < bottom ? bottom : result;
 		}
 		return result;
 	}
@@ -188,7 +202,7 @@ public class MultiColumnListView extends PLA_ListView {
 	protected int getItemTop( int pos ){
 		int colIndex = mItems.get(pos, -1);
 		if(colIndex == -1)
-			return getChildBottom();
+			return getSmallestChildBottom();
 
 		return mColumns[colIndex].getBottom();
 	}

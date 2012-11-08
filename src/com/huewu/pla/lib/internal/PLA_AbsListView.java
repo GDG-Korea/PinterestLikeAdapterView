@@ -844,7 +844,6 @@ ViewTreeObserver.OnGlobalLayoutListener, ViewTreeObserver.OnTouchModeChangeListe
 				view = getChildAt(count - 1);
 				//final int bottom = view.getBottom();
 				final int bottom = getChildBottom();
-
 				height = view.getHeight();
 				if (height > 0) {
 					extent -= ((bottom - getHeight()) * 100) / height;
@@ -1921,7 +1920,7 @@ ViewTreeObserver.OnGlobalLayoutListener, ViewTreeObserver.OnTouchModeChangeListe
 				final int childCount = getChildCount();
 				if (childCount > 0) {
 					int top = getChildTop();
-					int bottom = getChildBottom();
+					int bottom = getSmallestChildBottom();
 					if (mFirstPosition == 0 && top >= mListPadding.top &&
 							mFirstPosition + childCount < mItemCount &&
 							bottom <= getHeight() - mListPadding.bottom) {
@@ -2590,7 +2589,6 @@ ViewTreeObserver.OnGlobalLayoutListener, ViewTreeObserver.OnTouchModeChangeListe
 		final int firstTop = getChildTop();
 		//final int lastBottom = getChildAt(childCount - 1).getBottom();
 		final int lastBottom = getChildBottom();
-
 		final Rect listPadding = mListPadding;
 
 		// FIXME account for grid vertical spacing too?
@@ -2718,7 +2716,7 @@ ViewTreeObserver.OnGlobalLayoutListener, ViewTreeObserver.OnTouchModeChangeListe
 		return false;
 	}
 
-	protected int getChildBottom() {
+	protected int getSmallestChildBottom() {
 		return getChildAt(getChildCount() - 1).getBottom();
 	}
 
@@ -3683,5 +3681,12 @@ ViewTreeObserver.OnGlobalLayoutListener, ViewTreeObserver.OnTouchModeChangeListe
 				dispatchFinishTemporaryDetach(group.getChildAt(i));
 			}			
 		}
+	}
+
+	protected int getChildBottom() {
+		final int count = getChildCount();
+		if( count == 0 )
+			return 0;
+		return getChildAt(count - 1).getBottom();
 	}
 }//end of class
