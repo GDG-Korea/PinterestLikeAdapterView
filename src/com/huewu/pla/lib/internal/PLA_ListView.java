@@ -84,6 +84,8 @@ public class PLA_ListView extends PLA_AbsListView {
 	 */
 	private static final float MAX_SCROLL_FACTOR = 0.33f;
 
+	private static final String TAG = "PLA_ListView";
+
 	/**
 	 * A class that represents a fixed view in a list, for example a header at the top
 	 * or a footer at the bottom.
@@ -1086,6 +1088,7 @@ public class PLA_ListView extends PLA_AbsListView {
 	 *         visible area.
 	 */
 	private View fillSpecific(int position, int top) {
+		Log.v(TAG, String.format("fillSpecific(%d, %d)", position, top));
 		boolean tempIsSelected = position == mSelectedPosition;
 		View temp = makeAndAddView(position, top, true, tempIsSelected);
 		// Possibly changed again in fillUp if we add rows above this one.
@@ -1380,6 +1383,7 @@ public class PLA_ListView extends PLA_AbsListView {
 				break;
 			case LAYOUT_SYNC:
 				sel = fillSpecific(mSyncPosition, mSpecificTop);
+				onLayoutSyncFinished(mSyncPosition);
 				break;
 			case LAYOUT_FORCE_BOTTOM:
 				sel = fillUp(mItemCount - 1, childrenBottom);

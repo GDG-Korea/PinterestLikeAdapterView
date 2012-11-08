@@ -54,6 +54,8 @@ public class MultiColumnListView extends PLA_ListView {
 		private int mIndex;
 		private int mColumnWidth;
 		private int mColumnLeft;
+		private int mSynchedTop = 0;
+		private int mSynchedBottom = 0;
 
 		//TODO is it ok to use item position info to identify item??
 
@@ -77,12 +79,16 @@ public class MultiColumnListView extends PLA_ListView {
 			//find biggest value.
 			int bottom = Integer.MIN_VALUE;
 			int childCount = getChildCount();
+
 			for( int index = 0; index < childCount; ++index ){
 				View v = getChildAt(index);
 				if(v.getLeft() != mColumnLeft)
 					continue;
 				bottom = bottom < v.getBottom() ? v.getBottom() : bottom;
 			}
+			
+			if( bottom == Integer.MIN_VALUE )
+				return mSynchedBottom;	//no child for this column..
 			return bottom;
 		}
 
@@ -94,10 +100,22 @@ public class MultiColumnListView extends PLA_ListView {
 				View v = getChildAt(index);
 				if(v.getLeft() != mColumnLeft)
 					continue;
-				
 				top = top > v.getTop() ? v.getTop() : top;
 			}
+			
+			if( top == Integer.MAX_VALUE )
+				return mSynchedTop;	//no child for this column. just return saved synched top..
 			return top;
+		}
+
+		public void save() {
+			mSynchedTop = 0;
+			mSynchedBottom = getTop(); //getBottom();
+		}
+
+		public void clear() {
+			mSynchedTop = 0;
+			mSynchedBottom = 0;
 		}
 	}
 
@@ -153,9 +171,23 @@ public class MultiColumnListView extends PLA_ListView {
 		super.onItemAddedToList(position, flow);
 		
 		//Column col = getNextColumn(flow);
-		Column col = getNextColumn(flow, position );
+		Column col = getNextColumn( flow, position );
 		mItems.append(position, col.getIndex());
 		Log.v("PLA_ListView", String.format("Item [%d] dAdded to Column [%d].", position, col.getIndex()) );
+	}
+	
+	@Override
+	protected void onLayoutSync(int syncPos) {
+		for( Column c : mColumns ){
+			c.save();
+		}
+	}
+	
+	@Override
+	protected void onLayoutSyncFinished(int syncPos) {
+		for( Column c : mColumns ){
+			c.clear();
+		}
 	}
 	
 	@Override
@@ -223,16 +255,16 @@ public class MultiColumnListView extends PLA_ListView {
 	//flow If flow is true, align top edge to y. If false, align bottom edge to y.
 	private Column getNextColumn(boolean flow, int position) {
 		
+		//we already have this item...
+		int colIndex = mItems.get(position, -1);
+		if( colIndex != -1 )
+			return mColumns[colIndex];
+		
 		if( flow ){
 			//find column which has the smallest bottom value.
 			return gettBottomColumn();
 		}else{
 			//find column which has the smallest top value.
-			//we already have this item...
-			int colIndex = mItems.get(position, -1);
-			if( colIndex != -1 )
-				return mColumns[colIndex];
-
 			return getTopColumn();
 		}
 	}	

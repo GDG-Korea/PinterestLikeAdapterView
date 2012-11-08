@@ -2944,14 +2944,12 @@ ViewTreeObserver.OnGlobalLayoutListener, ViewTreeObserver.OnTouchModeChangeListe
 		if (count > 0) {
 
 			int newPos;
-
 			int selectablePos;
 
 			// Find the row we are supposed to sync to
 			if (mNeedSync) {
 				// Update this first, since setNextSelectedPositionInt inspects it
 				mNeedSync = false;
-
 				if (mTranscriptMode == TRANSCRIPT_MODE_ALWAYS_SCROLL ||
 						(mTranscriptMode == TRANSCRIPT_MODE_NORMAL &&
 						mFirstPosition + getChildCount() >= mOldItemCount)) {
@@ -2968,7 +2966,7 @@ ViewTreeObserver.OnGlobalLayoutListener, ViewTreeObserver.OnTouchModeChangeListe
 						// adjusting if the available range changed) and return.
 						mLayoutMode = LAYOUT_SYNC;
 						mSyncPosition = Math.min(Math.max(0, mSyncPosition), count - 1);
-
+						onLayoutSync( mSyncPosition );
 						return;
 					} else {
 						// See if we can find a position in the new data with the same
@@ -2980,17 +2978,16 @@ ViewTreeObserver.OnGlobalLayoutListener, ViewTreeObserver.OnTouchModeChangeListe
 							if (selectablePos == newPos) {
 								// Same row id is selected
 								mSyncPosition = newPos;
-
 								if (mSyncHeight == getHeight()) {
 									// If we are at the same height as when we saved state, try
 									// to restore the scroll position too.
 									mLayoutMode = LAYOUT_SYNC;
+									onLayoutSync( mSyncPosition );
 								} else {
 									// We are not the same height as when the selection was saved, so
 									// don't try to restore the exact position
 									mLayoutMode = LAYOUT_SET_SELECTION;
 								}
-
 								// Restore selection
 								setNextSelectedPositionInt(newPos);
 								return;
@@ -3002,7 +2999,7 @@ ViewTreeObserver.OnGlobalLayoutListener, ViewTreeObserver.OnTouchModeChangeListe
 					// Leave mSyncPosition as it is -- just pin to available range
 					mLayoutMode = LAYOUT_SYNC;
 					mSyncPosition = Math.min(Math.max(0, mSyncPosition), count - 1);
-
+					onLayoutSync( mSyncPosition );
 					return;
 				}
 			}
@@ -3051,6 +3048,20 @@ ViewTreeObserver.OnGlobalLayoutListener, ViewTreeObserver.OnTouchModeChangeListe
 		mNextSelectedRowId = INVALID_ROW_ID;
 		mNeedSync = false;
 		checkSelectionChanged();
+	}
+
+	/**
+	 * adapter data is changed.. should keep current view layout information..
+	 * @param mSyncPosition
+	 */
+	protected void onLayoutSync(int syncPosition) {
+	}
+	
+	/**
+	 * adapter data is changed.. children layout manipulation is finished.
+	 * @param mSyncPosition
+	 */
+	protected void onLayoutSyncFinished(int syncPosition) {
 	}
 
 	/**
