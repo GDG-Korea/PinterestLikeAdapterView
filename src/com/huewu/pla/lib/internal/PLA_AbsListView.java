@@ -835,7 +835,7 @@ ViewTreeObserver.OnGlobalLayoutListener, ViewTreeObserver.OnTouchModeChangeListe
 				View view = getChildAt(0);
 				//final int top = view.getTop();
 				final int top = getChildTop();
-				
+
 				int height = view.getHeight();
 				if (height > 0) {
 					extent += (top * 100) / height;
@@ -865,7 +865,7 @@ ViewTreeObserver.OnGlobalLayoutListener, ViewTreeObserver.OnTouchModeChangeListe
 		if (firstPosition >= 0 && childCount > 0) {
 			if (mSmoothScrollbarEnabled) {
 				final View view = getChildAt(0);
-//				final int top = view.getTop();
+				//				final int top = view.getTop();
 				final int top = getChildTop();
 				int height = view.getHeight();
 				if (height > 0) {
@@ -2721,24 +2721,18 @@ ViewTreeObserver.OnGlobalLayoutListener, ViewTreeObserver.OnTouchModeChangeListe
 	protected int getChildBottom() {
 		return getChildAt(getChildCount() - 1).getBottom();
 	}
-	
+
 	protected int getChildTop() {
 		return getChildAt(0).getTop();
 	}    
 
 	protected void tryOffsetChildrenTopAndBottom(int offset) {
-
-		Method method;
-		try {
-			method = getClass().getMethod("offsetChildrenTopAndBottom", Integer.class);
-			method.invoke(this, offset);
-		} catch (Exception e) {
-			final int count = getChildCount();
-			for (int i = 0; i < count; i++) {
-				final View v = getChildAt(i);
-				v.layout(v.getLeft(), v.getTop() + offset, v.getRight(), v.getBottom() + offset);
-			}    		
-		} 
+		final int count = getChildCount();
+		
+		for (int i = 0; i < count; i++) {
+			final View v = getChildAt(i);
+			v.offsetTopAndBottom(offset);
+		}
 	}
 
 	/**
