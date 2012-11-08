@@ -23,6 +23,43 @@ How it works
 
 3. if you want to use this project as library, just check it as library project.
 
+Callbacks
+----------
+
+PLA_ListView was made based on Android 2.3 Framework's ListView, 
+and support those callbacks to let a user customize list view's behavior.
+
+    @Override
+	protected void onMeasureChild(View child, int position, int widthMeasureSpec,
+			int heightMeasureSpec) 
+	
+	@Override
+	protected void onItemAddedToList(int position, boolean flow )
+	
+	@Override
+	protected void onLayoutSync(int syncPos)
+	
+	@Override
+	protected void onLayoutSyncFinished(int syncPos)
+	
+	@Override
+	protected int getSmallestChildBottom()
+
+	@Override
+	protected int getChildBottom()
+	
+	@Override
+	protected int getChildTop()
+	
+	@Override
+	protected int getChildLeft(int pos)
+	
+	@Override
+	protected int getItemTop( int pos )
+	
+	@Override
+	protected int getItemBottom( int pos )
+
 Change Log
 -----------
 
