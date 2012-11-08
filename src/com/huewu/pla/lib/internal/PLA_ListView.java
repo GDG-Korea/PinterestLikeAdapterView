@@ -588,16 +588,16 @@ public class PLA_ListView extends PLA_AbsListView {
 	}
 	
 	
-	protected int getPreservedChildTop(int pos) {
-		// TODO Auto-generated method stub
-		return 0;
+	protected int getItemTop(int pos) {
+		//just return the last itme's bottom position..
+		int count = getChildCount();
+		return count > 0 ? getChildAt(count - 1).getBottom() + mDividerHeight : getListPaddingTop();
 	}
 
-	protected int getPreservedChildBottom(int pos) {
-		// TODO Auto-generated method stub
-		return 0;
+	protected int getItemBottom(int pos) {
+		int count = getChildCount();
+		return count > 0 ? getChildAt(0).getTop() - mDividerHeight : getHeight() - getListPaddingBottom();
 	}
-	
 
 	/**
 	 * {@inheritDoc}
@@ -606,14 +606,10 @@ public class PLA_ListView extends PLA_AbsListView {
 	protected void fillGap(boolean down) {
 		final int count = getChildCount();
 		if (down) {
-			final int startOffset = count > 0 ? getChildAt(count - 1).getBottom() + mDividerHeight :
-				getListPaddingTop();
-			fillDown(mFirstPosition + count, startOffset);
+			fillDown(mFirstPosition + count, getItemTop(mFirstPosition + count));
 			correctTooHigh(getChildCount());
 		} else {
-			final int startOffset = count > 0 ? getChildAt(0).getTop() - mDividerHeight :
-				getHeight() - getListPaddingBottom();
-			fillUp(mFirstPosition - 1, startOffset);
+			fillUp(mFirstPosition - 1, getItemBottom(mFirstPosition - 1));
 			correctTooLow(getChildCount());
 		}
 	}
@@ -634,18 +630,18 @@ public class PLA_ListView extends PLA_AbsListView {
 
 		//int end = (mBottom - mTop) - mListPadding.bottom;
 		int end = (getBottom() - getTop()) - mListPadding.bottom;
-		int nextTop = getCurrentChildBottom();
+		int nextTop = getItemTop(pos);
 
 		while (nextTop < end && pos < mItemCount) {
 			// is this the selected item?
 			boolean selected = pos == mSelectedPosition;
 			View child = makeAndAddView(pos, nextTop, true, selected);
 			//            nextTop = child.getBottom() + mDividerHeight;
-			nextTop = getCurrentChildBottom() + mDividerHeight;
 			if (selected) {
 				selectedView = child;
 			}
 			pos++;
+			nextTop = getItemTop(pos) + mDividerHeight;
 		}
 
 		return selectedView;
@@ -664,18 +660,17 @@ public class PLA_ListView extends PLA_AbsListView {
 	private View fillUp(int pos, int bottom) {
 		View selectedView = null;
 		int end = mListPadding.top;
-		int nextBottom = getCurrentChildTop();
-
+		int nextBottom = getItemBottom(pos);
 		while (nextBottom > end && pos >= 0) {
 			// is this the selected item?
 			boolean selected = pos == mSelectedPosition;
 			View child = makeAndAddView(pos, nextBottom, false, selected);
 			//	nextBottom = child.getTop() - mDividerHeight;
-			nextBottom = getCurrentChildTop();
 			if (selected) {
 				selectedView = child;
 			}
 			pos--;
+			nextBottom = getItemBottom(pos);
 		}
 
 		mFirstPosition = pos + 1;

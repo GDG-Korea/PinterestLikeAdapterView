@@ -834,7 +834,7 @@ ViewTreeObserver.OnGlobalLayoutListener, ViewTreeObserver.OnTouchModeChangeListe
 
 				View view = getChildAt(0);
 				//final int top = view.getTop();
-				final int top = getCurrentChildTop();
+				final int top = getChildTop();
 				
 				int height = view.getHeight();
 				if (height > 0) {
@@ -843,7 +843,7 @@ ViewTreeObserver.OnGlobalLayoutListener, ViewTreeObserver.OnTouchModeChangeListe
 
 				view = getChildAt(count - 1);
 				//final int bottom = view.getBottom();
-				final int bottom = getCurrentChildBottom();
+				final int bottom = getChildBottom();
 
 				height = view.getHeight();
 				if (height > 0) {
@@ -866,7 +866,7 @@ ViewTreeObserver.OnGlobalLayoutListener, ViewTreeObserver.OnTouchModeChangeListe
 			if (mSmoothScrollbarEnabled) {
 				final View view = getChildAt(0);
 //				final int top = view.getTop();
-				final int top = getCurrentChildTop();
+				final int top = getChildTop();
 				int height = view.getHeight();
 				if (height > 0) {
 					return Math.max(firstPosition * 100 - (top * 100) / height +
@@ -1920,8 +1920,8 @@ ViewTreeObserver.OnGlobalLayoutListener, ViewTreeObserver.OnTouchModeChangeListe
 			case TOUCH_MODE_SCROLL:
 				final int childCount = getChildCount();
 				if (childCount > 0) {
-					int top = getCurrentChildTop();
-					int bottom = getCurrentChildBottom();
+					int top = getChildTop();
+					int bottom = getChildBottom();
 					if (mFirstPosition == 0 && top >= mListPadding.top &&
 							mFirstPosition + childCount < mItemCount &&
 							bottom <= getHeight() - mListPadding.bottom) {
@@ -2587,9 +2587,9 @@ ViewTreeObserver.OnGlobalLayoutListener, ViewTreeObserver.OnTouchModeChangeListe
 			return true;
 		}
 
-		final int firstTop = getCurrentChildTop();
+		final int firstTop = getChildTop();
 		//final int lastBottom = getChildAt(childCount - 1).getBottom();
-		final int lastBottom = getCurrentChildBottom();
+		final int lastBottom = getChildBottom();
 
 		final Rect listPadding = mListPadding;
 
@@ -2718,11 +2718,11 @@ ViewTreeObserver.OnGlobalLayoutListener, ViewTreeObserver.OnTouchModeChangeListe
 		return false;
 	}
 
-	protected int getCurrentChildBottom() {
+	protected int getChildBottom() {
 		return getChildAt(getChildCount() - 1).getBottom();
 	}
 	
-	protected int getCurrentChildTop() {
+	protected int getChildTop() {
 		return getChildAt(0).getTop();
 	}    
 

@@ -94,6 +94,7 @@ public class MultiColumnListView extends PLA_ListView {
 				View v = getChildAt(index);
 				if(v.getLeft() != mColumnLeft)
 					continue;
+				
 				top = top > v.getTop() ? v.getTop() : top;
 			}
 			return top;
@@ -158,7 +159,7 @@ public class MultiColumnListView extends PLA_ListView {
 	}
 	
 	@Override
-	protected int getCurrentChildBottom() {
+	protected int getChildBottom() {
 		int result = Integer.MAX_VALUE;
 		for(Column c : mColumns){
 			int bottom = c.getBottom();
@@ -168,7 +169,8 @@ public class MultiColumnListView extends PLA_ListView {
 	}
 	
 	@Override
-	protected int getCurrentChildTop() {
+	protected int getChildTop() {
+		//find largest column.
 		int result = Integer.MIN_VALUE;
 		for(Column c : mColumns){
 			int top = c.getTop();
@@ -178,26 +180,26 @@ public class MultiColumnListView extends PLA_ListView {
 	}
 	
 	@Override
-	protected int getPreservedChildTop( int pos ){
+	protected int getChildLeft(int pos) {
+		return getColumnLeft(pos);
+	}
+	
+	@Override
+	protected int getItemTop( int pos ){
 		int colIndex = mItems.get(pos, -1);
 		if(colIndex == -1)
-			return getCurrentChildBottom();
+			return getChildBottom();
 
 		return mColumns[colIndex].getBottom();
 	}
 	
 	@Override
-	protected int getPreservedChildBottom( int pos ){
+	protected int getItemBottom( int pos ){
 		int colIndex = mItems.get(pos, -1);
 		if(colIndex == -1)
-			return getCurrentChildTop();
+			return getChildTop();
 
 		return mColumns[colIndex].getTop();
-	}
-
-	@Override
-	protected int getChildLeft(int pos) {
-		return getColumnLeft(pos);
 	}
 	
 	//////////////////////////////////////////////////////////////////////////////
@@ -209,28 +211,31 @@ public class MultiColumnListView extends PLA_ListView {
 		
 		if( flow ){
 			//find column which has the smallest bottom value.
-			return getShortestBottomColumn();
+			return gettBottomColumn();
 		}else{
-			//find column which has the biggest top value.
+			//find column which has the smallest top value.
 			//we already have this item...
-			//return mColumns[mItems.get(position)];
-			return getLongestTopColumn();
+			int colIndex = mItems.get(position, -1);
+			if( colIndex != -1 )
+				return mColumns[colIndex];
+
+			return getTopColumn();
 		}
 	}	
 	
-	private Column getLongestTopColumn() {
+	private Column getTopColumn() {
 		int childCount = getChildCount();
 		if( childCount < mColumnCount )
 			return mColumns[childCount];
 
 		Column result = mColumns[0];
 		for( Column c : mColumns ){
-			result = result.getTop() < c.getTop() ? c : result;
+			result = result.getTop() > c.getTop() ? c : result;
 		}
 		return result;
 	}
 
-	private Column getShortestBottomColumn() {
+	private Column gettBottomColumn() {
 		int childCount = getChildCount();
 		if( childCount < mColumnCount )
 			return mColumns[childCount];
