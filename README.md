@@ -10,6 +10,8 @@ https://play.google.com/store/apps/details?id=com.pinterest&hl=en
 
 http://developer.sonymobile.com/2010/05/20/android-tutorial-making-your-own-3d-list-part-1/
 
+현재는 Android Framework 2.3 버전의 ListView 구현을 기반으로 작성되었습니다.
+
 How it works
 -------------
 
