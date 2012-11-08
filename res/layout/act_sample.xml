@@ -3,10 +3,10 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent" >
 
-    <com.huewu.lib.pla.MultiColumnAdapterView
+    <com.huewu.pla.lib.MultiColumnListView
         android:id="@+id/list"
         android:layout_width="match_parent"
         android:layout_height="match_parent" >
-    </com.huewu.lib.pla.MultiColumnAdapterView>
+    </com.huewu.pla.lib.MultiColumnListView>
 
 </merge>

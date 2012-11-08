@@ -1,5 +1,5 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.huewu.lib.pla"
+    package="com.huewu.pla.smaple"
     android:versionCode="1"
     android:versionName="1.0">
 
@@ -9,7 +9,7 @@
         android:icon="@drawable/ic_launcher"
         android:theme="@style/AppTheme">
         
-        <activity android:name="com.huewu.sample.pla.SampleActivity">
+        <activity android:name="com.huewu.pla.sample.SampleActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"/>
                 <category android:name="android.intent.category.LAUNCHER"/>

@@ -3,7 +3,7 @@ package com.huewu.pla.sample;
 import java.util.Arrays;
 import java.util.Random;
 
-import com.huewu.lib.pla.R;
+import com.huewu.pla.smaple.R;
 import com.huewu.pla.lib.internal.PLA_AdapterView;
 
 import android.app.Activity;
