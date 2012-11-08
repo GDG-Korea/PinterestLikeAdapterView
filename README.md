@@ -12,12 +12,14 @@ http://developer.sonymobile.com/2010/05/20/android-tutorial-making-your-own-3d-l
 
 How it works
 -------------
-프로젝트를 clone 하시면 하나의 엑티비티와 커스텀 뷰 파일이 있습니다.
-어플리케이션을 빌드해서 실행 시켜보시면 컬럼이 하나 이상인 어설픈 리스트 뷰를 확인 하실 수 있습니다.
 
 ![Example Image][3]
 
-2 개 이상의 컬럼도 지원합니다. MultiColumnAdapterView 클래스의 init() 함수에서 컬럼 수를 조절 해 보세요.
+1. clone project.
+
+2. run on your android phone.
+
+3. if you want to use this project as library, just check it as library project.
 
 Change Log
 -----------
@@ -41,7 +43,9 @@ TODO
 ---------------------------------------------
 > 1.Fling 및 스크롤바를 지원하지 않습니다. - 완료(?)
 
-2.Scroll Up / Down 시 재 정렬되는 아이템의 위치가 변경되는 버그가 있습니다.
+> 2.Scroll Up / Down 시 재 정렬되는 아이템의 위치가 변경되는 버그가 있습니다.
+
+3.리스트의 마지막 부분에서 스크롤이 자연스럽지 않습니다.
 
 *그외 아주 많은 문제가 있습니다... 아직 버전 0.5 인걸요...  =) 
 
