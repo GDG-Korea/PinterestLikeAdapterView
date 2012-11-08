@@ -1,4 +1,4 @@
-PLA(PinterestLikeAdapterView) v0.5
+PLA(PinterestLikeAdapterView)
 ==================================
 -
 
@@ -12,16 +12,36 @@ http://developer.sonymobile.com/2010/05/20/android-tutorial-making-your-own-3d-l
 
 현재는 Android Framework 2.3 버전의 ListView 구현을 기반으로 작성되었습니다.
 
-How it works
--------------
-
 ![Example Image][3]
 
-1. clone project.
+How to use
+-------------
 
-2. run on your android phone.
+ **There may be erros in extra packages.**
 
-3. if you want to use this project as library, just check it as library project.
+ **If you don't need pull-to-refresh features, just excludes thease folders in build path.**
+
+*To run Sample App.*
+
+  1. clone project.
+
+  2. run on your android phone.
+
+
+*To use Pinterest Like Multi Column View.*
+
+  1. check this project  as library project.
+
+  2. MultiColumListView is the view what you need.
+
+*To use pull-to-refresh features.*
+  
+  1. clone this repo.
+  https://github.com/huewu/Android-PullToRefresh
+
+  2. add to android library. All build errors should be gone.
+
+  3. build PLA project with extra packages.. 
 
 Callbacks
 ----------
@@ -80,19 +100,19 @@ v0.5
 
 TODO
 ---------------------------------------------
-> 1.Fling 및 스크롤바를 지원하지 않습니다.
+> 1. Fling 및 스크롤바를 지원하지 않습니다.
 
-> 2.Scroll Up / Down 시 재 정렬되는 아이템의 위치가 변경되는 버그가 있습니다.
+> 2. Scroll Up / Down 시 재 정렬되는 아이템의 위치가 변경되는 버그가 있습니다.
 
-> 3.리스트의 마지막 부분에서 스크롤이 자연스럽지 않습니다.
+> 3. 리스트의 마지막 부분에서 스크롤이 자연스럽지 않습니다.
 
-> 4.어뎁터에 데이터를 추가해도 정상적으로 동작 
+> 4. 어뎁터에 데이터를 추가해도 정상적으로 동작 
 
-5. PullToRefresh 라이브러리와 연동.
+> 5. PullToRefresh 라이브러리와 연동.
 
 6. Fling 속도가 이상함.
 
-*그외 아주 많은 문제가 있습니다... 아직 버전 0.5 인걸요...  =) 
+*그외 아주 많은 문제가 있습니다... 아직 열혈 개발 중 인걸요...  =) 
 
 Contributing
 ---------------------------------------------
