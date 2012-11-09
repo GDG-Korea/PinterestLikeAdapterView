@@ -17,12 +17,15 @@
 package com.huewu.pla.lib;
 
 import android.content.Context;
+import android.content.res.TypedArray;
+import android.graphics.Rect;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.util.SparseIntArray;
 import android.view.View;
 
 import com.huewu.pla.lib.internal.PLA_ListView;
+import com.huewu.pla.smaple.R;
 
 /**
  * @author huewu.ynag
@@ -32,8 +35,10 @@ public class MultiColumnListView extends PLA_ListView {
 
 	@SuppressWarnings("unused")
 	private static final String TAG = "MultiColumnListView";
+
+	private static final int DEFAULT_COLUMN_NUMBER = 2;
 	
-	private int mColumnCount = 2;
+	private int mColumnNumber = 2;
 	private Column[] mColumns = null;
 	private SparseIntArray mItems = new SparseIntArray();
 	
@@ -109,25 +114,43 @@ public class MultiColumnListView extends PLA_ListView {
 
 	public MultiColumnListView(Context context) {
 		super(context);
-		init();
+		init(null);
 	}
 
 	public MultiColumnListView(Context context, AttributeSet attrs) {
 		super(context, attrs);
-		init();
+		init(attrs);
 	}
 
 	public MultiColumnListView(Context context, AttributeSet attrs, int defStyle) {
 		super(context, attrs, defStyle);
-		init();
+		init(attrs);
 	}
 	
-	private void init() {
-		//TODO read from attribute.
-		mColumnCount = 3;
-		mColumns = new Column[mColumnCount];
+	private Rect mFrameRect = new Rect();
+	private void init(AttributeSet attrs) {
+		getWindowVisibleDisplayFrame(mFrameRect);
 		
-		for( int i = 0; i < mColumnCount; ++i )
+		if( attrs == null ){
+			mColumnNumber = DEFAULT_COLUMN_NUMBER; 	//default column number is 2.
+		}else{
+			TypedArray a = getContext().obtainStyledAttributes(attrs, R.styleable.PinterestLikeAdapterView);
+			
+			int landColNumber = a.getInteger(R.styleable.PinterestLikeAdapterView_plaLandscapeColumnNumber, -1);
+			int defColNumber = a.getInteger(R.styleable.PinterestLikeAdapterView_plaColumnNumber, -1);
+
+			if(mFrameRect.width() > mFrameRect.height() && landColNumber != -1 ){
+				mColumnNumber = landColNumber;
+			}else if(defColNumber != -1){
+				mColumnNumber = defColNumber;
+			}else{
+				mColumnNumber = DEFAULT_COLUMN_NUMBER;
+			}
+			a.recycle();
+		}
+
+		mColumns = new Column[mColumnNumber];
+		for( int i = 0; i < mColumnNumber; ++i )
 			mColumns[i] = new Column(i);
 	}
 	
@@ -139,9 +162,9 @@ public class MultiColumnListView extends PLA_ListView {
 	protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
 		super.onMeasure(widthMeasureSpec, heightMeasureSpec);
 		
-		int width = getMeasuredWidth() / mColumnCount;
+		int width = getMeasuredWidth() / mColumnNumber;
 
-		for( int index = 0; index < mColumnCount; ++ index ){
+		for( int index = 0; index < mColumnNumber; ++ index ){
 			mColumns[index].mColumnWidth = width;
 			mColumns[index].mColumnLeft = mListPadding.left + width * index;
 		}
@@ -259,7 +282,7 @@ public class MultiColumnListView extends PLA_ListView {
 	
 	private Column getTopColumn() {
 		int childCount = getChildCount();
-		if( childCount < mColumnCount )
+		if( childCount < mColumnNumber )
 			return mColumns[childCount];
 
 		Column result = mColumns[0];
@@ -271,7 +294,7 @@ public class MultiColumnListView extends PLA_ListView {
 
 	private Column gettBottomColumn() {
 		int childCount = getChildCount();
-		if( childCount < mColumnCount )
+		if( childCount < mColumnNumber )
 			return mColumns[childCount];
 
 		Column result = mColumns[0];

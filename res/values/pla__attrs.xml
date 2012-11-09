@@ -15,27 +15,16 @@
      limitations under the License.
 -->
 
-<!--
-     Formatting note: terminate all comments with a period, to avoid breaking
-     the documentation output. To suppress comment lines from the documentation
-     output, insert an eat-comment element after the comment lines.
--->
-
 <resources>
 
     <attr name="absListViewStyle" format="reference" />
     <attr name="listViewStyle" format="reference" />
+    
+    <declare-styleable name="PinterestLikeAdapterView">
+        <attr name="plaColumnNumber" format="integer" />
+        <attr name="plaLandscapeColumnNumber" format="integer" />
+    </declare-styleable>    
 
-    <!-- ============================= -->
-    <!-- View package class attributes -->
-    <!-- ============================= -->
-
-
-    <!--
-         Attributes that can be used with {@link android.view.View} or
-         any of its subclasses.  Also see {@link #ViewGroup_Layout} for
-         attributes that are processed by the view's parent.
-    -->
     <declare-styleable name="View">
 
         <!--
@@ -73,7 +62,10 @@
              XML state list description, etc), or a solid color such as "#ff000000"
             (black).
         -->
-        <attr name="background" format="reference|color" />
+
+
+        <!-- <attr name="background" format="reference|color" /> -->
+
 
         <!--
              Sets the padding, in pixels, of all four edges.  Padding is defined as
@@ -815,7 +807,7 @@
     <declare-styleable name="ListView">
 
         <!-- Drawable or color to draw between list items. -->
-        <attr name="divider" format="reference|color" />
+		<!-- <attr name="divider" format="reference|color" /> -->
         <!--
              Height of the divider. Will use the intrinsic height of the divider if this
              is not specified.
@@ -834,6 +826,7 @@
         <!-- Drawable to draw above list content. -->
         <attr name="overScrollHeader" format="reference|color" />
         <!-- Drawable to draw below list content. -->
+        
         <attr name="overScrollFooter" format="reference|color" />
     </declare-styleable>
 
