@@ -43,6 +43,16 @@ How to use
 
   3. build PLA project with extra packages.. 
 
+Attributes
+-----------
+* **plaColumnNumber**
+
+	Number of column. (default value is 2)
+
+* **plaLandscapeColumnNumber**
+
+	Number of column in landscape mode (the orientation that window's width is longer than height.)
+
 Callbacks
 ----------
 
@@ -83,13 +93,13 @@ and support those callbacks to let a user customize list view's behavior.
 Change Log
 -----------
 
-v0.1 
+**2012.11.7**
 
 http://developer.sonymobile.com/2010/05/20/android-tutorial-making-your-own-3d-list-part-1/
 
 기반으로 러프하게 작성되었습니다. 
 
-v0.5
+**2012.11.8**
 
 패키지 구조가 com.huewu.pla.* 형태로 변경되었습니다.
 
@@ -97,6 +107,25 @@ v0.5
 프레임워크 소스 중 리스트 뷰 관련 파일을 긁어와 많은 Rabbit Hole 을 땜방했습니다. 
 
 결과물은 com.huewu.pla.lib.internal 패키지를 참고하시기 바랍니다.
+
+**2012.11.9**
+
+Android-PullToRefresh 라이브러이와 연동되도록 extra package 를 추가했습니다. 
+
+이 오픈소스 프로젝트를 기반으로, https://github.com/chrisbanes/Android-PullToRefresh 
+해당 소스의 일부 내용을 수정 했습니다. (확장을 위한 visiblity)
+
+스크롤 업/다움 시 그리고 어댑터에 아이템 추가 시 컬럼 위치가 변경되는 버그를 수정했습니다.
+
+**2012.11.10**
+
+xml layout 상에서 컬럼 수를 지정할 수 있도록 두 개의 Attribute 를 추가했습니다.
+
+*plaColumnNumber*
+
+*plaLandscapeColumnNumber*
+
+ActionBarSherlock 라이브러리와 함께 사용할 시 발생하는 Attriubte 충돌 문제를 수정했습니다.
 
 TODO
 ---------------------------------------------
