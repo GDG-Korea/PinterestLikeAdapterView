@@ -19,7 +19,7 @@ How to use
 
  **There may be erros in extra packages.**
 
- **If you don't need pull-to-refresh features, just excludes thease folders in build path.**
+ **If you don't need pull-to-refresh features, just excludes these folders in build path.**
 
 *To run Sample App.*
 
