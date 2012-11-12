@@ -16,7 +16,6 @@
 
 package com.huewu.pla.lib.internal;
 
-import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -226,16 +225,6 @@ ViewTreeObserver.OnGlobalLayoutListener, ViewTreeObserver.OnTouchModeChangeListe
 	 * Subclasses must retain their measure spec from onMeasure() into this member
 	 */
 	protected int mWidthMeasureSpec = 0;
-
-	/**
-	 * The top scroll indicator
-	 */
-	View mScrollUp;
-
-	/**
-	 * The down scroll indicator
-	 */
-	View mScrollDown;
 
 	/**
 	 * When the view is scrolling, this flag is set to true to indicate subclasses that
@@ -834,7 +823,7 @@ ViewTreeObserver.OnGlobalLayoutListener, ViewTreeObserver.OnTouchModeChangeListe
 
 				View view = getChildAt(0);
 				//final int top = view.getTop();
-				final int top = getChildTop();
+				final int top = getBigChildTop();
 
 				int height = view.getHeight();
 				if (height > 0) {
@@ -843,7 +832,7 @@ ViewTreeObserver.OnGlobalLayoutListener, ViewTreeObserver.OnTouchModeChangeListe
 
 				view = getChildAt(count - 1);
 				//final int bottom = view.getBottom();
-				final int bottom = getChildBottom();
+				final int bottom = getBigChildBottom();
 				height = view.getHeight();
 				if (height > 0) {
 					extent -= ((bottom - getHeight()) * 100) / height;
@@ -865,7 +854,7 @@ ViewTreeObserver.OnGlobalLayoutListener, ViewTreeObserver.OnTouchModeChangeListe
 			if (mSmoothScrollbarEnabled) {
 				final View view = getChildAt(0);
 				//				final int top = view.getTop();
-				final int top = getChildTop();
+				final int top = getBigChildTop();
 				int height = view.getHeight();
 				if (height > 0) {
 					return Math.max(firstPosition * 100 - (top * 100) / height +
@@ -930,7 +919,7 @@ ViewTreeObserver.OnGlobalLayoutListener, ViewTreeObserver.OnTouchModeChangeListe
 			final int bottom = getChildAt(count - 1).getBottom();
 			final int height = getHeight();
 			final float fadeLength = (float) getVerticalFadingEdgeLength();
-			//            return bottom > height - mPaddingBottom ? (float) (bottom - height + mPaddingBottom) / fadeLength : fadeEdge;
+			//return bottom > height - mPaddingBottom ? (float) (bottom - height + mPaddingBottom) / fadeLength : fadeEdge;
 			return bottom > height - getPaddingBottom() ? (float) (bottom - height + getPaddingBottom()) / fadeLength : fadeEdge;
 		}
 	}
@@ -941,10 +930,10 @@ ViewTreeObserver.OnGlobalLayoutListener, ViewTreeObserver.OnTouchModeChangeListe
 			useDefaultSelector();
 		}
 		final Rect listPadding = mListPadding;
-		//        listPadding.left = mSelectionLeftPadding + mPaddingLeft;
-		//        listPadding.top = mSelectionTopPadding + mPaddingTop;
-		//        listPadding.right = mSelectionRightPadding + mPaddingRight;
-		//        listPadding.bottom = mSelectionBottomPadding + mPaddingBottom;
+		//listPadding.left = mSelectionLeftPadding + mPaddingLeft;
+		//listPadding.top = mSelectionTopPadding + mPaddingTop;
+		//listPadding.right = mSelectionRightPadding + mPaddingRight;
+		//listPadding.bottom = mSelectionBottomPadding + mPaddingBottom;
 		listPadding.left = mSelectionLeftPadding + getPaddingLeft();
 		listPadding.top = mSelectionTopPadding + getPaddingTop();
 		listPadding.right = mSelectionRightPadding + getPaddingRight();
@@ -975,41 +964,6 @@ ViewTreeObserver.OnGlobalLayoutListener, ViewTreeObserver.OnTouchModeChangeListe
 	 * Subclasses must override this method to layout their children.
 	 */
 	protected void layoutChildren() {
-	}
-
-	void updateScrollIndicators() {
-		if (mScrollUp != null) {
-			boolean canScrollUp;
-			// 0th element is not visible
-			canScrollUp = mFirstPosition > 0;
-
-			// ... Or top of 0th element is not visible
-			if (!canScrollUp) {
-				if (getChildCount() > 0) {
-					View child = getChildAt(0);
-					canScrollUp = child.getTop() < mListPadding.top;
-				}
-			}
-
-			mScrollUp.setVisibility(canScrollUp ? View.VISIBLE : View.INVISIBLE);
-		}
-
-		if (mScrollDown != null) {
-			boolean canScrollDown;
-			int count = getChildCount();
-
-			// Last item is not visible
-			canScrollDown = (mFirstPosition + count) < mItemCount;
-
-			// ... Or bottom of the last element is not visible
-			if (!canScrollDown && count > 0) {
-				View child = getChildAt(count - 1);
-				//                canScrollDown = child.getBottom() > mBottom - mListPadding.bottom;
-				canScrollDown = child.getBottom() > getBottom() - mListPadding.bottom;
-			}
-
-			mScrollDown.setVisibility(canScrollDown ? View.VISIBLE : View.INVISIBLE);
-		}
 	}
 
 	@Override
@@ -1296,11 +1250,6 @@ ViewTreeObserver.OnGlobalLayoutListener, ViewTreeObserver.OnTouchModeChangeListe
 				postDelayed(mPendingCheckForKeyLongPress, ViewConfiguration.getLongPressTimeout());
 			}
 		}
-	}
-
-	public void setScrollIndicators(View up, View down) {
-		mScrollUp = up;
-		mScrollDown = down;
 	}
 
 	@Override
@@ -1919,8 +1868,8 @@ ViewTreeObserver.OnGlobalLayoutListener, ViewTreeObserver.OnTouchModeChangeListe
 			case TOUCH_MODE_SCROLL:
 				final int childCount = getChildCount();
 				if (childCount > 0) {
-					int top = getChildTop();
-					int bottom = getSmallestChildBottom();
+					int top = getBigChildTop();
+					int bottom = getSmallChildBottom();
 					if (mFirstPosition == 0 && top >= mListPadding.top &&
 							mFirstPosition + childCount < mItemCount &&
 							bottom <= getHeight() - mListPadding.bottom) {
@@ -2231,7 +2180,7 @@ ViewTreeObserver.OnGlobalLayoutListener, ViewTreeObserver.OnTouchModeChangeListe
 					mMotionViewOriginalTop = lastView.getTop();
 
 					// Don't fling more than 1 screen
-					//                    delta = Math.max(-(getHeight() - mPaddingBottom - mPaddingTop - 1), delta);
+					// delta = Math.max(-(getHeight() - mPaddingBottom - mPaddingTop - 1), delta);
 					delta = Math.max(-(getHeight() - getPaddingBottom() - getPaddingTop() - 1), delta);
 				}
 
@@ -2254,7 +2203,6 @@ ViewTreeObserver.OnGlobalLayoutListener, ViewTreeObserver.OnTouchModeChangeListe
 				break;
 			}
 			}
-
 		}
 	}
 
@@ -2586,17 +2534,16 @@ ViewTreeObserver.OnGlobalLayoutListener, ViewTreeObserver.OnTouchModeChangeListe
 			return true;
 		}
 
-		final int firstTop = getChildTop();
-		//final int lastBottom = getChildAt(childCount - 1).getBottom();
-		final int lastBottom = getChildBottom();
+		final int firstTop = getSmallChildTop();	//check scroll.
+		final int lastBottom = getBigChildBottom();		//check scroll.
 		final Rect listPadding = mListPadding;
 
 		// FIXME account for grid vertical spacing too?
-		final int spaceAbove = listPadding.top - firstTop;
 		final int end = getHeight() - listPadding.bottom;
-		final int spaceBelow = lastBottom - end;
+		final int spaceAbove = listPadding.top - getBigChildTop();	//check load more
+		final int spaceBelow = getSmallChildBottom() - end;	//check load more
 
-		//        final int height = getHeight() - mPaddingBottom - mPaddingTop;
+		//final int height = getHeight() - mPaddingBottom - mPaddingTop;
 		final int height = getHeight() - getPaddingBottom() - getPaddingTop();
 		if (deltaY < 0) {
 			deltaY = Math.max(-(height - 1), deltaY);
@@ -2716,17 +2663,9 @@ ViewTreeObserver.OnGlobalLayoutListener, ViewTreeObserver.OnTouchModeChangeListe
 		return false;
 	}
 
-	protected int getSmallestChildBottom() {
-		return getChildAt(getChildCount() - 1).getBottom();
-	}
-
-	protected int getChildTop() {
-		return getChildAt(0).getTop();
-	}    
-
 	protected void tryOffsetChildrenTopAndBottom(int offset) {
 		final int count = getChildCount();
-		
+
 		for (int i = 0; i < count; i++) {
 			final View v = getChildAt(i);
 			v.offsetTopAndBottom(offset);
@@ -3056,7 +2995,7 @@ ViewTreeObserver.OnGlobalLayoutListener, ViewTreeObserver.OnTouchModeChangeListe
 	 */
 	protected void onLayoutSync(int syncPosition) {
 	}
-	
+
 	/**
 	 * adapter data is changed.. children layout manipulation is finished.
 	 * @param mSyncPosition
@@ -3693,8 +3632,49 @@ ViewTreeObserver.OnGlobalLayoutListener, ViewTreeObserver.OnTouchModeChangeListe
 			}			
 		}
 	}
+	
+	/////////////////////////////////////////////////////
+	//Check available space of list view.
+	/////////////////////////////////////////////////////
 
-	protected int getChildBottom() {
+	/**
+	 * used in order to determine fill list more or not.
+	 * @return 
+	 */
+	protected int getSmallChildTop() {
+		final int count = getChildCount();
+		if( count == 0 )
+			return 0;
+		return getChildAt(0).getTop();
+	}
+
+	/**
+	 * 
+	 * @return
+	 */
+	protected int getBigChildTop() {
+		final int count = getChildCount();
+		if( count == 0 )
+			return 0;
+		return getChildAt(0).getTop();
+	}    
+	
+	/**
+	 * 
+	 * @return
+	 */
+	protected int getSmallChildBottom() {
+		final int count = getChildCount();
+		if( count == 0 )
+			return 0;
+		return getChildAt(count - 1).getBottom();
+	}
+	
+	/**
+	 * 
+	 * @return
+	 */
+	protected int getBigChildBottom() {
 		final int count = getChildCount();
 		if( count == 0 )
 			return 0;

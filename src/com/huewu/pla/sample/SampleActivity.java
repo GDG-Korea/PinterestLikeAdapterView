@@ -88,15 +88,15 @@ public class SampleActivity extends Activity {
 	private void initAdapter() {
 		mAdapter = new MySimpleAdapter(this, R.layout.item_sample);
 
-		for( int i = 0; i < 100; ++i){
-			//generate 100 random items.
+		for( int i = 0; i < 30; ++i){
+			//generate 30 random items.
 
 			StringBuilder builder = new StringBuilder();
 			builder.append("Hello!![");
 			builder.append(i);
 			builder.append("] ");
 
-			char[] chars = new char[mRand.nextInt(100)];
+			char[] chars = new char[mRand.nextInt(500)];
 			Arrays.fill(chars, '1');
 			builder.append(chars);
 			mAdapter.add(builder.toString());

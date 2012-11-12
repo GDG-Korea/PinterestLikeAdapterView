@@ -585,17 +585,34 @@ public class PLA_ListView extends PLA_AbsListView {
 		return scroll;
 	}
 	
-	protected int getChildLeft(int pos) {
+	/**
+	 * override this method to manipulate the position of each item in list view.
+	 * return item left position.
+	 * @param pos
+	 * @return pos's item left position.
+	 */
+	protected int getItemLeft(int pos) {
 		return mListPadding.left;
 	}
-	
-	
+
+	/**
+	 * override this method to manipulate the position of each item in list view.
+	 * return item's top position. (item will be added in down direction)
+	 * @param pos
+	 * @return value of pos's item top.
+	 */
 	protected int getItemTop(int pos) {
 		//just return the last itme's bottom position..
 		int count = getChildCount();
 		return count > 0 ? getChildAt(count - 1).getBottom() + mDividerHeight : getListPaddingTop();
 	}
 
+	/**
+	 * override this method to manipulate the position of each item in list view.
+	 * return item's bottom position. (item will be added in up direction)
+	 * @param pos
+	 * @return value of pos's item bottom.
+	 */
 	protected int getItemBottom(int pos) {
 		int count = getChildCount();
 		return count > 0 ? getChildAt(0).getTop() - mDividerHeight : getHeight() - getListPaddingBottom();
@@ -632,18 +649,18 @@ public class PLA_ListView extends PLA_AbsListView {
 
 		//int end = (mBottom - mTop) - mListPadding.bottom;
 		int end = (getBottom() - getTop()) - mListPadding.bottom;
-		int nextTop = getItemTop(pos);
+		int childTop = getSmallChildBottom() + mDividerHeight;
 
-		while (nextTop < end && pos < mItemCount) {
+		while (childTop < end && pos < mItemCount) {
 			// is this the selected item?
 			boolean selected = pos == mSelectedPosition;
-			View child = makeAndAddView(pos, nextTop, true, selected);
+			View child = makeAndAddView(pos, getItemTop(pos), true, selected);
 			//            nextTop = child.getBottom() + mDividerHeight;
 			if (selected) {
 				selectedView = child;
 			}
 			pos++;
-			nextTop = getItemTop(pos) + mDividerHeight;
+			childTop = getSmallChildBottom() + mDividerHeight;
 		}
 
 		return selectedView;
@@ -662,17 +679,17 @@ public class PLA_ListView extends PLA_AbsListView {
 	private View fillUp(int pos, int bottom) {
 		View selectedView = null;
 		int end = mListPadding.top;
-		int nextBottom = getItemBottom(pos);
-		while (nextBottom > end && pos >= 0) {
+		int childBottom = getBigChildTop();
+		while (childBottom > end && pos >= 0) {
 			// is this the selected item?
 			boolean selected = pos == mSelectedPosition;
-			View child = makeAndAddView(pos, nextBottom, false, selected);
+			View child = makeAndAddView(pos, getItemBottom(pos), false, selected);
 			//	nextBottom = child.getTop() - mDividerHeight;
 			if (selected) {
 				selectedView = child;
 			}
 			pos--;
-			nextBottom = getItemBottom(pos);
+			childBottom = getItemBottom(pos);
 		}
 
 		mFirstPosition = pos + 1;
@@ -1476,8 +1493,6 @@ public class PLA_ListView extends PLA_AbsListView {
 			mNeedSync = false;
 			setNextSelectedPositionInt(mSelectedPosition);
 
-			updateScrollIndicators();
-
 			if (mItemCount > 0) {
 				checkSelectionChanged();
 			}
@@ -1544,7 +1559,7 @@ public class PLA_ListView extends PLA_AbsListView {
 
 				// Found it -- we're using an existing child
 				// This just needs to be positioned
-				childrenLeft = getChildLeft(position);
+				childrenLeft = getItemLeft(position);
 				setupChild(child, position, childrenBottomOrTop, flow, childrenLeft, selected, true);
 				return child;
 			}
@@ -1552,7 +1567,7 @@ public class PLA_ListView extends PLA_AbsListView {
 
 		//Notify new item is added to view.
 		onItemAddedToList( position, flow );
-		childrenLeft = getChildLeft( position );
+		childrenLeft = getItemLeft( position );
 
 		// Make a new view for this position, or convert an unused view if possible
 		child = obtainView(position, mIsScrap);

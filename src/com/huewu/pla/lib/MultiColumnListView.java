@@ -42,76 +42,6 @@ public class MultiColumnListView extends PLA_ListView {
 	private Column[] mColumns = null;
 	private SparseIntArray mItems = new SparseIntArray();
 	
-	private class Column {
-		
-		private int mIndex;
-		private int mColumnWidth;
-		private int mColumnLeft;
-		private int mSynchedTop = 0;
-		private int mSynchedBottom = 0;
-
-		//TODO is it ok to use item position info to identify item??
-
-		public Column(int index) {
-			mIndex = index;
-		}
-
-		public int getColumnLeft() {
-			return mColumnLeft;
-		}
-
-		public int getColumnWidth() {
-			return mColumnWidth;
-		}
-
-		public int getIndex() {
-			return mIndex;
-		}
-
-		public int getBottom() {
-			//find biggest value.
-			int bottom = Integer.MIN_VALUE;
-			int childCount = getChildCount();
-
-			for( int index = 0; index < childCount; ++index ){
-				View v = getChildAt(index);
-				if(v.getLeft() != mColumnLeft)
-					continue;
-				bottom = bottom < v.getBottom() ? v.getBottom() : bottom;
-			}
-			
-			if( bottom == Integer.MIN_VALUE )
-				return mSynchedBottom;	//no child for this column..
-			return bottom;
-		}
-
-		public int getTop() {
-			//find smallest value.
-			int top = Integer.MAX_VALUE;
-			int childCount = getChildCount();
-			for( int index = 0; index < childCount; ++index ){
-				View v = getChildAt(index);
-				if(v.getLeft() != mColumnLeft)
-					continue;
-				top = top > v.getTop() ? v.getTop() : top;
-			}
-			
-			if( top == Integer.MAX_VALUE )
-				return mSynchedTop;	//no child for this column. just return saved synched top..
-			return top;
-		}
-
-		public void save() {
-			mSynchedTop = 0;
-			mSynchedBottom = getTop(); //getBottom();
-		}
-
-		public void clear() {
-			mSynchedTop = 0;
-			mSynchedBottom = 0;
-		}
-	}
-
 	public MultiColumnListView(Context context) {
 		super(context);
 		init(null);
@@ -157,6 +87,13 @@ public class MultiColumnListView extends PLA_ListView {
 	///////////////////////////////////////////////////////////////////////
 	//Override Methods...
 	///////////////////////////////////////////////////////////////////////
+	
+	@Override
+	protected void onLayout(boolean changed, int l, int t, int r, int b) {
+		super.onLayout(changed, l, t, r, b);
+		
+		//TODO the adapter status may be changed. what should i do here...
+	}
 
 	@Override
 	protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
@@ -202,7 +139,7 @@ public class MultiColumnListView extends PLA_ListView {
 	}
 	
 	@Override
-	protected int getSmallestChildBottom() {
+	protected int getSmallChildBottom() {
 		//return smallest bottom value.
 		//in order to determine fill down or not... (calculate below space)
 		int result = Integer.MAX_VALUE;
@@ -214,7 +151,7 @@ public class MultiColumnListView extends PLA_ListView {
 	}
 
 	@Override
-	protected int getChildBottom() {
+	protected int getBigChildBottom() {
 		//return largest bottom value.
 		//for checking scrolling region...
 		int result = Integer.MIN_VALUE;
@@ -226,7 +163,18 @@ public class MultiColumnListView extends PLA_ListView {
 	}
 	
 	@Override
-	protected int getChildTop() {
+	protected int getSmallChildTop() {
+		//find largest column.
+		int result = Integer.MAX_VALUE;
+		for(Column c : mColumns){
+			int top = c.getTop();
+			result = result > top ? top : result;
+		}
+		return result;
+	}
+	
+	@Override
+	protected int getBigChildTop() {
 		//find largest column.
 		int result = Integer.MIN_VALUE;
 		for(Column c : mColumns){
@@ -237,7 +185,7 @@ public class MultiColumnListView extends PLA_ListView {
 	}
 	
 	@Override
-	protected int getChildLeft(int pos) {
+	protected int getItemLeft(int pos) {
 		return getColumnLeft(pos);
 	}
 	
@@ -245,7 +193,7 @@ public class MultiColumnListView extends PLA_ListView {
 	protected int getItemTop( int pos ){
 		int colIndex = mItems.get(pos, -1);
 		if(colIndex == -1)
-			return getSmallestChildBottom();
+			return getSmallChildBottom();
 
 		return mColumns[colIndex].getBottom();
 	}
@@ -254,7 +202,7 @@ public class MultiColumnListView extends PLA_ListView {
 	protected int getItemBottom( int pos ){
 		int colIndex = mItems.get(pos, -1);
 		if(colIndex == -1)
-			return getChildTop();
+			return getBigChildTop();
 
 		return mColumns[colIndex].getTop();
 	}
@@ -323,5 +271,76 @@ public class MultiColumnListView extends PLA_ListView {
 		
 		return mColumns[colIndex].getColumnWidth();
 	}
+	
+	private class Column {
+		
+		private int mIndex;
+		private int mColumnWidth;
+		private int mColumnLeft;
+		private int mSynchedTop = 0;
+		private int mSynchedBottom = 0;
+
+		//TODO is it ok to use item position info to identify item??
+
+		public Column(int index) {
+			mIndex = index;
+		}
+
+		public int getColumnLeft() {
+			return mColumnLeft;
+		}
+
+		public int getColumnWidth() {
+			return mColumnWidth;
+		}
+
+		public int getIndex() {
+			return mIndex;
+		}
+
+		public int getBottom() {
+			//find biggest value.
+			int bottom = Integer.MIN_VALUE;
+			int childCount = getChildCount();
+
+			for( int index = 0; index < childCount; ++index ){
+				View v = getChildAt(index);
+				if(v.getLeft() != mColumnLeft)
+					continue;
+				bottom = bottom < v.getBottom() ? v.getBottom() : bottom;
+			}
+			
+			if( bottom == Integer.MIN_VALUE )
+				return mSynchedBottom;	//no child for this column..
+			return bottom;
+		}
+
+		public int getTop() {
+			//find smallest value.
+			int top = Integer.MAX_VALUE;
+			int childCount = getChildCount();
+			for( int index = 0; index < childCount; ++index ){
+				View v = getChildAt(index);
+				if(v.getLeft() != mColumnLeft)
+					continue;
+				top = top > v.getTop() ? v.getTop() : top;
+			}
+			
+			if( top == Integer.MAX_VALUE )
+				return mSynchedTop;	//no child for this column. just return saved synched top..
+			return top;
+		}
+
+		public void save() {
+			mSynchedTop = 0;
+			mSynchedBottom = getTop(); //getBottom();
+		}
+
+		public void clear() {
+			mSynchedTop = 0;
+			mSynchedBottom = 0;
+		}
+	}//end of inner class Column
+	
 
 }//end of class
