@@ -53,42 +53,44 @@ Attributes
 
 	Number of column in landscape mode (the orientation that window's width is longer than height.)
 
-Callbacks
-----------
+Overridable Methods
+--------------------
 
 PLA_ListView was made based on Android 2.3 Framework's ListView, 
-and support those callbacks to let a user customize list view's behavior.
-
-    @Override
-	protected void onMeasureChild(View child, int position, int widthMeasureSpec,
-			int heightMeasureSpec) 
-	
-	@Override
-	protected void onItemAddedToList(int position, boolean flow )
-	
-	@Override
-	protected void onLayoutSync(int syncPos)
-	
-	@Override
-	protected void onLayoutSyncFinished(int syncPos)
-	
-	@Override
-	protected int getSmallestChildBottom()
+and support those protected methods to let a user customize list view's behavior.
 
 	@Override
-	protected int getChildBottom()
+	protected void onMeasureChild(View child, int position, int widthMeasureSpec, int heightMeasureSpec);	
+
+	@Override
+	protected void onItemAddedToList(int position, boolean flow );
+
+	@Override
+	protected void onLayoutSync(int syncPos);
+
+	@Override
+	protected void onLayoutSyncFinished(int syncPos);	
+
+	@Override
+	protected int getFillChildBottom();
+
+	@Override
+	protected int getFillChildTop();
+
+	@Override
+	protected int getScrollChildBottom(); 
+
+	@Override
+	protected int getScrollChildTop();
+
+	@Override
+	protected int getItemLeft(int pos);
 	
 	@Override
-	protected int getChildTop()
-	
+	protected int getItemTop( int pos );	
+
 	@Override
-	protected int getChildLeft(int pos)
-	
-	@Override
-	protected int getItemTop( int pos )
-	
-	@Override
-	protected int getItemBottom( int pos )
+	protected int getItemBottom( int pos );
 
 Change Log
 -----------
@@ -127,6 +129,12 @@ xml layout 상에서 컬럼 수를 지정할 수 있도록 두 개의 Attribute 
 
 ActionBarSherlock 라이브러리와 함께 사용할 시 발생하는 Attriubte 충돌 문제를 수정했습니다.
 
+**2012.11.12**
+
+Fling 및 Scroll 시 영역 계산이 제대로 이루어지지 않아서 스크롤이 끝까지 이루어지지 않거나, 화면이 떨리는 버그를 수정했습니다.
+
+Override 가능한 함수들의 이름을 이해하기 쉽게(?) 변경했습니다.
+
 TODO
 ---------------------------------------------
 > 1. Fling 및 스크롤바를 지원하지 않습니다.
@@ -140,6 +148,10 @@ TODO
 > 5. PullToRefresh 라이브러리와 연동.
 
 6. Fling 속도가 이상함.
+
+7. 복잡한 뷰를 사용하는 경우, 스크롤 할 떄 마다 뷰의 위치가 Y Position 이 변경됩니다.
+
+8. 어댑터에 데이터가 삭제, 변경되거나 중간에 삽입 되는 경우 처리
 
 *그외 아주 많은 문제가 있습니다... 아직 열혈 개발 중 인걸요...  =) 
 
