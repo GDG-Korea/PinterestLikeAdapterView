@@ -823,7 +823,7 @@ ViewTreeObserver.OnGlobalLayoutListener, ViewTreeObserver.OnTouchModeChangeListe
 
 				View view = getChildAt(0);
 				//final int top = view.getTop();
-				final int top = getBigChildTop();
+				final int top = getFillChildTop();
 
 				int height = view.getHeight();
 				if (height > 0) {
@@ -832,7 +832,7 @@ ViewTreeObserver.OnGlobalLayoutListener, ViewTreeObserver.OnTouchModeChangeListe
 
 				view = getChildAt(count - 1);
 				//final int bottom = view.getBottom();
-				final int bottom = getBigChildBottom();
+				final int bottom = getScrollChildBottom();
 				height = view.getHeight();
 				if (height > 0) {
 					extent -= ((bottom - getHeight()) * 100) / height;
@@ -854,7 +854,7 @@ ViewTreeObserver.OnGlobalLayoutListener, ViewTreeObserver.OnTouchModeChangeListe
 			if (mSmoothScrollbarEnabled) {
 				final View view = getChildAt(0);
 				//				final int top = view.getTop();
-				final int top = getBigChildTop();
+				final int top = getFillChildTop();
 				int height = view.getHeight();
 				if (height > 0) {
 					return Math.max(firstPosition * 100 - (top * 100) / height +
@@ -1868,8 +1868,8 @@ ViewTreeObserver.OnGlobalLayoutListener, ViewTreeObserver.OnTouchModeChangeListe
 			case TOUCH_MODE_SCROLL:
 				final int childCount = getChildCount();
 				if (childCount > 0) {
-					int top = getBigChildTop();
-					int bottom = getSmallChildBottom();
+					int top = getFillChildTop();
+					int bottom = getFillChildBottom();
 					if (mFirstPosition == 0 && top >= mListPadding.top &&
 							mFirstPosition + childCount < mItemCount &&
 							bottom <= getHeight() - mListPadding.bottom) {
@@ -2534,14 +2534,14 @@ ViewTreeObserver.OnGlobalLayoutListener, ViewTreeObserver.OnTouchModeChangeListe
 			return true;
 		}
 
-		final int firstTop = getSmallChildTop();	//check scroll.
-		final int lastBottom = getBigChildBottom();		//check scroll.
+		final int firstTop = getScrollChildTop();	//check scroll.
+		final int lastBottom = getScrollChildBottom();		//check scroll.
 		final Rect listPadding = mListPadding;
 
 		// FIXME account for grid vertical spacing too?
 		final int end = getHeight() - listPadding.bottom;
-		final int spaceAbove = listPadding.top - getBigChildTop();	//check load more
-		final int spaceBelow = getSmallChildBottom() - end;	//check load more
+		final int spaceAbove = listPadding.top - getFillChildTop();	//check load more
+		final int spaceBelow = getFillChildBottom() - end;	//check load more
 
 		//final int height = getHeight() - mPaddingBottom - mPaddingTop;
 		final int height = getHeight() - getPaddingBottom() - getPaddingTop();
@@ -3641,7 +3641,7 @@ ViewTreeObserver.OnGlobalLayoutListener, ViewTreeObserver.OnTouchModeChangeListe
 	 * used in order to determine fill list more or not.
 	 * @return 
 	 */
-	protected int getSmallChildTop() {
+	protected int getScrollChildTop() {
 		final int count = getChildCount();
 		if( count == 0 )
 			return 0;
@@ -3652,7 +3652,7 @@ ViewTreeObserver.OnGlobalLayoutListener, ViewTreeObserver.OnTouchModeChangeListe
 	 * 
 	 * @return
 	 */
-	protected int getBigChildTop() {
+	protected int getFillChildTop() {
 		final int count = getChildCount();
 		if( count == 0 )
 			return 0;
@@ -3663,7 +3663,7 @@ ViewTreeObserver.OnGlobalLayoutListener, ViewTreeObserver.OnTouchModeChangeListe
 	 * 
 	 * @return
 	 */
-	protected int getSmallChildBottom() {
+	protected int getFillChildBottom() {
 		final int count = getChildCount();
 		if( count == 0 )
 			return 0;
@@ -3674,7 +3674,7 @@ ViewTreeObserver.OnGlobalLayoutListener, ViewTreeObserver.OnTouchModeChangeListe
 	 * 
 	 * @return
 	 */
-	protected int getBigChildBottom() {
+	protected int getScrollChildBottom() {
 		final int count = getChildCount();
 		if( count == 0 )
 			return 0;
