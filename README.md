@@ -17,31 +17,26 @@ http://developer.sonymobile.com/2010/05/20/android-tutorial-making-your-own-3d-l
 How to use
 -------------
 
- **There may be erros in extra packages.**
-
- **If you don't need pull-to-refresh features, just excludes these folders in build path.**
-
 *To run Sample App.*
 
   1. clone project.
 
   2. run on your android phone.
 
+  3. in option menu, you can add items or lunch pull-to-refresh sample.
+
 
 *To use Pinterest Like Multi Column View.*
 
-  1. check this project  as library project.
+  1. check this project as library project.
 
   2. MultiColumListView is the view what you need.
 
 *To use pull-to-refresh features.*
   
-  1. clone this repo.
-  https://github.com/huewu/Android-PullToRefresh
+  1. check this project as library project.
 
-  2. add to android library. All build errors should be gone.
-
-  3. build PLA project with extra packages.. 
+  2. MultiColumnPullToRefreshListView class in extra folder is what you need.
 
 Attributes
 -----------
@@ -134,6 +129,15 @@ ActionBarSherlock 라이브러리와 함께 사용할 시 발생하는 Attriubte
 Fling 및 Scroll 시 영역 계산이 제대로 이루어지지 않아서 스크롤이 끝까지 이루어지지 않거나, 화면이 떨리는 버그를 수정했습니다.
 
 Override 가능한 함수들의 이름을 이해하기 쉽게(?) 변경했습니다.
+
+**2012.11.13**
+
+Header View 를 정상적으로 지원합니다.
+
+Pull-To-Refresh 기능을 위해, 기존 사용하던 오픈 소스 대신
+https://github.com/erikwt/PullToRefresh-ListView
+를 사용하도록 수정하였습니다. 다른 프로젝트와 의존성 없이 사용 가능합니다.
+
 
 TODO
 ---------------------------------------------
