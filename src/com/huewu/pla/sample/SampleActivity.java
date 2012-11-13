@@ -9,9 +9,13 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.TextureView;
 import android.widget.ArrayAdapter;
 import android.widget.ListAdapter;
+import android.widget.TextView;
 
+import com.huewu.pla.lib.MultiColumnListView;
+import com.huewu.pla.lib.internal.PLA_AbsListView.LayoutParams;
 import com.huewu.pla.lib.internal.PLA_AdapterView;
 import com.huewu.pla.sample.extra.PullToRefreshSampleActivity;
 import com.huewu.pla.smaple.R;
@@ -25,7 +29,7 @@ public class SampleActivity extends Activity {
 		}
 	}
 
-	private PLA_AdapterView<ListAdapter> mAdapterView = null;
+	private MultiColumnListView mAdapterView = null;
 	private MySimpleAdapter mAdapter = null;
 
 	@SuppressWarnings("unchecked")
@@ -34,7 +38,11 @@ public class SampleActivity extends Activity {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.act_sample);
 		//mAdapterView = (PLA_AdapterView<Adapter>) findViewById(R.id.list);
-		mAdapterView = (PLA_AdapterView<ListAdapter>) findViewById(R.id.list);
+		mAdapterView = (MultiColumnListView) findViewById(R.id.list);
+		TextView tv = new TextView(this);
+		tv.setLayoutParams(new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT));
+		tv.setText("Hello Header!! ........................................................................");
+		mAdapterView.addHeaderView(tv);
 	}
 
 	@Override

@@ -3,10 +3,9 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent" >
 
-    <com.huewu.pla.lib.extra.PullToRefreshMultiColumnListView
+    <com.huewu.pla.lib.extra.MultiColumnPullToRefreshListView
         android:id="@+id/list"
         android:layout_width="match_parent"
-        android:layout_height="match_parent" >
-    </com.huewu.pla.lib.extra.PullToRefreshMultiColumnListView>
+        android:layout_height="match_parent" />
 
 </merge>

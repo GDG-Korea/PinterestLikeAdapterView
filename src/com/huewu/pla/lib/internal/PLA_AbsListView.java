@@ -30,6 +30,7 @@ import android.os.Handler;
 import android.os.Parcel;
 import android.os.Parcelable;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.view.ContextMenu.ContextMenuInfo;
 import android.view.HapticFeedbackConstants;
 import android.view.KeyEvent;
@@ -404,6 +405,8 @@ ViewTreeObserver.OnGlobalLayoutListener, ViewTreeObserver.OnTouchModeChangeListe
 	 * Used by {@link #mActivePointerId}.
 	 */
 	private static final int INVALID_POINTER = -1;
+	private static final boolean DEBUG = true;
+	private static final String TAG = "PLA_AbsListView";
 
 	/**
 	 * Interface definition for a callback to be invoked when the list or grid
@@ -2106,6 +2109,8 @@ ViewTreeObserver.OnGlobalLayoutListener, ViewTreeObserver.OnTouchModeChangeListe
 		}
 
 		void start(int initialVelocity) {
+			initialVelocity = modifyFlingInitialVelocity(initialVelocity);
+			
 			int initialY = initialVelocity < 0 ? Integer.MAX_VALUE : 0;
 			mLastFlingY = initialY;
 			mScroller.fling(0, initialY, 0, initialVelocity,
@@ -2165,8 +2170,9 @@ ViewTreeObserver.OnGlobalLayoutListener, ViewTreeObserver.OnTouchModeChangeListe
 				if (delta > 0) {
 					// List is moving towards the top. Use first view as mMotionPosition
 					mMotionPosition = mFirstPosition;
-					final View firstView = getChildAt(0);
-					mMotionViewOriginalTop = firstView.getTop();
+					//final View firstView = getChildAt(0);
+					//mMotionViewOriginalTop = firstView.getTop();
+					mMotionViewOriginalTop = getScrollChildTop();
 
 					// Don't fling more than 1 screen
 					//                    delta = Math.min(getHeight() - mPaddingBottom - mPaddingTop - 1, delta);
@@ -2176,8 +2182,9 @@ ViewTreeObserver.OnGlobalLayoutListener, ViewTreeObserver.OnTouchModeChangeListe
 					int offsetToLast = getChildCount() - 1;
 					mMotionPosition = mFirstPosition + offsetToLast;
 
-					final View lastView = getChildAt(offsetToLast);
-					mMotionViewOriginalTop = lastView.getTop();
+					//final View lastView = getChildAt(offsetToLast);
+					//mMotionViewOriginalTop = lastView.getTop();
+					mMotionViewOriginalTop = getScrollChildBottom();
 
 					// Don't fling more than 1 screen
 					// delta = Math.max(-(getHeight() - mPaddingBottom - mPaddingTop - 1), delta);
@@ -2664,6 +2671,8 @@ ViewTreeObserver.OnGlobalLayoutListener, ViewTreeObserver.OnTouchModeChangeListe
 	}
 
 	protected void tryOffsetChildrenTopAndBottom(int offset) {
+		if(DEBUG)
+			Log.v(TAG, "tryOffsetChilderenTopAndBottom: " + offset);
 		final int count = getChildCount();
 
 		for (int i = 0; i < count; i++) {
@@ -3636,6 +3645,10 @@ ViewTreeObserver.OnGlobalLayoutListener, ViewTreeObserver.OnTouchModeChangeListe
 	/////////////////////////////////////////////////////
 	//Check available space of list view.
 	/////////////////////////////////////////////////////
+	
+	protected int modifyFlingInitialVelocity(int initialVelocity) {
+		return initialVelocity;
+	}
 
 	/**
 	 * used in order to determine fill list more or not.

@@ -91,14 +91,12 @@ public class MultiColumnListView extends PLA_ListView {
 	@Override
 	protected void onLayout(boolean changed, int l, int t, int r, int b) {
 		super.onLayout(changed, l, t, r, b);
-		
 		//TODO the adapter status may be changed. what should i do here...
 	}
 
 	@Override
 	protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
 		super.onMeasure(widthMeasureSpec, heightMeasureSpec);
-		
 		int width = getMeasuredWidth() / mColumnNumber;
 
 		for( int index = 0; index < mColumnNumber; ++ index ){
@@ -108,20 +106,24 @@ public class MultiColumnListView extends PLA_ListView {
 	}
 	
 	@Override
-	protected void onMeasureChild(View child, int position, int widthMeasureSpec,
-			int heightMeasureSpec) {
-		//super.onMeasureChild(child, widthMeasureSpec, heightMeasureSpec);
-		child.measure(MeasureSpec.EXACTLY | getColumnWidth(position), heightMeasureSpec);
+	protected void onMeasureChild(View child, int position, int widthMeasureSpec, int heightMeasureSpec) {
+		if(isFixedView(child))
+			child.measure(widthMeasureSpec, heightMeasureSpec);
+		else
+			child.measure(MeasureSpec.EXACTLY | getColumnWidth(position), heightMeasureSpec);
+	}
+	
+	@Override
+	protected int modifyFlingInitialVelocity(int initialVelocity) {
+		return initialVelocity / mColumnNumber;
 	}
 	
 	@Override
 	protected void onItemAddedToList(int position, boolean flow ) {
 		super.onItemAddedToList(position, flow);
-		
 		//Column col = getNextColumn(flow);
 		Column col = getNextColumn( flow, position );
 		mItems.append(position, col.getIndex());
-		Log.v("PLA_ListView", String.format("Item [%d] dAdded to Column [%d].", position, col.getIndex()) );
 	}
 	
 	@Override
@@ -272,6 +274,10 @@ public class MultiColumnListView extends PLA_ListView {
 		return mColumns[colIndex].getColumnWidth();
 	}
 	
+	///////////////////////////////////////////////////////////////
+	//Inner Class.
+	///////////////////////////////////////////////////////////////
+	
 	private class Column {
 		
 		private int mIndex;
@@ -305,7 +311,7 @@ public class MultiColumnListView extends PLA_ListView {
 
 			for( int index = 0; index < childCount; ++index ){
 				View v = getChildAt(index);
-				if(v.getLeft() != mColumnLeft)
+				if(v.getLeft() != mColumnLeft && isFixedView(v) == false )
 					continue;
 				bottom = bottom < v.getBottom() ? v.getBottom() : bottom;
 			}
@@ -321,7 +327,7 @@ public class MultiColumnListView extends PLA_ListView {
 			int childCount = getChildCount();
 			for( int index = 0; index < childCount; ++index ){
 				View v = getChildAt(index);
-				if(v.getLeft() != mColumnLeft)
+				if(v.getLeft() != mColumnLeft && isFixedView(v) == false )
 					continue;
 				top = top > v.getTop() ? v.getTop() : top;
 			}

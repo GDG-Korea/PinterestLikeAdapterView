@@ -190,7 +190,6 @@ public class PLA_ListView extends PLA_AbsListView {
 
 		if (childCount > 0) {
 			//View child;
-
 			if (!mStackFromBottom) {
 				// Uh-oh -- we came up short. Slide all views up to make them
 				// align with the top
@@ -226,7 +225,7 @@ public class PLA_ListView extends PLA_AbsListView {
 			}
 
 			if (delta != 0) {
-				//                offsetChildrenTopAndBottom(-delta);
+				//offsetChildrenTopAndBottom(-delta);
 				tryOffsetChildrenTopAndBottom(-delta);
 			}
 		}
@@ -278,7 +277,19 @@ public class PLA_ListView extends PLA_AbsListView {
 	public int getHeaderViewsCount() {
 		return mHeaderViewInfos.size();
 	}
-
+	
+	public boolean isFixedView( View v ) {
+		ArrayList<FixedViewInfo> where = mHeaderViewInfos;
+		int len = where.size();
+		for (int i = 0; i < len; ++i) {
+			FixedViewInfo info = where.get(i);
+			if (info.view == v) {
+				return true;
+			}
+		}
+		return false;
+	}
+	
 	/**
 	 * Removes a previously-added header view.
 	 *
@@ -1169,15 +1180,16 @@ public class PLA_ListView extends PLA_AbsListView {
 			final int lastBottom = getScrollChildBottom();
 
 			// This is bottom of our drawable area
-			//            final int end = (mBottom - mTop) - mListPadding.bottom;
+			// final int end = (mBottom - mTop) - mListPadding.bottom;
 			final int end = (getBottom() - getTop()) - mListPadding.bottom;
 
 			// This is how far the bottom edge of the last view is from the bottom of the
 			// drawable area
 			int bottomOffset = end - lastBottom;
 
-			View firstChild = getChildAt(0);
-			final int firstTop = firstChild.getTop();
+			//View firstChild = getChildAt(0);
+			//final int firstTop = firstChild.getTop();
+			final int firstTop = getScrollChildTop();
 
 			// Make sure we are 1) Too high, and 2) Either there are more rows above the
 			// first row or the first row is scrolled off the top of the drawable area
@@ -1192,7 +1204,8 @@ public class PLA_ListView extends PLA_AbsListView {
 				if (mFirstPosition > 0) {
 					// Fill the gap that was opened above mFirstPosition with more rows, if
 					// possible
-					fillUp(mFirstPosition - 1, firstChild.getTop() - mDividerHeight);
+					int newFirstTop = getScrollChildTop();
+					fillUp(mFirstPosition - 1, newFirstTop - mDividerHeight);
 					// Close up the remaining gap
 					adjustViewsUpOrDown();
 				}
@@ -1224,7 +1237,7 @@ public class PLA_ListView extends PLA_AbsListView {
 			final int start = mListPadding.top;
 
 			// This is bottom of our drawable area
-			//            final int end = (mBottom - mTop) - mListPadding.bottom;
+			//final int end = (mBottom - mTop) - mListPadding.bottom;
 			final int end = (getBottom() -getTop()) - mListPadding.bottom;
 
 			// This is how far the top edge of the first view is from the top of the
