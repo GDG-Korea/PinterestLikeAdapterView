@@ -2,15 +2,25 @@ PLA(PinterestLikeAdapterView)
 ==================================
 -
 
-안드로이드 핀터레스트 앱과 유사한 멀티 컬럼 형식의 리스트 뷰를 만들기 위한 오픈 소스 프로젝트 입니다.
+Open source project in order to implement pinterest like list view on android. 
+(You can check how pinterest app looks like form below link..)
 
 https://play.google.com/store/apps/details?id=com.pinterest&hl=en
 
-본 프로젝트는 소니 개발자 블로그에서 연재된 다음 포스트를 기반으로 시작되었습니다.
+This project is statred based on sony deveoper's blog post 'making your own 3d list'. 
 
 http://developer.sonymobile.com/2010/05/20/android-tutorial-making-your-own-3d-list-part-1/
 
-현재는 Android Framework 2.3 버전의 ListView 구현을 기반으로 작성되었습니다.
+But, currenty it is implemented based on android framework 2.3's list view source. 
+You can check modified list view sources in internal package.
+(below features in original list view are removed...)
+
+* Entry from XML layout.
+* Choice Mode & Item Selection.
+* Filter
+* Handle Key Event & Arrow Scrolling..
+
+This is a screen shot of sample activity.
 
 ![Example Image][3]
 
@@ -138,6 +148,10 @@ Pull-To-Refresh 기능을 위해, 기존 사용하던 오픈 소스 대신
 https://github.com/erikwt/PullToRefresh-ListView
 를 사용하도록 수정하였습니다. 다른 프로젝트와 의존성 없이 사용 가능합니다.
 
+**2012.11.14**
+
+하나 이상의 Header View 와 Footer View 를 지원합니다.
+
 
 TODO
 ---------------------------------------------
@@ -162,6 +176,8 @@ TODO
 Contributing
 ---------------------------------------------
 어떤 종류의 지원도 언제나 환영입니다 =)
+
+Any kinds of helps ( bug report / push request / suggestionss ) are welcomed =)
 
 ## License
 
