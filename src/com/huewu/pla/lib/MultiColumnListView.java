@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright 2012 huewu.yang
+ * Copyright 2012 huewu.yang <hueuw.yang@gmail.com>
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -40,6 +40,7 @@ public class MultiColumnListView extends PLA_ListView {
 	
 	private int mColumnNumber = 2;
 	private Column[] mColumns = null;
+	private Column mFixedColumn = null;	//column for footers & headers.
 	private SparseIntArray mItems = new SparseIntArray();
 	
 	public MultiColumnListView(Context context) {
@@ -58,6 +59,7 @@ public class MultiColumnListView extends PLA_ListView {
 	}
 	
 	private Rect mFrameRect = new Rect();
+
 	private void init(AttributeSet attrs) {
 		getWindowVisibleDisplayFrame(mFrameRect);
 		
@@ -82,6 +84,8 @@ public class MultiColumnListView extends PLA_ListView {
 		mColumns = new Column[mColumnNumber];
 		for( int i = 0; i < mColumnNumber; ++i )
 			mColumns[i] = new Column(i);
+		
+		mFixedColumn = new FixedColumn();
 	}
 	
 	///////////////////////////////////////////////////////////////////////
@@ -103,6 +107,9 @@ public class MultiColumnListView extends PLA_ListView {
 			mColumns[index].mColumnWidth = width;
 			mColumns[index].mColumnLeft = mListPadding.left + width * index;
 		}
+		
+		mFixedColumn.mColumnLeft = mListPadding.left;
+		mFixedColumn.mColumnWidth = getMeasuredWidth();
 	}
 	
 	@Override
@@ -121,7 +128,10 @@ public class MultiColumnListView extends PLA_ListView {
 	@Override
 	protected void onItemAddedToList(int position, boolean flow ) {
 		super.onItemAddedToList(position, flow);
-		//Column col = getNextColumn(flow);
+		
+		if( isHeaderOrFooterPosition(position) )
+			return;
+		
 		Column col = getNextColumn( flow, position );
 		mItems.append(position, col.getIndex());
 	}
@@ -193,6 +203,10 @@ public class MultiColumnListView extends PLA_ListView {
 	
 	@Override
 	protected int getItemTop( int pos ){
+		
+		if( isHeaderOrFooterPosition(pos) )
+			return mFixedColumn.getBottom();	//footer view should be placed below the last column.
+		
 		int colIndex = mItems.get(pos, -1);
 		if(colIndex == -1)
 			return getFillChildBottom();
@@ -202,6 +216,10 @@ public class MultiColumnListView extends PLA_ListView {
 	
 	@Override
 	protected int getItemBottom( int pos ){
+
+		if( isHeaderOrFooterPosition(pos) )
+			return mFixedColumn.getTop();	//header view should be place above the first column item.
+		
 		int colIndex = mItems.get(pos, -1);
 		if(colIndex == -1)
 			return getFillChildTop();
@@ -228,12 +246,17 @@ public class MultiColumnListView extends PLA_ListView {
 			//find column which has the smallest top value.
 			return getTopColumn();
 		}
-	}	
+	}
+	
+	private boolean isHeaderOrFooterPosition( int pos ){
+		int type = mAdapter.getItemViewType(pos);
+		return type == ITEM_VIEW_TYPE_HEADER_OR_FOOTER;
+	}
 	
 	private Column getTopColumn() {
-		int childCount = getChildCount();
-		if( childCount < mColumnNumber )
-			return mColumns[childCount];
+		final int lastVisiblePos = getLastVisiblePosition();
+		if( lastVisiblePos < mColumnNumber )
+			return mColumns[lastVisiblePos];
 
 		Column result = mColumns[0];
 		for( Column c : mColumns ){
@@ -243,9 +266,9 @@ public class MultiColumnListView extends PLA_ListView {
 	}
 
 	private Column gettBottomColumn() {
-		int childCount = getChildCount();
-		if( childCount < mColumnNumber )
-			return mColumns[childCount];
+		final int lastVisiblePos = getLastVisiblePosition();
+		if( lastVisiblePos < mColumnNumber )
+			return mColumns[lastVisiblePos];
 
 		Column result = mColumns[0];
 		for( Column c : mColumns ){
@@ -311,6 +334,7 @@ public class MultiColumnListView extends PLA_ListView {
 
 			for( int index = 0; index < childCount; ++index ){
 				View v = getChildAt(index);
+				
 				if(v.getLeft() != mColumnLeft && isFixedView(v) == false )
 					continue;
 				bottom = bottom < v.getBottom() ? v.getBottom() : bottom;
@@ -348,5 +372,22 @@ public class MultiColumnListView extends PLA_ListView {
 		}
 	}//end of inner class Column
 	
+	private class FixedColumn extends Column {
+
+		public FixedColumn() {
+			super(Integer.MAX_VALUE);
+		}
+		
+		@Override
+		public int getBottom() {
+			return getScrollChildBottom();
+		}
+		
+		@Override
+		public int getTop() {
+			return getScrollChildTop();
+		}
+		
+	}//end of class
 
 }//end of class

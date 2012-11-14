@@ -38,11 +38,27 @@ public class SampleActivity extends Activity {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.act_sample);
 		//mAdapterView = (PLA_AdapterView<Adapter>) findViewById(R.id.list);
+
 		mAdapterView = (MultiColumnListView) findViewById(R.id.list);
-		TextView tv = new TextView(this);
-		tv.setLayoutParams(new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT));
-		tv.setText("Hello Header!! ........................................................................");
-		mAdapterView.addHeaderView(tv);
+
+		{
+			for( int i = 0; i < 3; ++i ){
+				//add header view.
+				TextView tv = new TextView(this);
+				tv.setLayoutParams(new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT));
+				tv.setText("Hello Header!! ........................................................................");
+				mAdapterView.addHeaderView(tv);
+			}
+		}
+		{
+			for( int i = 0; i < 3; ++i ){
+				//add footer view.
+				TextView tv = new TextView(this);
+				tv.setLayoutParams(new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT));
+				tv.setText("Hello Footer!! ........................................................................");
+				mAdapterView.addFooterView(tv);
+			}
+		}
 	}
 
 	@Override

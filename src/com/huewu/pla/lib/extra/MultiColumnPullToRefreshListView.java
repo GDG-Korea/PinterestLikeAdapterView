@@ -320,8 +320,6 @@ public class MultiColumnPullToRefreshListView extends MultiColumnListView {
                             image.clearAnimation();
                             image.startAnimation(reverseFlipAnimation);
                         }
-
-                        return false;
                     }
                 }
 

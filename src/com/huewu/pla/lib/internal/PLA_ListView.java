@@ -278,18 +278,40 @@ public class PLA_ListView extends PLA_AbsListView {
 		return mHeaderViewInfos.size();
 	}
 	
+	/**
+	 * check this view is fixed view(ex>Header & Footer) or not.
+	 * @param v
+	 * @return true if this is fixed view.
+	 */
 	public boolean isFixedView( View v ) {
-		ArrayList<FixedViewInfo> where = mHeaderViewInfos;
-		int len = where.size();
-		for (int i = 0; i < len; ++i) {
-			FixedViewInfo info = where.get(i);
-			if (info.view == v) {
-				return true;
+
+		{
+			//check header view.
+			ArrayList<FixedViewInfo> where = mHeaderViewInfos;
+			int len = where.size();
+			for (int i = 0; i < len; ++i) {
+				FixedViewInfo info = where.get(i);
+				if (info.view == v) {
+					return true;
+				}
 			}
 		}
+		
+		{
+			//check footer view.
+			ArrayList<FixedViewInfo> where = mFooterViewInfos;
+			int len = where.size();
+			for (int i = 0; i < len; ++i) {
+				FixedViewInfo info = where.get(i);
+				if (info.view == v) {
+					return true;
+				}
+			}
+		}
+		
 		return false;
 	}
-	
+		
 	/**
 	 * Removes a previously-added header view.
 	 *
@@ -1623,8 +1645,6 @@ public class PLA_ListView extends PLA_AbsListView {
 	 */
 	private void setupChild(View child, int position, int y, boolean flowDown, int childrenLeft,
 			boolean selected, boolean recycled) {
-
-		Log.v("PLA_ListView", "setupChild: " + position);
 
 		final boolean isSelected = selected && shouldShowSelector();
 		final boolean updateChildSelected = isSelected != child.isSelected();
