@@ -254,7 +254,7 @@ public class MultiColumnListView extends PLA_ListView {
 	}
 	
 	private Column getTopColumn() {
-		final int lastVisiblePos = getLastVisiblePosition();
+		final int lastVisiblePos = Math.max( 0, getLastVisiblePosition() );
 		if( lastVisiblePos < mColumnNumber )
 			return mColumns[lastVisiblePos];
 
@@ -266,7 +266,7 @@ public class MultiColumnListView extends PLA_ListView {
 	}
 
 	private Column gettBottomColumn() {
-		final int lastVisiblePos = getLastVisiblePosition();
+		final int lastVisiblePos = Math.max( 0, getLastVisiblePosition() );
 		if( lastVisiblePos < mColumnNumber )
 			return mColumns[lastVisiblePos];
 
