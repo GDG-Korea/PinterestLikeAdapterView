@@ -97,6 +97,9 @@ and support those protected methods to let a user customize list view's behavior
 	@Override
 	protected int getItemBottom( int pos );
 
+	@Override
+	protected void onAdjustChildViews( boolean down );
+
 Change Log
 -----------
 
@@ -151,6 +154,10 @@ https://github.com/erikwt/PullToRefresh-ListView
 **2012.11.14**
 
 하나 이상의 Header View 와 Footer View 를 지원합니다.
+
+**2012.11.22**
+
+첫번째 아이템이 보이는 경우, 각 컬럼의 Top 포지션을 강제로 정렬 시키도록 수정했습니다. 
 
 
 TODO
