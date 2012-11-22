@@ -37,12 +37,12 @@ public class MultiColumnListView extends PLA_ListView {
 	private static final String TAG = "MultiColumnListView";
 
 	private static final int DEFAULT_COLUMN_NUMBER = 2;
-	
+
 	private int mColumnNumber = 2;
 	private Column[] mColumns = null;
 	private Column mFixedColumn = null;	//column for footers & headers.
 	private SparseIntArray mItems = new SparseIntArray();
-	
+
 	public MultiColumnListView(Context context) {
 		super(context);
 		init(null);
@@ -57,17 +57,17 @@ public class MultiColumnListView extends PLA_ListView {
 		super(context, attrs, defStyle);
 		init(attrs);
 	}
-	
+
 	private Rect mFrameRect = new Rect();
 
 	private void init(AttributeSet attrs) {
 		getWindowVisibleDisplayFrame(mFrameRect);
-		
+
 		if( attrs == null ){
 			mColumnNumber = DEFAULT_COLUMN_NUMBER; 	//default column number is 2.
 		}else{
 			TypedArray a = getContext().obtainStyledAttributes(attrs, R.styleable.PinterestLikeAdapterView);
-			
+
 			int landColNumber = a.getInteger(R.styleable.PinterestLikeAdapterView_plaLandscapeColumnNumber, -1);
 			int defColNumber = a.getInteger(R.styleable.PinterestLikeAdapterView_plaColumnNumber, -1);
 
@@ -84,14 +84,14 @@ public class MultiColumnListView extends PLA_ListView {
 		mColumns = new Column[mColumnNumber];
 		for( int i = 0; i < mColumnNumber; ++i )
 			mColumns[i] = new Column(i);
-		
+
 		mFixedColumn = new FixedColumn();
 	}
-	
+
 	///////////////////////////////////////////////////////////////////////
 	//Override Methods...
 	///////////////////////////////////////////////////////////////////////
-	
+
 	@Override
 	protected void onLayout(boolean changed, int l, int t, int r, int b) {
 		super.onLayout(changed, l, t, r, b);
@@ -107,11 +107,11 @@ public class MultiColumnListView extends PLA_ListView {
 			mColumns[index].mColumnWidth = width;
 			mColumns[index].mColumnLeft = mListPadding.left + width * index;
 		}
-		
+
 		mFixedColumn.mColumnLeft = mListPadding.left;
 		mFixedColumn.mColumnWidth = getMeasuredWidth();
 	}
-	
+
 	@Override
 	protected void onMeasureChild(View child, int position, int widthMeasureSpec, int heightMeasureSpec) {
 		if(isFixedView(child))
@@ -119,49 +119,54 @@ public class MultiColumnListView extends PLA_ListView {
 		else
 			child.measure(MeasureSpec.EXACTLY | getColumnWidth(position), heightMeasureSpec);
 	}
-	
+
 	@Override
 	protected int modifyFlingInitialVelocity(int initialVelocity) {
 		return initialVelocity / mColumnNumber;
 	}
-	
+
 	@Override
 	protected void onItemAddedToList(int position, boolean flow ) {
 		super.onItemAddedToList(position, flow);
-		
+
 		if( isHeaderOrFooterPosition(position) )
 			return;
-		
+
 		Column col = getNextColumn( flow, position );
 		mItems.append(position, col.getIndex());
 	}
-	
+
 	@Override
 	protected void onLayoutSync(int syncPos) {
 		for( Column c : mColumns ){
 			c.save();
 		}
 	}
-	
+
 	@Override
 	protected void onLayoutSyncFinished(int syncPos) {
 		for( Column c : mColumns ){
 			c.clear();
 		}
 	}
-	
+
 	@Override
 	protected void onAdjustChildViews(boolean down) {
-		
+
 		int firstItem = getFirstVisiblePosition();
-		Log.v(TAG, "First Visible Item: " + firstItem);
 		if( down == false && firstItem == 0){
 			Log.v(TAG, "Let's adjust column position!!");
-		}else{
-			super.onAdjustChildViews(down);
+			final int firstColumnTop = mColumns[0].getTop();
+			for( Column c : mColumns ){
+				final int top = c.getTop();
+				Log.v(TAG, String.format("Column[%d] Top: %d", c.getIndex(), top));
+				//align all column's top to 0's column.
+				c.offsetTopAndBottom( firstColumnTop - top );
+			}
 		}
+		super.onAdjustChildViews(down);
 	}
-	
+
 	@Override
 	protected int getFillChildBottom() {
 		//return smallest bottom value.
@@ -173,7 +178,7 @@ public class MultiColumnListView extends PLA_ListView {
 		}
 		return result;
 	}
-	
+
 	@Override
 	protected int getFillChildTop() {
 		//find largest column.
@@ -196,7 +201,7 @@ public class MultiColumnListView extends PLA_ListView {
 		}
 		return result;
 	}
-	
+
 	@Override
 	protected int getScrollChildTop() {
 		//find largest column.
@@ -207,54 +212,54 @@ public class MultiColumnListView extends PLA_ListView {
 		}
 		return result;
 	}
-	
+
 	@Override
 	protected int getItemLeft(int pos) {
 		return getColumnLeft(pos);
 	}
-	
+
 	@Override
 	protected int getItemTop( int pos ){
-		
+
 		if( isHeaderOrFooterPosition(pos) )
 			return mFixedColumn.getBottom();	//footer view should be placed below the last column.
-		
+
 		int colIndex = mItems.get(pos, -1);
 		if(colIndex == -1)
 			return getFillChildBottom();
 
 		return mColumns[colIndex].getBottom();
 	}
-	
+
 	@Override
 	protected int getItemBottom( int pos ){
 
 		if( isHeaderOrFooterPosition(pos) )
 			return mFixedColumn.getTop();	//header view should be place above the first column item.
-		
+
 		int colIndex = mItems.get(pos, -1);
 		if(colIndex == -1)
 			return getFillChildTop();
 
 		return mColumns[colIndex].getTop();
 	}
-	
+
 	//////////////////////////////////////////////////////////////////////////////
 	//Private Methods...
 	//////////////////////////////////////////////////////////////////////////////
-	
+
 	//flow If flow is true, align top edge to y. If false, align bottom edge to y.
 	private Column getNextColumn(boolean flow, int position) {
-		
+
 		//we already have this item...
 		int colIndex = mItems.get(position, -1);
 		if( colIndex != -1 )
 			return mColumns[colIndex];
-		
+
 		final int lastVisiblePos = Math.max( 0, position );
 		if( lastVisiblePos < mColumnNumber )
 			return mColumns[lastVisiblePos];
-		
+
 		if( flow ){
 			//find column which has the smallest bottom value.
 			return gettBottomColumn();
@@ -263,12 +268,12 @@ public class MultiColumnListView extends PLA_ListView {
 			return getTopColumn();
 		}
 	}
-	
+
 	private boolean isHeaderOrFooterPosition( int pos ){
 		int type = mAdapter.getItemViewType(pos);
 		return type == ITEM_VIEW_TYPE_HEADER_OR_FOOTER;
 	}
-	
+
 	private Column getTopColumn() {
 		Column result = mColumns[0];
 		for( Column c : mColumns ){
@@ -282,35 +287,35 @@ public class MultiColumnListView extends PLA_ListView {
 		for( Column c : mColumns ){
 			result = result.getBottom() > c.getBottom() ? c : result;
 		}
-		
+
 		Log.v("Column", "get Shortest Bottom Column: " + result.getIndex());
 		return result;
 	}	
 
 	private int getColumnLeft(int pos) {
 		int colIndex = mItems.get(pos, -1);
-		
+
 		if( colIndex == -1 )
 			return 0;
-		
+
 		return mColumns[colIndex].getColumnLeft();
 	}
-	
+
 	private int getColumnWidth(int pos) {
 		int colIndex = mItems.get(pos, -1 );
-		
+
 		if( colIndex == -1 )
 			return 0;
-		
+
 		return mColumns[colIndex].getColumnWidth();
 	}
-	
+
 	///////////////////////////////////////////////////////////////
 	//Inner Class.
 	///////////////////////////////////////////////////////////////
-	
+
 	private class Column {
-		
+
 		private int mIndex;
 		private int mColumnWidth;
 		private int mColumnLeft;
@@ -342,15 +347,32 @@ public class MultiColumnListView extends PLA_ListView {
 
 			for( int index = 0; index < childCount; ++index ){
 				View v = getChildAt(index);
-				
+
 				if(v.getLeft() != mColumnLeft && isFixedView(v) == false )
 					continue;
 				bottom = bottom < v.getBottom() ? v.getBottom() : bottom;
 			}
-			
+
 			if( bottom == Integer.MIN_VALUE )
 				return mSynchedBottom;	//no child for this column..
 			return bottom;
+		}
+
+		public void offsetTopAndBottom(int offset) {
+			if( offset == 0 )
+				return; 
+
+			//find biggest value.
+			int childCount = getChildCount();
+
+			for( int index = 0; index < childCount; ++index ){
+				View v = getChildAt(index);
+
+				if(v.getLeft() != mColumnLeft && isFixedView(v) == false )
+					continue;
+
+				v.offsetTopAndBottom(offset);
+			}
 		}
 
 		public int getTop() {
@@ -363,7 +385,7 @@ public class MultiColumnListView extends PLA_ListView {
 					continue;
 				top = top > v.getTop() ? v.getTop() : top;
 			}
-			
+
 			if( top == Integer.MAX_VALUE )
 				return mSynchedTop;	//no child for this column. just return saved synched top..
 			return top;
@@ -379,23 +401,23 @@ public class MultiColumnListView extends PLA_ListView {
 			mSynchedBottom = 0;
 		}
 	}//end of inner class Column
-	
+
 	private class FixedColumn extends Column {
 
 		public FixedColumn() {
 			super(Integer.MAX_VALUE);
 		}
-		
+
 		@Override
 		public int getBottom() {
 			return getScrollChildBottom();
 		}
-		
+
 		@Override
 		public int getTop() {
 			return getScrollChildTop();
 		}
-		
+
 	}//end of class
 
 }//end of class
