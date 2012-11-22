@@ -405,7 +405,7 @@ ViewTreeObserver.OnGlobalLayoutListener, ViewTreeObserver.OnTouchModeChangeListe
 	 * Used by {@link #mActivePointerId}.
 	 */
 	private static final int INVALID_POINTER = -1;
-	private static final boolean DEBUG = true;
+	private static final boolean DEBUG = false;
 	private static final String TAG = "PLA_AbsListView";
 
 	/**
@@ -3347,6 +3347,7 @@ ViewTreeObserver.OnGlobalLayoutListener, ViewTreeObserver.OnTouchModeChangeListe
 				throw new IllegalArgumentException("Can't have a viewTypeCount < 1");
 			}
 			//noinspection unchecked
+			@SuppressWarnings("unchecked")
 			ArrayList<View>[] scrapViews = new ArrayList[viewTypeCount];
 			for (int i = 0; i < viewTypeCount; i++) {
 				scrapViews[i] = new ArrayList<View>();
@@ -3655,6 +3656,13 @@ ViewTreeObserver.OnGlobalLayoutListener, ViewTreeObserver.OnTouchModeChangeListe
 	 * @return 
 	 */
 	protected int getScrollChildTop() {
+		final int count = getChildCount();
+		if( count == 0 )
+			return 0;
+		return getChildAt(0).getTop();
+	}
+	
+	protected int getFirstChildTop() {
 		final int count = getChildCount();
 		if( count == 0 )
 			return 0;

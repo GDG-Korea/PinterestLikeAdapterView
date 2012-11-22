@@ -9,14 +9,11 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.TextureView;
 import android.widget.ArrayAdapter;
-import android.widget.ListAdapter;
 import android.widget.TextView;
 
 import com.huewu.pla.lib.MultiColumnListView;
 import com.huewu.pla.lib.internal.PLA_AbsListView.LayoutParams;
-import com.huewu.pla.lib.internal.PLA_AdapterView;
 import com.huewu.pla.sample.extra.PullToRefreshSampleActivity;
 import com.huewu.pla.smaple.R;
 
@@ -32,7 +29,6 @@ public class SampleActivity extends Activity {
 	private MultiColumnListView mAdapterView = null;
 	private MySimpleAdapter mAdapter = null;
 
-	@SuppressWarnings("unchecked")
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);

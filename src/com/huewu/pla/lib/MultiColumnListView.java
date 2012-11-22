@@ -101,7 +101,7 @@ public class MultiColumnListView extends PLA_ListView {
 	@Override
 	protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
 		super.onMeasure(widthMeasureSpec, heightMeasureSpec);
-		int width = getMeasuredWidth() / mColumnNumber;
+		int width = (getMeasuredWidth() - mListPadding.left - mListPadding.right) / mColumnNumber;
 
 		for( int index = 0; index < mColumnNumber; ++ index ){
 			mColumns[index].mColumnWidth = width;
@@ -147,6 +147,18 @@ public class MultiColumnListView extends PLA_ListView {
 	protected void onLayoutSyncFinished(int syncPos) {
 		for( Column c : mColumns ){
 			c.clear();
+		}
+	}
+	
+	@Override
+	protected void onAdjustChildViews(boolean down) {
+		
+		int firstItem = getFirstVisiblePosition();
+		Log.v(TAG, "First Visible Item: " + firstItem);
+		if( down == false && firstItem == 0){
+			Log.v(TAG, "Let's adjust column position!!");
+		}else{
+			super.onAdjustChildViews(down);
 		}
 	}
 	
@@ -239,6 +251,10 @@ public class MultiColumnListView extends PLA_ListView {
 		if( colIndex != -1 )
 			return mColumns[colIndex];
 		
+		final int lastVisiblePos = Math.max( 0, position );
+		if( lastVisiblePos < mColumnNumber )
+			return mColumns[lastVisiblePos];
+		
 		if( flow ){
 			//find column which has the smallest bottom value.
 			return gettBottomColumn();
@@ -254,10 +270,6 @@ public class MultiColumnListView extends PLA_ListView {
 	}
 	
 	private Column getTopColumn() {
-		final int lastVisiblePos = Math.max( 0, getLastVisiblePosition() );
-		if( lastVisiblePos < mColumnNumber )
-			return mColumns[lastVisiblePos];
-
 		Column result = mColumns[0];
 		for( Column c : mColumns ){
 			result = result.getTop() > c.getTop() ? c : result;
@@ -266,10 +278,6 @@ public class MultiColumnListView extends PLA_ListView {
 	}
 
 	private Column gettBottomColumn() {
-		final int lastVisiblePos = Math.max( 0, getLastVisiblePosition() );
-		if( lastVisiblePos < mColumnNumber )
-			return mColumns[lastVisiblePos];
-
 		Column result = mColumns[0];
 		for( Column c : mColumns ){
 			result = result.getBottom() > c.getBottom() ? c : result;

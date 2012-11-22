@@ -488,6 +488,15 @@ public class PLA_ListView extends PLA_AbsListView {
 		requestLayout();
 	}
 
+	@Override
+    public int getFirstVisiblePosition() {
+        return Math.max( 0, mFirstPosition - getHeaderViewsCount());
+    }
+
+	@Override
+    public int getLastVisiblePosition() {
+        return Math.min( mFirstPosition + getChildCount() - 1, mAdapter.getCount() - 1);
+    }	
 
 	/**
 	 * The list is empty. Clear everything out.
@@ -663,10 +672,10 @@ public class PLA_ListView extends PLA_AbsListView {
 		final int count = getChildCount();
 		if (down) {
 			fillDown(mFirstPosition + count, getItemTop(mFirstPosition + count));
-			correctTooHigh(getChildCount());
+			onAdjustChildViews( down );
 		} else {
 			fillUp(mFirstPosition - 1, getItemBottom(mFirstPosition - 1));
-			correctTooLow(getChildCount());
+			onAdjustChildViews( down );
 		}
 	}
 
@@ -692,7 +701,6 @@ public class PLA_ListView extends PLA_AbsListView {
 			// is this the selected item?
 			boolean selected = pos == mSelectedPosition;
 			View child = makeAndAddView(pos, getItemTop(pos), true, selected);
-			//            nextTop = child.getBottom() + mDividerHeight;
 			if (selected) {
 				selectedView = child;
 			}
@@ -1205,8 +1213,7 @@ public class PLA_ListView extends PLA_AbsListView {
 			// final int end = (mBottom - mTop) - mListPadding.bottom;
 			final int end = (getBottom() - getTop()) - mListPadding.bottom;
 
-			// This is how far the bottom edge of the last view is from the bottom of the
-			// drawable area
+			// This is how far the bottom edge of the last view is from the bottom of the drawable area
 			int bottomOffset = end - lastBottom;
 
 			//View firstChild = getChildAt(0);
@@ -1221,7 +1228,7 @@ public class PLA_ListView extends PLA_AbsListView {
 					bottomOffset = Math.min(bottomOffset, mListPadding.top - firstTop);
 				}
 				// Move everything down
-				//                offsetChildrenTopAndBottom(bottomOffset);
+				// offsetChildrenTopAndBottom(bottomOffset);
 				tryOffsetChildrenTopAndBottom(bottomOffset);
 				if (mFirstPosition > 0) {
 					// Fill the gap that was opened above mFirstPosition with more rows, if
@@ -1248,29 +1255,21 @@ public class PLA_ListView extends PLA_AbsListView {
 		// bottom of the list to be pushed down.
 		if (mFirstPosition == 0 && childCount > 0) {
 
-			// Get the first child ...
-			//final View firstChild = getChildAt(0);
-
-			// ... and its top edge
-			//final int firstTop = firstChild.getTop();
+			// Get the first child and its top edge
 			final int firstTop = getScrollChildTop();
 
 			// This is top of our drawable area
 			final int start = mListPadding.top;
 
 			// This is bottom of our drawable area
-			//final int end = (mBottom - mTop) - mListPadding.bottom;
 			final int end = (getBottom() -getTop()) - mListPadding.bottom;
 
-			// This is how far the top edge of the first view is from the top of the
-			// drawable area
+			// This is how far the top edge of the first view is from the top of the drawable area
 			int topOffset = firstTop - start;
-//			View lastChild = getChildAt(childCount - 1);
-//			final int lastBottom = lastChild.getBottom();
 			final int lastBottom = getScrollChildBottom();
 			
 			int lastPosition = mFirstPosition + childCount - 1;
-
+			
 			// Make sure we are 1) Too low, and 2) Either there are more rows below the
 			// last row or the last row is scrolled off the bottom of the drawable area
 			if (topOffset > 0) {
@@ -1280,7 +1279,6 @@ public class PLA_ListView extends PLA_AbsListView {
 						topOffset = Math.min(topOffset, lastBottom - end);
 					}
 					// Move everything up
-					//                    offsetChildrenTopAndBottom(-topOffset);
 					tryOffsetChildrenTopAndBottom(-topOffset);
 					if (lastPosition < mItemCount - 1) {
 						// Fill the gap that was opened below the last position with more rows, if
@@ -1737,6 +1735,18 @@ public class PLA_ListView extends PLA_AbsListView {
 	protected void onMeasureChild(View child, int position, int widthMeasureSpec, int heightMeasureSpec) {
 		child.measure(widthMeasureSpec, heightMeasureSpec);
 	}
+
+	/**
+	 * this method is called to adjust child view's up & down.
+	 * @param down
+	 */
+	protected void onAdjustChildViews( boolean down ) {
+		if( down )
+			correctTooHigh(getChildCount());
+		else
+			correctTooLow(getChildCount());
+	}
+	
 
 	@Override
 	protected boolean canAnimate() {
