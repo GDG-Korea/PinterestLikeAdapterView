@@ -122,15 +122,12 @@ public class MultiColumnListView extends PLA_ListView {
 
 	@Override
 	protected int modifyFlingInitialVelocity(int initialVelocity) {
-		return initialVelocity / mColumnNumber;
+		return initialVelocity; // mColumnNumber;
 	}
 
 	@Override
 	protected void onItemAddedToList(int position, boolean flow ) {
 		super.onItemAddedToList(position, flow);
-
-		if( isHeaderOrFooterPosition(position) )
-			return;
 
 		Column col = getNextColumn( flow, position );
 		mItems.append(position, col.getIndex());
@@ -155,11 +152,9 @@ public class MultiColumnListView extends PLA_ListView {
 
 		int firstItem = getFirstVisiblePosition();
 		if( down == false && firstItem == 0){
-			Log.v(TAG, "Let's adjust column position!!");
 			final int firstColumnTop = mColumns[0].getTop();
 			for( Column c : mColumns ){
 				final int top = c.getTop();
-				Log.v(TAG, String.format("Column[%d] Top: %d", c.getIndex(), top));
 				//align all column's top to 0's column.
 				c.offsetTopAndBottom( firstColumnTop - top );
 			}

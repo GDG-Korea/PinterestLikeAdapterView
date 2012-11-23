@@ -27,7 +27,6 @@ import android.graphics.drawable.Drawable;
 import android.graphics.drawable.TransitionDrawable;
 import android.os.Debug;
 import android.os.Handler;
-import android.os.Parcel;
 import android.os.Parcelable;
 import android.util.AttributeSet;
 import android.util.Log;
@@ -516,7 +515,7 @@ ViewTreeObserver.OnGlobalLayoutListener, ViewTreeObserver.OnTouchModeChangeListe
 		final ViewConfiguration configuration = ViewConfiguration.get(getContext());
 		mTouchSlop = configuration.getScaledTouchSlop();
 		mMinimumVelocity = configuration.getScaledMinimumFlingVelocity();
-		mMaximumVelocity = configuration.getScaledMaximumFlingVelocity() / 2;
+		mMaximumVelocity = configuration.getScaledMaximumFlingVelocity() / 4;
 	}
 
 	/**
@@ -658,130 +657,10 @@ ViewTreeObserver.OnGlobalLayoutListener, ViewTreeObserver.OnTouchModeChangeListe
 		}
 	}
 
-	static class SavedState extends BaseSavedState {
-		long selectedId;
-		long firstId;
-		int viewTop;
-		int position;
-		int height;
-
-		/**
-		 * Constructor called from {@link PLA_AbsListView#onSaveInstanceState()}
-		 */
-		SavedState(Parcelable superState) {
-			super(superState);
-		}
-
-		/**
-		 * Constructor called from {@link #CREATOR}
-		 */
-		private SavedState(Parcel in) {
-			super(in);
-			selectedId = in.readLong();
-			firstId = in.readLong();
-			viewTop = in.readInt();
-			position = in.readInt();
-			height = in.readInt();
-		}
-
-		@Override
-		public void writeToParcel(Parcel out, int flags) {
-			super.writeToParcel(out, flags);
-			out.writeLong(selectedId);
-			out.writeLong(firstId);
-			out.writeInt(viewTop);
-			out.writeInt(position);
-			out.writeInt(height);
-		}
-
-		@Override
-		public String toString() {
-			return "AbsListView.SavedState{"
-					+ Integer.toHexString(System.identityHashCode(this))
-					+ " selectedId=" + selectedId
-					+ " firstId=" + firstId
-					+ " viewTop=" + viewTop
-					+ " position=" + position
-					+ " height=" + height + "}";
-		}
-
-		public static final Parcelable.Creator<SavedState> CREATOR
-		= new Parcelable.Creator<SavedState>() {
-			public SavedState createFromParcel(Parcel in) {
-				return new SavedState(in);
-			}
-
-			public SavedState[] newArray(int size) {
-				return new SavedState[size];
-			}
-		};
-	}
-
-	@Override
-	public Parcelable onSaveInstanceState() {
-		/*
-		 * This doesn't really make sense as the place to dismiss the
-		 * popups, but there don't seem to be any other useful hooks
-		 * that happen early enough to keep from getting complaints
-		 * about having leaked the window.
-		 */
-		Parcelable superState = super.onSaveInstanceState();
-
-		SavedState ss = new SavedState(superState);
-
-		boolean haveChildren = getChildCount() > 0;
-		long selectedId = getSelectedItemId();
-		ss.selectedId = selectedId;
-		ss.height = getHeight();
-
-		if (selectedId >= 0) {
-			// Remember the selection
-			ss.viewTop = mSelectedTop;
-			ss.position = getSelectedItemPosition();
-			ss.firstId = INVALID_POSITION;
-		} else {
-			if (haveChildren) {
-				// Remember the position of the first child
-				View v = getChildAt(0);
-				ss.viewTop = v.getTop();
-				ss.position = mFirstPosition;
-				ss.firstId = mAdapter.getItemId(mFirstPosition);
-			} else {
-				ss.viewTop = 0;
-				ss.firstId = INVALID_POSITION;
-				ss.position = 0;
-			}
-		}
-
-		return ss;
-	}
-
 	@Override
 	public void onRestoreInstanceState(Parcelable state) {
-		SavedState ss = (SavedState) state;
-
-		super.onRestoreInstanceState(ss.getSuperState());
+		super.onRestoreInstanceState(state);
 		mDataChanged = true;
-
-		mSyncHeight = ss.height;
-
-		if (ss.selectedId >= 0) {
-			mNeedSync = true;
-			mSyncRowId = ss.selectedId;
-			mSyncPosition = ss.position;
-			mSpecificTop = ss.viewTop;
-			mSyncMode = SYNC_SELECTED_POSITION;
-		} else if (ss.firstId >= 0) {
-			setSelectedPositionInt(INVALID_POSITION);
-			// Do this before setting mNeedSync since setNextSelectedPosition looks at mNeedSync
-			setNextSelectedPositionInt(INVALID_POSITION);
-			mNeedSync = true;
-			mSyncRowId = ss.firstId;
-			mSyncPosition = ss.position;
-			mSpecificTop = ss.viewTop;
-			mSyncMode = SYNC_FIRST_POSITION;
-		}
-
 		requestLayout();
 	}
 
@@ -3494,11 +3373,11 @@ ViewTreeObserver.OnGlobalLayoutListener, ViewTreeObserver.OnTouchModeChangeListe
 			}
 
 			if (mViewTypeCount == 1) {
-				//                scrap.dispatchStartTemporaryDetach();
+				//scrap.dispatchStartTemporaryDetach();
 				dispatchFinishTemporaryDetach(scrap);
 				mCurrentScrap.add(scrap);
 			} else {
-				//                scrap.dispatchStartTemporaryDetach();
+				//scrap.dispatchStartTemporaryDetach();
 				dispatchFinishTemporaryDetach(scrap);
 				mScrapViews[viewType].add(scrap);
 			}

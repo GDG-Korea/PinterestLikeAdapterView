@@ -26,9 +26,7 @@ import android.graphics.PixelFormat;
 import android.graphics.Rect;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
-import android.os.Parcelable;
 import android.util.AttributeSet;
-import android.util.Log;
 import android.util.SparseBooleanArray;
 import android.view.MotionEvent;
 import android.view.View;
@@ -83,8 +81,6 @@ public class PLA_ListView extends PLA_AbsListView {
 	 * times the height of the list.
 	 */
 	private static final float MAX_SCROLL_FACTOR = 0.33f;
-
-	private static final String TAG = "PLA_ListView";
 
 	/**
 	 * A class that represents a fixed view in a list, for example a header at the top
@@ -277,7 +273,7 @@ public class PLA_ListView extends PLA_AbsListView {
 	public int getHeaderViewsCount() {
 		return mHeaderViewInfos.size();
 	}
-	
+
 	/**
 	 * check this view is fixed view(ex>Header & Footer) or not.
 	 * @param v
@@ -296,7 +292,7 @@ public class PLA_ListView extends PLA_AbsListView {
 				}
 			}
 		}
-		
+
 		{
 			//check footer view.
 			ArrayList<FixedViewInfo> where = mFooterViewInfos;
@@ -308,10 +304,10 @@ public class PLA_ListView extends PLA_AbsListView {
 				}
 			}
 		}
-		
+
 		return false;
 	}
-		
+
 	/**
 	 * Removes a previously-added header view.
 	 *
@@ -489,14 +485,14 @@ public class PLA_ListView extends PLA_AbsListView {
 	}
 
 	@Override
-    public int getFirstVisiblePosition() {
-        return Math.max( 0, mFirstPosition - getHeaderViewsCount());
-    }
+	public int getFirstVisiblePosition() {
+		return Math.max( 0, mFirstPosition - getHeaderViewsCount());
+	}
 
 	@Override
-    public int getLastVisiblePosition() {
-        return Math.min( mFirstPosition + getChildCount() - 1, mAdapter.getCount() - 1);
-    }	
+	public int getLastVisiblePosition() {
+		return Math.min( mFirstPosition + getChildCount() - 1, mAdapter.getCount() - 1);
+	}	
 
 	/**
 	 * The list is empty. Clear everything out.
@@ -630,7 +626,7 @@ public class PLA_ListView extends PLA_AbsListView {
 		}
 		return scroll;
 	}
-	
+
 	/**
 	 * override this method to manipulate the position of each item in list view.
 	 * return item left position.
@@ -691,7 +687,6 @@ public class PLA_ListView extends PLA_AbsListView {
 	 *         range that we draw.
 	 */
 	private View fillDown(int pos, int top) {
-		View selectedView = null;
 
 		//int end = (mBottom - mTop) - mListPadding.bottom;
 		int end = (getBottom() - getTop()) - mListPadding.bottom;
@@ -699,16 +694,12 @@ public class PLA_ListView extends PLA_AbsListView {
 
 		while (childTop < end && pos < mItemCount) {
 			// is this the selected item?
-			boolean selected = pos == mSelectedPosition;
-			View child = makeAndAddView(pos, getItemTop(pos), true, selected);
-			if (selected) {
-				selectedView = child;
-			}
+			makeAndAddView(pos, getItemTop(pos), true, false);
 			pos++;
 			childTop = getFillChildBottom() + mDividerHeight;
 		}
 
-		return selectedView;
+		return null;
 	}
 
 	/**
@@ -722,24 +713,19 @@ public class PLA_ListView extends PLA_AbsListView {
 	 * @return The view that is currently selected
 	 */
 	private View fillUp(int pos, int bottom) {
-		View selectedView = null;
 		int end = mListPadding.top;
 		int childBottom = getFillChildTop();
 		while (childBottom > end && pos >= 0) {
 			// is this the selected item?
-			boolean selected = pos == mSelectedPosition;
-			View child = makeAndAddView(pos, getItemBottom(pos), false, selected);
+			makeAndAddView(pos, getItemBottom(pos), false, false);
 			//	nextBottom = child.getTop() - mDividerHeight;
-			if (selected) {
-				selectedView = child;
-			}
 			pos--;
 			childBottom = getItemBottom(pos);
 		}
 
 		mFirstPosition = pos + 1;
 
-		return selectedView;
+		return null;
 	}
 
 	/**
@@ -1150,43 +1136,34 @@ public class PLA_ListView extends PLA_AbsListView {
 	 *         visible area.
 	 */
 	private View fillSpecific(int position, int top) {
-		Log.v(TAG, String.format("fillSpecific(%d, %d)", position, top));
-		boolean tempIsSelected = position == mSelectedPosition;
-		View temp = makeAndAddView(position, top, true, tempIsSelected);
+
+		View temp = makeAndAddView(position, top, true, false);
+
 		// Possibly changed again in fillUp if we add rows above this one.
+
 		mFirstPosition = position;
-
-		View above;
-		View below;
-
 		final int dividerHeight = mDividerHeight;
 		if (!mStackFromBottom) {
-			above = fillUp(position - 1, temp.getTop() - dividerHeight);
+			fillUp(position - 1, temp.getTop() - dividerHeight);
 			// This will correct for the top of the first view not touching the top of the list
 			adjustViewsUpOrDown();
-			below = fillDown(position + 1, temp.getBottom() + dividerHeight);
+			fillDown(position + 1, temp.getBottom() + dividerHeight);
 			int childCount = getChildCount();
 			if (childCount > 0) {
 				correctTooHigh(childCount);
 			}
 		} else {
-			below = fillDown(position + 1, temp.getBottom() + dividerHeight);
+			fillDown(position + 1, temp.getBottom() + dividerHeight);
 			// This will correct for the bottom of the last view not touching the bottom of the list
 			adjustViewsUpOrDown();
-			above = fillUp(position - 1, temp.getTop() - dividerHeight);
+			fillUp(position - 1, temp.getTop() - dividerHeight);
 			int childCount = getChildCount();
 			if (childCount > 0) {
 				correctTooLow(childCount);
 			}
 		}
 
-		if (tempIsSelected) {
-			return temp;
-		} else if (above != null) {
-			return above;
-		} else {
-			return below;
-		}
+		return null;
 	}
 
 	/**
@@ -1267,9 +1244,9 @@ public class PLA_ListView extends PLA_AbsListView {
 			// This is how far the top edge of the first view is from the top of the drawable area
 			int topOffset = firstTop - start;
 			final int lastBottom = getScrollChildBottom();
-			
+
 			int lastPosition = mFirstPosition + childCount - 1;
-			
+
 			// Make sure we are 1) Too low, and 2) Either there are more rows below the
 			// last row or the last row is scrolled off the bottom of the drawable area
 			if (topOffset > 0) {
@@ -1746,7 +1723,7 @@ public class PLA_ListView extends PLA_AbsListView {
 		else
 			correctTooLow(getChildCount());
 	}
-	
+
 
 	@Override
 	protected boolean canAnimate() {
@@ -2666,20 +2643,6 @@ public class PLA_ListView extends PLA_AbsListView {
 	 * Clear any choices previously set
 	 */
 	public void clearChoices() {
-	}
-
-
-	@Override
-	public Parcelable onSaveInstanceState() {
-		Parcelable superState = super.onSaveInstanceState();
-		return new SavedState(superState);
-	}
-
-	@Override
-	public void onRestoreInstanceState(Parcelable state) {
-		SavedState ss = (SavedState) state;
-
-		super.onRestoreInstanceState(ss.getSuperState());
 	}
 
 }//end of class
