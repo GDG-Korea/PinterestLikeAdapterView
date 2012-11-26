@@ -404,7 +404,7 @@ ViewTreeObserver.OnGlobalLayoutListener, ViewTreeObserver.OnTouchModeChangeListe
 	 * Used by {@link #mActivePointerId}.
 	 */
 	private static final int INVALID_POINTER = -1;
-	private static final boolean DEBUG = false;
+	protected static final boolean DEBUG = false;
 	private static final String TAG = "PLA_AbsListView";
 
 	/**
@@ -515,7 +515,7 @@ ViewTreeObserver.OnGlobalLayoutListener, ViewTreeObserver.OnTouchModeChangeListe
 		final ViewConfiguration configuration = ViewConfiguration.get(getContext());
 		mTouchSlop = configuration.getScaledTouchSlop();
 		mMinimumVelocity = configuration.getScaledMinimumFlingVelocity();
-		mMaximumVelocity = configuration.getScaledMaximumFlingVelocity() / 4;
+		mMaximumVelocity = configuration.getScaledMaximumFlingVelocity();
 	}
 
 	/**
@@ -1994,6 +1994,10 @@ ViewTreeObserver.OnGlobalLayoutListener, ViewTreeObserver.OnTouchModeChangeListe
 			mLastFlingY = initialY;
 			mScroller.fling(0, initialY, 0, initialVelocity,
 					0, Integer.MAX_VALUE, 0, Integer.MAX_VALUE);
+			
+			if(DEBUG)
+				Log.d(TAG, String.format("String Fling: [%d, %d] to [%d]", initialY, initialVelocity, mScroller.getFinalY()));
+			
 			mTouchMode = TOUCH_MODE_FLING;
 			post(this);
 
@@ -2014,6 +2018,7 @@ ViewTreeObserver.OnGlobalLayoutListener, ViewTreeObserver.OnTouchModeChangeListe
 		}
 
 		private void endFling() {
+			mLastFlingY = 0;
 			mTouchMode = TOUCH_MODE_REST;
 
 			reportScrollStateChange(OnScrollListener.SCROLL_STATE_IDLE);
@@ -2024,6 +2029,7 @@ ViewTreeObserver.OnGlobalLayoutListener, ViewTreeObserver.OnTouchModeChangeListe
 			if (mPositionScroller != null) {
 				removeCallbacks(mPositionScroller);
 			}
+			mScroller.forceFinished(true);
 		}
 
 		public void run() {
@@ -2040,7 +2046,7 @@ ViewTreeObserver.OnGlobalLayoutListener, ViewTreeObserver.OnTouchModeChangeListe
 				final Scroller scroller = mScroller;
 				boolean more = scroller.computeScrollOffset();
 				final int y = scroller.getCurrY();
-
+				
 				// Flip sign to convert finger direction to list items direction
 				// (e.g. finger moving down means list is moving towards the top)
 				int delta = mLastFlingY - y;
@@ -2078,7 +2084,6 @@ ViewTreeObserver.OnGlobalLayoutListener, ViewTreeObserver.OnTouchModeChangeListe
 					post(this);
 				} else {
 					endFling();
-
 					if (PROFILE_FLINGING) {
 						if (mFlingProfilingStarted) {
 							Debug.stopMethodTracing();

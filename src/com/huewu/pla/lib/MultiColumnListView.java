@@ -122,7 +122,7 @@ public class MultiColumnListView extends PLA_ListView {
 
 	@Override
 	protected int modifyFlingInitialVelocity(int initialVelocity) {
-		return initialVelocity; // mColumnNumber;
+		return initialVelocity / mColumnNumber;
 	}
 
 	@Override
@@ -283,7 +283,8 @@ public class MultiColumnListView extends PLA_ListView {
 			result = result.getBottom() > c.getBottom() ? c : result;
 		}
 
-		Log.v("Column", "get Shortest Bottom Column: " + result.getIndex());
+		if( DEBUG )
+			Log.d("Column", "get Shortest Bottom Column: " + result.getIndex());
 		return result;
 	}	
 
