@@ -128,9 +128,11 @@ public class MultiColumnListView extends PLA_ListView {
 	@Override
 	protected void onItemAddedToList(int position, boolean flow ) {
 		super.onItemAddedToList(position, flow);
-
-		Column col = getNextColumn( flow, position );
-		mItems.append(position, col.getIndex());
+		
+		if( isHeaderOrFooterPosition(position) == false){
+			Column col = getNextColumn( flow, position );
+			mItems.append(position, col.getIndex());
+		}
 	}
 
 	@Override
@@ -149,7 +151,7 @@ public class MultiColumnListView extends PLA_ListView {
 
 	@Override
 	protected void onAdjustChildViews(boolean down) {
-
+		
 		int firstItem = getFirstVisiblePosition();
 		if( down == false && firstItem == 0){
 			final int firstColumnTop = mColumns[0].getTop();
@@ -383,7 +385,7 @@ public class MultiColumnListView extends PLA_ListView {
 			}
 
 			if( top == Integer.MAX_VALUE )
-				return mSynchedTop;	//no child for this column. just return saved synched top..
+				return mSynchedTop;	//no child for this column. just return saved sync top..
 			return top;
 		}
 

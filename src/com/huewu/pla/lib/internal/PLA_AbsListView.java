@@ -26,12 +26,10 @@ import android.graphics.Rect;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.TransitionDrawable;
 import android.os.Debug;
-import android.os.Handler;
 import android.os.Parcelable;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.ContextMenu.ContextMenuInfo;
-import android.view.HapticFeedbackConstants;
 import android.view.KeyEvent;
 import android.view.MotionEvent;
 import android.view.VelocityTracker;
@@ -345,19 +343,9 @@ ViewTreeObserver.OnGlobalLayoutListener, ViewTreeObserver.OnTouchModeChangeListe
 	private boolean mFlingProfilingStarted = false;
 
 	/**
-	 * The last CheckForLongPress runnable we posted, if any
-	 */
-	private CheckForLongPress mPendingCheckForLongPress;
-
-	/**
 	 * The last CheckForTap runnable we posted, if any
 	 */
 	private Runnable mPendingCheckForTap;
-
-	/**
-	 * The last CheckForKeyLongPress runnable we posted, if any
-	 */
-	private CheckForKeyLongPress mPendingCheckForKeyLongPress;
 
 	/**
 	 * Acts upon click
@@ -665,14 +653,6 @@ ViewTreeObserver.OnGlobalLayoutListener, ViewTreeObserver.OnTouchModeChangeListe
 	}
 
 	@Override
-	protected void onFocusChanged(boolean gainFocus, int direction, Rect previouslyFocusedRect) {
-		super.onFocusChanged(gainFocus, direction, previouslyFocusedRect);
-		if (gainFocus && mSelectedPosition < 0 && !isInTouchMode()) {
-			resurrectSelection();
-		}
-	}
-
-	@Override
 	public void requestLayout() {
 		if (!mBlockLayoutRequests && !mInLayout) {
 			super.requestLayout();
@@ -689,8 +669,6 @@ ViewTreeObserver.OnGlobalLayoutListener, ViewTreeObserver.OnTouchModeChangeListe
 		mNeedSync = false;
 		mOldSelectedPosition = INVALID_POSITION;
 		mOldSelectedRowId = INVALID_ROW_ID;
-		setSelectedPositionInt(INVALID_POSITION);
-		setNextSelectedPositionInt(INVALID_POSITION);
 		mSelectedTop = 0;
 		mSelectorRect.setEmpty();
 		invalidate();
@@ -837,8 +815,8 @@ ViewTreeObserver.OnGlobalLayoutListener, ViewTreeObserver.OnTouchModeChangeListe
 			}
 			mRecycler.markChildrenDirty();
 		}
-
 		layoutChildren();
+
 		mInLayout = false;
 	}
 
@@ -851,11 +829,7 @@ ViewTreeObserver.OnGlobalLayoutListener, ViewTreeObserver.OnTouchModeChangeListe
 	@Override
 	@ViewDebug.ExportedProperty
 	public View getSelectedView() {
-		if (mItemCount > 0 && mSelectedPosition >= 0) {
-			return getChildAt(mSelectedPosition - mFirstPosition);
-		} else {
-			return null;
-		}
+		return null;
 	}
 
 	/**
@@ -1092,48 +1066,6 @@ ViewTreeObserver.OnGlobalLayoutListener, ViewTreeObserver.OnTouchModeChangeListe
 		return mSelector;
 	}
 
-	/**
-	 * Sets the selector state to "pressed" and posts a CheckForKeyLongPress to see if
-	 * this is a long press.
-	 */
-	void keyPressed() {
-		if (!isEnabled() || !isClickable()) {
-			return;
-		}
-
-		Drawable selector = mSelector;
-		Rect selectorRect = mSelectorRect;
-		if (selector != null && (isFocused() || touchModeDrawsInPressedState())
-				&& selectorRect != null && !selectorRect.isEmpty()) {
-
-			final View v = getChildAt(mSelectedPosition - mFirstPosition);
-
-			if (v != null) {
-				if (v.hasFocusable()) return;
-				v.setPressed(true);
-			}
-			setPressed(true);
-
-			final boolean longClickable = isLongClickable();
-			Drawable d = selector.getCurrent();
-			if (d != null && d instanceof TransitionDrawable) {
-				if (longClickable) {
-					((TransitionDrawable) d).startTransition(
-							ViewConfiguration.getLongPressTimeout());
-				} else {
-					((TransitionDrawable) d).resetTransition();
-				}
-			}
-			if (longClickable && !mDataChanged) {
-				if (mPendingCheckForKeyLongPress == null) {
-					mPendingCheckForKeyLongPress = new CheckForKeyLongPress();
-				}
-				mPendingCheckForKeyLongPress.rememberWindowAttachCount();
-				postDelayed(mPendingCheckForKeyLongPress, ViewConfiguration.getLongPressTimeout());
-			}
-		}
-	}
-
 	@Override
 	protected void drawableStateChanged() {
 		super.drawableStateChanged();
@@ -1207,6 +1139,8 @@ ViewTreeObserver.OnGlobalLayoutListener, ViewTreeObserver.OnTouchModeChangeListe
 	@Override
 	public void onWindowFocusChanged(boolean hasWindowFocus) {
 		super.onWindowFocusChanged(hasWindowFocus);
+		if(DEBUG)
+			Log.d(TAG, "onWindowFocusChanged");
 
 		final int touchMode = isInTouchMode() ? TOUCH_MODE_ON : TOUCH_MODE_OFF;
 
@@ -1224,26 +1158,13 @@ ViewTreeObserver.OnGlobalLayoutListener, ViewTreeObserver.OnTouchModeChangeListe
 					invalidate();
 				}
 			}
-
-			if (touchMode == TOUCH_MODE_OFF) {
-				// Remember the last selected element
-				mResurrectToPosition = mSelectedPosition;
-			}
 		} else {
 
 			// If we changed touch mode since the last time we had focus
 			if (touchMode != mLastTouchMode && mLastTouchMode != TOUCH_MODE_UNKNOWN) {
 				// If we come back in trackball mode, we bring the selection back
-				if (touchMode == TOUCH_MODE_OFF) {
-					// This will trigger a layout
-					resurrectSelection();
-
-					// If we come back in touch mode, then we want to hide the selector
-				} else {
-					hideSelector();
-					mLayoutMode = LAYOUT_NORMAL;
-					layoutChildren();
-				}
+				mLayoutMode = LAYOUT_NORMAL;
+				layoutChildren();
 			}
 		}
 
@@ -1301,71 +1222,6 @@ ViewTreeObserver.OnGlobalLayoutListener, ViewTreeObserver.OnTouchModeChangeListe
 		}
 	}
 
-	private class CheckForLongPress extends WindowRunnnable implements Runnable {
-		public void run() {
-			final int motionPosition = mMotionPosition;
-			final View child = getChildAt(motionPosition - mFirstPosition);
-			if (child != null) {
-				final int longPressPosition = mMotionPosition;
-				final long longPressId = mAdapter.getItemId(mMotionPosition);
-
-				boolean handled = false;
-				if (sameWindow() && !mDataChanged) {
-					handled = performLongPress(child, longPressPosition, longPressId);
-				}
-				if (handled) {
-					mTouchMode = TOUCH_MODE_REST;
-					setPressed(false);
-					child.setPressed(false);
-				} else {
-					mTouchMode = TOUCH_MODE_DONE_WAITING;
-				}
-
-			}
-		}
-	}
-
-	private class CheckForKeyLongPress extends WindowRunnnable implements Runnable {
-		public void run() {
-			if (isPressed() && mSelectedPosition >= 0) {
-				int index = mSelectedPosition - mFirstPosition;
-				View v = getChildAt(index);
-
-				if (!mDataChanged) {
-					boolean handled = false;
-					if (sameWindow()) {
-						handled = performLongPress(v, mSelectedPosition, mSelectedRowId);
-					}
-					if (handled) {
-						setPressed(false);
-						v.setPressed(false);
-					}
-				} else {
-					setPressed(false);
-					if (v != null) v.setPressed(false);
-				}
-			}
-		}
-	}
-
-	private boolean performLongPress(final View child,
-			final int longPressPosition, final long longPressId) {
-		boolean handled = false;
-
-		if (mOnItemLongClickListener != null) {
-			handled = mOnItemLongClickListener.onItemLongClick(PLA_AbsListView.this, child,
-					longPressPosition, longPressId);
-		}
-		if (!handled) {
-			mContextMenuInfo = createContextMenuInfo(child, longPressPosition, longPressId);
-			handled = super.showContextMenuForChild(PLA_AbsListView.this);
-		}
-		if (handled) {
-			performHapticFeedback(HapticFeedbackConstants.LONG_PRESS);
-		}
-		return handled;
-	}
-
 	@Override
 	protected ContextMenuInfo getContextMenuInfo() {
 		return mContextMenuInfo;
@@ -1397,31 +1253,6 @@ ViewTreeObserver.OnGlobalLayoutListener, ViewTreeObserver.OnTouchModeChangeListe
 	@Override
 	public boolean onKeyDown(int keyCode, KeyEvent event) {
 		return false;
-	}
-
-	@Override
-	public boolean onKeyUp(int keyCode, KeyEvent event) {
-		switch (keyCode) {
-		case KeyEvent.KEYCODE_DPAD_CENTER:
-		case KeyEvent.KEYCODE_ENTER:
-			if (!isEnabled()) {
-				return true;
-			}
-			if (isClickable() && isPressed() &&
-					mSelectedPosition >= 0 && mAdapter != null &&
-					mSelectedPosition < mAdapter.getCount()) {
-
-				final View view = getChildAt(mSelectedPosition - mFirstPosition);
-				if (view != null) {
-					performItemClick(view, mSelectedPosition, mSelectedRowId);
-					view.setPressed(false);
-				}
-				setPressed(false);
-				return true;
-			}
-			break;
-		}
-		return super.onKeyUp(keyCode, event);
 	}
 
 	@Override
@@ -1504,11 +1335,6 @@ ViewTreeObserver.OnGlobalLayoutListener, ViewTreeObserver.OnTouchModeChangeListe
 						}
 
 						if (longClickable) {
-							if (mPendingCheckForLongPress == null) {
-								mPendingCheckForLongPress = new CheckForLongPress();
-							}
-							mPendingCheckForLongPress.rememberWindowAttachCount();
-							postDelayed(mPendingCheckForLongPress, longPressTimeout);
 						} else {
 							mTouchMode = TOUCH_MODE_DONE_WAITING;
 						}
@@ -1528,13 +1354,6 @@ ViewTreeObserver.OnGlobalLayoutListener, ViewTreeObserver.OnTouchModeChangeListe
 			createScrollingCache();
 			mTouchMode = TOUCH_MODE_SCROLL;
 			mMotionCorrection = deltaY;
-			final Handler handler = getHandler();
-			// Handler should not be null unless the AbsListView is not attached to a
-			// window, which would make it very hard to scroll it... but the monkeys
-			// say it's possible.
-			if (handler != null) {
-				handler.removeCallbacks(mPendingCheckForLongPress);
-			}
 			setPressed(false);
 			View motionView = getChildAt(mMotionPosition - mFirstPosition);
 			if (motionView != null) {
@@ -1553,7 +1372,6 @@ ViewTreeObserver.OnGlobalLayoutListener, ViewTreeObserver.OnTouchModeChangeListe
 	public void onTouchModeChanged(boolean isInTouchMode) {
 		if (isInTouchMode) {
 			// Get rid of the selection when we enter touch mode
-			hideSelector();
 			// Layout, but only if we already have done so previously.
 			// (Otherwise may clobber a LAYOUT_SYNC layout that was requested to restore
 			// state.)
@@ -1708,15 +1526,9 @@ ViewTreeObserver.OnGlobalLayoutListener, ViewTreeObserver.OnTouchModeChangeListe
 					mResurrectToPosition = motionPosition;
 
 					if (mTouchMode == TOUCH_MODE_DOWN || mTouchMode == TOUCH_MODE_TAP) {
-						final Handler handler = getHandler();
-						if (handler != null) {
-							handler.removeCallbacks(mTouchMode == TOUCH_MODE_DOWN ?
-									mPendingCheckForTap : mPendingCheckForLongPress);
-						}
 						mLayoutMode = LAYOUT_NORMAL;
 						if (!mDataChanged && mAdapter.isEnabled(motionPosition)) {
 							mTouchMode = TOUCH_MODE_TAP;
-							setSelectedPositionInt(mMotionPosition);
 							layoutChildren();
 							child.setPressed(true);
 							positionSelector(child);
@@ -1786,11 +1598,6 @@ ViewTreeObserver.OnGlobalLayoutListener, ViewTreeObserver.OnTouchModeChangeListe
 			// Need to redraw since we probably aren't drawing the selector anymore
 			invalidate();
 
-			final Handler handler = getHandler();
-			if (handler != null) {
-				handler.removeCallbacks(mPendingCheckForLongPress);
-			}
-
 			if (mVelocityTracker != null) {
 				mVelocityTracker.recycle();
 				mVelocityTracker = null;
@@ -1815,11 +1622,6 @@ ViewTreeObserver.OnGlobalLayoutListener, ViewTreeObserver.OnTouchModeChangeListe
 				motionView.setPressed(false);
 			}
 			clearScrollingCache();
-
-			final Handler handler = getHandler();
-			if (handler != null) {
-				handler.removeCallbacks(mPendingCheckForLongPress);
-			}
 
 			if (mVelocityTracker != null) {
 				mVelocityTracker.recycle();
@@ -1989,15 +1791,15 @@ ViewTreeObserver.OnGlobalLayoutListener, ViewTreeObserver.OnTouchModeChangeListe
 
 		void start(int initialVelocity) {
 			initialVelocity = modifyFlingInitialVelocity(initialVelocity);
-			
+
 			int initialY = initialVelocity < 0 ? Integer.MAX_VALUE : 0;
 			mLastFlingY = initialY;
 			mScroller.fling(0, initialY, 0, initialVelocity,
 					0, Integer.MAX_VALUE, 0, Integer.MAX_VALUE);
-			
+
 			if(DEBUG)
 				Log.d(TAG, String.format("String Fling: [%d, %d] to [%d]", initialY, initialVelocity, mScroller.getFinalY()));
-			
+
 			mTouchMode = TOUCH_MODE_FLING;
 			post(this);
 
@@ -2046,7 +1848,7 @@ ViewTreeObserver.OnGlobalLayoutListener, ViewTreeObserver.OnTouchModeChangeListe
 				final Scroller scroller = mScroller;
 				boolean more = scroller.computeScrollOffset();
 				final int y = scroller.getCurrY();
-				
+
 				// Flip sign to convert finger direction to list items direction
 				// (e.g. finger moving down means list is moving towards the top)
 				int delta = mLastFlingY - y;
@@ -2464,11 +2266,6 @@ ViewTreeObserver.OnGlobalLayoutListener, ViewTreeObserver.OnTouchModeChangeListe
 
 		final boolean down = incrementalDeltaY < 0;
 
-		final boolean inTouchMode = isInTouchMode();
-		if (inTouchMode) {
-			hideSelector();
-		}
-
 		final int headerViewsCount = getHeaderViewsCount();
 		final int footerViewsStart = mItemCount - getFooterViewsCount();
 
@@ -2540,13 +2337,6 @@ ViewTreeObserver.OnGlobalLayoutListener, ViewTreeObserver.OnTouchModeChangeListe
 			fillGap(down);
 		}
 
-		if (!inTouchMode && mSelectedPosition != INVALID_POSITION) {
-			final int childIndex = mSelectedPosition - mFirstPosition;
-			if (childIndex >= 0 && childIndex < getChildCount()) {
-				positionSelector(getChildAt(childIndex));
-			}
-		}
-
 		mBlockLayoutRequests = false;
 		invokeOnItemScrollListener();
 		awakenScrollBars();
@@ -2595,36 +2385,6 @@ ViewTreeObserver.OnGlobalLayoutListener, ViewTreeObserver.OnTouchModeChangeListe
 	 */
 	abstract void fillGap(boolean down);
 
-	void hideSelector() {
-		if (mSelectedPosition != INVALID_POSITION) {
-			if (mLayoutMode != LAYOUT_SPECIFIC) {
-				mResurrectToPosition = mSelectedPosition;
-			}
-			if (mNextSelectedPosition >= 0 && mNextSelectedPosition != mSelectedPosition) {
-				mResurrectToPosition = mNextSelectedPosition;
-			}
-			setSelectedPositionInt(INVALID_POSITION);
-			setNextSelectedPositionInt(INVALID_POSITION);
-			mSelectedTop = 0;
-			mSelectorRect.setEmpty();
-		}
-	}
-
-	/**
-	 * @return A position to select. First we try mSelectedPosition. If that has been clobbered by
-	 * entering touch mode, we then try mResurrectToPosition. Values are pinned to the range
-	 * of items available in the adapter
-	 */
-	int reconcileSelectedPosition() {
-		int position = mSelectedPosition;
-		if (position < 0) {
-			position = mResurrectToPosition;
-		}
-		position = Math.max(0, position);
-		position = Math.min(position, mItemCount - 1);
-		return position;
-	}
-
 	/**
 	 * Find the row closest to y. This row will be used as the motion row when scrolling
 	 *
@@ -2659,117 +2419,6 @@ ViewTreeObserver.OnGlobalLayoutListener, ViewTreeObserver.OnTouchModeChangeListe
 		invalidate();
 	}
 
-	/**
-	 * Makes the item at the supplied position selected.
-	 *
-	 * @param position the position of the new selection
-	 */
-	abstract void setSelectionInt(int position);
-
-	/**
-	 * Attempt to bring the selection back if the user is switching from touch
-	 * to trackball mode
-	 * @return Whether selection was set to something.
-	 */
-	boolean resurrectSelection() {
-		final int childCount = getChildCount();
-
-		if (childCount <= 0) {
-			return false;
-		}
-
-		int selectedTop = 0;
-		int selectedPos;
-		int childrenTop = mListPadding.top;
-		//        int childrenBottom = mBottom - mTop - mListPadding.bottom;
-		int childrenBottom = getBottom() - getTop() - mListPadding.bottom;
-		final int firstPosition = mFirstPosition;
-		final int toPosition = mResurrectToPosition;
-		boolean down = true;
-
-		if (toPosition >= firstPosition && toPosition < firstPosition + childCount) {
-			selectedPos = toPosition;
-
-			final View selected = getChildAt(selectedPos - mFirstPosition);
-			selectedTop = selected.getTop();
-			int selectedBottom = selected.getBottom();
-
-			// We are scrolled, don't get in the fade
-			if (selectedTop < childrenTop) {
-				selectedTop = childrenTop + getVerticalFadingEdgeLength();
-			} else if (selectedBottom > childrenBottom) {
-				selectedTop = childrenBottom - selected.getMeasuredHeight()
-						- getVerticalFadingEdgeLength();
-			}
-		} else {
-			if (toPosition < firstPosition) {
-				// Default to selecting whatever is first
-				selectedPos = firstPosition;
-				for (int i = 0; i < childCount; i++) {
-					final View v = getChildAt(i);
-					final int top = v.getTop();
-
-					if (i == 0) {
-						// Remember the position of the first item
-						selectedTop = top;
-						// See if we are scrolled at all
-						if (firstPosition > 0 || top < childrenTop) {
-							// If we are scrolled, don't select anything that is
-							// in the fade region
-							childrenTop += getVerticalFadingEdgeLength();
-						}
-					}
-					if (top >= childrenTop) {
-						// Found a view whose top is fully visisble
-						selectedPos = firstPosition + i;
-						selectedTop = top;
-						break;
-					}
-				}
-			} else {
-				final int itemCount = mItemCount;
-				down = false;
-				selectedPos = firstPosition + childCount - 1;
-
-				for (int i = childCount - 1; i >= 0; i--) {
-					final View v = getChildAt(i);
-					final int top = v.getTop();
-					final int bottom = v.getBottom();
-
-					if (i == childCount - 1) {
-						selectedTop = top;
-						if (firstPosition + childCount < itemCount || bottom > childrenBottom) {
-							childrenBottom -= getVerticalFadingEdgeLength();
-						}
-					}
-
-					if (bottom <= childrenBottom) {
-						selectedPos = firstPosition + i;
-						selectedTop = top;
-						break;
-					}
-				}
-			}
-		}
-
-		mResurrectToPosition = INVALID_POSITION;
-		removeCallbacks(mFlingRunnable);
-		mTouchMode = TOUCH_MODE_REST;
-		clearScrollingCache();
-		mSpecificTop = selectedTop;
-		selectedPos = lookForSelectablePosition(selectedPos, down);
-		if (selectedPos >= firstPosition && selectedPos <= getLastVisiblePosition()) {
-			mLayoutMode = LAYOUT_SPECIFIC;
-			setSelectionInt(selectedPos);
-			invokeOnItemScrollListener();
-		} else {
-			selectedPos = INVALID_POSITION;
-		}
-		reportScrollStateChange(OnScrollListener.SCROLL_STATE_IDLE);
-
-		return selectedPos >= 0;
-	}
-
 	@Override
 	protected void handleDataChanged() {
 		int count = mItemCount;
@@ -2790,48 +2439,10 @@ ViewTreeObserver.OnGlobalLayoutListener, ViewTreeObserver.OnTouchModeChangeListe
 				}
 
 				switch (mSyncMode) {
-				case SYNC_SELECTED_POSITION:
-					if (isInTouchMode()) {
-						// We saved our state when not in touch mode. (We know this because
-						// mSyncMode is SYNC_SELECTED_POSITION.) Now we are trying to
-						// restore in touch mode. Just leave mSyncPosition as it is (possibly
-						// adjusting if the available range changed) and return.
-						mLayoutMode = LAYOUT_SYNC;
-						mSyncPosition = Math.min(Math.max(0, mSyncPosition), count - 1);
-						onLayoutSync( mSyncPosition );
-						return;
-					} else {
-						// See if we can find a position in the new data with the same
-						// id as the old selection. This will change mSyncPosition.
-						newPos = findSyncPosition();
-						if (newPos >= 0) {
-							// Found it. Now verify that new selection is still selectable
-							selectablePos = lookForSelectablePosition(newPos, true);
-							if (selectablePos == newPos) {
-								// Same row id is selected
-								mSyncPosition = newPos;
-								if (mSyncHeight == getHeight()) {
-									// If we are at the same height as when we saved state, try
-									// to restore the scroll position too.
-									mLayoutMode = LAYOUT_SYNC;
-									onLayoutSync( mSyncPosition );
-								} else {
-									// We are not the same height as when the selection was saved, so
-									// don't try to restore the exact position
-									mLayoutMode = LAYOUT_SET_SELECTION;
-								}
-								// Restore selection
-								setNextSelectedPositionInt(newPos);
-								return;
-							}
-						}
-					}
-					break;
 				case SYNC_FIRST_POSITION:
 					// Leave mSyncPosition as it is -- just pin to available range
 					mLayoutMode = LAYOUT_SYNC;
 					mSyncPosition = Math.min(Math.max(0, mSyncPosition), count - 1);
-					onLayoutSync( mSyncPosition );
 					return;
 				}
 			}
@@ -2851,16 +2462,10 @@ ViewTreeObserver.OnGlobalLayoutListener, ViewTreeObserver.OnTouchModeChangeListe
 				// Make sure we select something selectable -- first look down
 				selectablePos = lookForSelectablePosition(newPos, true);
 
+				// Looking down didn't work -- try looking up
+				selectablePos = lookForSelectablePosition(newPos, false);
 				if (selectablePos >= 0) {
-					setNextSelectedPositionInt(selectablePos);
 					return;
-				} else {
-					// Looking down didn't work -- try looking up
-					selectablePos = lookForSelectablePosition(newPos, false);
-					if (selectablePos >= 0) {
-						setNextSelectedPositionInt(selectablePos);
-						return;
-					}
 				}
 			} else {
 
@@ -2874,12 +2479,7 @@ ViewTreeObserver.OnGlobalLayoutListener, ViewTreeObserver.OnTouchModeChangeListe
 
 		// Nothing is selected. Give up and reset everything.
 		mLayoutMode = mStackFromBottom ? LAYOUT_FORCE_BOTTOM : LAYOUT_FORCE_TOP;
-		mSelectedPosition = INVALID_POSITION;
-		mSelectedRowId = INVALID_ROW_ID;
-		mNextSelectedPosition = INVALID_POSITION;
-		mNextSelectedRowId = INVALID_ROW_ID;
 		mNeedSync = false;
-		checkSelectionChanged();
 	}
 
 	/**
@@ -3526,11 +3126,11 @@ ViewTreeObserver.OnGlobalLayoutListener, ViewTreeObserver.OnTouchModeChangeListe
 			}			
 		}
 	}
-	
+
 	/////////////////////////////////////////////////////
 	//Check available space of list view.
 	/////////////////////////////////////////////////////
-	
+
 	protected int modifyFlingInitialVelocity(int initialVelocity) {
 		return initialVelocity;
 	}
@@ -3545,7 +3145,7 @@ ViewTreeObserver.OnGlobalLayoutListener, ViewTreeObserver.OnTouchModeChangeListe
 			return 0;
 		return getChildAt(0).getTop();
 	}
-	
+
 	protected int getFirstChildTop() {
 		final int count = getChildCount();
 		if( count == 0 )
@@ -3563,7 +3163,7 @@ ViewTreeObserver.OnGlobalLayoutListener, ViewTreeObserver.OnTouchModeChangeListe
 			return 0;
 		return getChildAt(0).getTop();
 	}    
-	
+
 	/**
 	 * 
 	 * @return
@@ -3574,7 +3174,7 @@ ViewTreeObserver.OnGlobalLayoutListener, ViewTreeObserver.OnTouchModeChangeListe
 			return 0;
 		return getChildAt(count - 1).getBottom();
 	}
-	
+
 	/**
 	 * 
 	 * @return

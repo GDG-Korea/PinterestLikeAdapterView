@@ -27,6 +27,7 @@ import android.graphics.Rect;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.util.SparseBooleanArray;
 import android.view.MotionEvent;
 import android.view.View;
@@ -118,9 +119,6 @@ public class PLA_ListView extends PLA_AbsListView {
 	// used for temporary calculations.
 	private final Rect mTempRect = new Rect();
 	private Paint mDividerPaint;
-
-	// Keeps focused children visible through resizes
-	private FocusSelector mFocusSelector;
 
 	public PLA_ListView(Context context) {
 		this(context, null);
@@ -460,25 +458,10 @@ public class PLA_ListView extends PLA_AbsListView {
 
 			mRecycler.setViewTypeCount(mAdapter.getViewTypeCount());
 
-			int position;
-			if (mStackFromBottom) {
-				position = lookForSelectablePosition(mItemCount - 1, false);
-			} else {
-				position = lookForSelectablePosition(0, true);
-			}
-			setSelectedPositionInt(position);
-			setNextSelectedPositionInt(position);
-
-			if (mItemCount == 0) {
-				// Nothing selected
-				checkSelectionChanged();
-			}
-
 		} else {
 			mAreAllItemsSelectable = true;
 			checkFocus();
 			// Nothing selected
-			checkSelectionChanged();
 		}
 
 		requestLayout();
@@ -564,7 +547,7 @@ public class PLA_ListView extends PLA_AbsListView {
 
 		if (showingTopFadingEdge()) {
 			// leave room for top fading edge as long as rect isn't at very top
-			if ((mSelectedPosition > 0) || (rectTopWithinChild > fadingEdge)) {
+			if (rectTopWithinChild > fadingEdge) {
 				listUnfadedTop += fadingEdge;
 			}
 		}
@@ -574,8 +557,7 @@ public class PLA_ListView extends PLA_AbsListView {
 
 		if (showingBottomFadingEdge()) {
 			// leave room for bottom fading edge as long as rect isn't at very bottom
-			if ((mSelectedPosition < mItemCount - 1)
-					|| (rect.bottom < (bottomOfBottomChild - fadingEdge))) {
+			if (rect.bottom < (bottomOfBottomChild - fadingEdge)) {
 				listUnfadedBottom -= fadingEdge;
 			}
 		}
@@ -737,200 +719,12 @@ public class PLA_ListView extends PLA_AbsListView {
 	 * @return The view that is currently selected
 	 */
 	private View fillFromTop(int nextTop) {
-		mFirstPosition = Math.min(mFirstPosition, mSelectedPosition);
+		mFirstPosition = Math.min(mFirstPosition, -1);
 		mFirstPosition = Math.min(mFirstPosition, mItemCount - 1);
 		if (mFirstPosition < 0) {
 			mFirstPosition = 0;
 		}
 		return fillDown(mFirstPosition, nextTop);
-	}
-
-
-	/**
-	 * Put mSelectedPosition in the middle of the screen and then build up and
-	 * down from there. This method forces mSelectedPosition to the center.
-	 *
-	 * @param childrenTop Top of the area in which children can be drawn, as
-	 *        measured in pixels
-	 * @param childrenBottom Bottom of the area in which children can be drawn,
-	 *        as measured in pixels
-	 * @return Currently selected view
-	 */
-	private View fillFromMiddle(int childrenTop, int childrenBottom) {
-		int height = childrenBottom - childrenTop;
-
-		int position = reconcileSelectedPosition();
-
-		View sel = makeAndAddView(position, childrenTop, true, true);
-		mFirstPosition = position;
-
-		int selHeight = sel.getMeasuredHeight();
-		if (selHeight <= height) {
-			sel.offsetTopAndBottom((height - selHeight) / 2);
-		}
-
-		fillAboveAndBelow(sel, position);
-
-		if (!mStackFromBottom) {
-			correctTooHigh(getChildCount());
-		} else {
-			correctTooLow(getChildCount());
-		}
-
-		return sel;
-	}
-
-	/**
-	 * Once the selected view as been placed, fill up the visible area above and
-	 * below it.
-	 *
-	 * @param sel The selected view
-	 * @param position The position corresponding to sel
-	 */
-	private void fillAboveAndBelow(View sel, int position) {
-		final int dividerHeight = mDividerHeight;
-		if (!mStackFromBottom) {
-			fillUp(position - 1, sel.getTop() - dividerHeight);
-			adjustViewsUpOrDown();
-			fillDown(position + 1, sel.getBottom() + dividerHeight);
-		} else {
-			fillDown(position + 1, sel.getBottom() + dividerHeight);
-			adjustViewsUpOrDown();
-			fillUp(position - 1, sel.getTop() - dividerHeight);
-		}
-	}
-
-
-	/**
-	 * Fills the grid based on positioning the new selection at a specific
-	 * location. The selection may be moved so that it does not intersect the
-	 * faded edges. The grid is then filled upwards and downwards from there.
-	 *
-	 * @param selectedTop Where the selected item should be
-	 * @param childrenTop Where to start drawing children
-	 * @param childrenBottom Last pixel where children can be drawn
-	 * @return The view that currently has selection
-	 */
-	private View fillFromSelection(int selectedTop, int childrenTop, int childrenBottom) {
-		int fadingEdgeLength = getVerticalFadingEdgeLength();
-		final int selectedPosition = mSelectedPosition;
-
-		View sel;
-
-		final int topSelectionPixel = getTopSelectionPixel(childrenTop, fadingEdgeLength,
-				selectedPosition);
-		final int bottomSelectionPixel = getBottomSelectionPixel(childrenBottom, fadingEdgeLength,
-				selectedPosition);
-
-		sel = makeAndAddView(selectedPosition, selectedTop, true, true);
-
-
-		// Some of the newly selected item extends below the bottom of the list
-		if (sel.getBottom() > bottomSelectionPixel) {
-			// Find space available above the selection into which we can scroll
-			// upwards
-			final int spaceAbove = sel.getTop() - topSelectionPixel;
-
-			// Find space required to bring the bottom of the selected item
-			// fully into view
-			final int spaceBelow = sel.getBottom() - bottomSelectionPixel;
-			final int offset = Math.min(spaceAbove, spaceBelow);
-
-			// Now offset the selected item to get it into view
-			sel.offsetTopAndBottom(-offset);
-		} else if (sel.getTop() < topSelectionPixel) {
-			// Find space required to bring the top of the selected item fully
-			// into view
-			final int spaceAbove = topSelectionPixel - sel.getTop();
-
-			// Find space available below the selection into which we can scroll
-			// downwards
-			final int spaceBelow = bottomSelectionPixel - sel.getBottom();
-			final int offset = Math.min(spaceAbove, spaceBelow);
-
-			// Offset the selected item to get it into view
-			sel.offsetTopAndBottom(offset);
-		}
-
-		// Fill in views above and below
-		fillAboveAndBelow(sel, selectedPosition);
-
-		if (!mStackFromBottom) {
-			correctTooHigh(getChildCount());
-		} else {
-			correctTooLow(getChildCount());
-		}
-
-		return sel;
-	}
-
-	/**
-	 * Calculate the bottom-most pixel we can draw the selection into
-	 *
-	 * @param childrenBottom Bottom pixel were children can be drawn
-	 * @param fadingEdgeLength Length of the fading edge in pixels, if present
-	 * @param selectedPosition The position that will be selected
-	 * @return The bottom-most pixel we can draw the selection into
-	 */
-	private int getBottomSelectionPixel(int childrenBottom, int fadingEdgeLength,
-			int selectedPosition) {
-		int bottomSelectionPixel = childrenBottom;
-		if (selectedPosition != mItemCount - 1) {
-			bottomSelectionPixel -= fadingEdgeLength;
-		}
-		return bottomSelectionPixel;
-	}
-
-	/**
-	 * Calculate the top-most pixel we can draw the selection into
-	 *
-	 * @param childrenTop Top pixel were children can be drawn
-	 * @param fadingEdgeLength Length of the fading edge in pixels, if present
-	 * @param selectedPosition The position that will be selected
-	 * @return The top-most pixel we can draw the selection into
-	 */
-	private int getTopSelectionPixel(int childrenTop, int fadingEdgeLength, int selectedPosition) {
-		// first pixel we can draw the selection into
-		int topSelectionPixel = childrenTop;
-		if (selectedPosition > 0) {
-			topSelectionPixel += fadingEdgeLength;
-		}
-		return topSelectionPixel;
-	}
-
-
-	private class FocusSelector implements Runnable {
-		private int mPosition;
-		private int mPositionTop;
-
-		public FocusSelector setup(int position, int top) {
-			mPosition = position;
-			mPositionTop = top;
-			return this;
-		}
-
-		public void run() {
-			setSelectionFromTop(mPosition, mPositionTop);
-		}
-	}
-
-	@Override
-	protected void onSizeChanged(int w, int h, int oldw, int oldh) {
-		if (getChildCount() > 0) {
-			View focusedChild = getFocusedChild();
-			if (focusedChild != null) {
-				final int childPosition = mFirstPosition + indexOfChild(focusedChild);
-				final int childBottom = focusedChild.getBottom();
-				//                final int offset = Math.max(0, childBottom - (h - mPaddingTop));
-				final int offset = Math.max(0, childBottom - (h - getPaddingTop()));
-				final int top = focusedChild.getTop() - offset;
-				if (mFocusSelector == null) {
-					mFocusSelector = new FocusSelector();
-				}
-				post(mFocusSelector.setup(childPosition, top));
-			}
-		}
-		super.onSizeChanged(w, h, oldw, oldh);
 	}
 
 	@Override
@@ -1137,6 +931,8 @@ public class PLA_ListView extends PLA_AbsListView {
 	 */
 	private View fillSpecific(int position, int top) {
 
+		Log.v("PLA_ListView", "FillSpecific: " + position + ":" + top);
+
 		View temp = makeAndAddView(position, top, true, false);
 
 		// Possibly changed again in fillUp if we add rows above this one.
@@ -1283,9 +1079,7 @@ public class PLA_ListView extends PLA_AbsListView {
 
 		try {
 			super.layoutChildren();
-
 			invalidate();
-
 			if (mAdapter == null) {
 				resetList();
 				invokeOnItemScrollListener();
@@ -1298,45 +1092,20 @@ public class PLA_ListView extends PLA_AbsListView {
 
 			int childCount = getChildCount();
 			int index = 0;
-			int delta = 0;
 
-			View sel;
-			View oldSel = null;
 			View oldFirst = null;
-			View newSel = null;
-
 			View focusLayoutRestoreView = null;
 
 			// Remember stuff we will need down below
 			switch (mLayoutMode) {
-			case LAYOUT_SET_SELECTION:
-				index = mNextSelectedPosition - mFirstPosition;
-				if (index >= 0 && index < childCount) {
-					newSel = getChildAt(index);
-				}
-				break;
 			case LAYOUT_FORCE_TOP:
 			case LAYOUT_FORCE_BOTTOM:
 			case LAYOUT_SPECIFIC:
 			case LAYOUT_SYNC:
 				break;
-			case LAYOUT_MOVE_SELECTION:
 			default:
-				// Remember the previously selected view
-				index = mSelectedPosition - mFirstPosition;
-				if (index >= 0 && index < childCount) {
-					oldSel = getChildAt(index);
-				}
-
 				// Remember the previous first child
 				oldFirst = getChildAt(0);
-
-				if (mNextSelectedPosition >= 0) {
-					delta = mNextSelectedPosition - mSelectedPosition;
-				}
-
-				// Caution: newSel might be null
-				newSel = getChildAt(index + delta);
 			}
 
 
@@ -1359,16 +1128,12 @@ public class PLA_ListView extends PLA_AbsListView {
 						+ ") with Adapter(" + mAdapter.getClass() + ")]");
 			}
 
-			setSelectedPositionInt(mNextSelectedPosition);
-
 			// Pull all children into the RecycleBin.
 			// These views will be reused if possible
 			final int firstPosition = mFirstPosition;
 			final RecycleBin recycleBin = mRecycler;
 
 			// reset the focus restoration
-			View focusLayoutRestoreDirectChild = null;
-
 
 			// Don't put header or footer views into the Recycler. Those are
 			// already cached in mHeaderViews;
@@ -1391,11 +1156,9 @@ public class PLA_ListView extends PLA_AbsListView {
 			final View focusedChild = getFocusedChild();
 			if (focusedChild != null) {
 				// TODO: in some cases focusedChild.getParent() == null
-
 				// we can remember the focused view to restore after relayout if the
 				// data hasn't changed, or if the focused position is a header or footer
 				if (!dataChanged || isDirectChildHeaderOrFooter(focusedChild)) {
-					focusLayoutRestoreDirectChild = focusedChild;
 					// remember the specific view that had focus
 					focusLayoutRestoreView = findFocus();
 					if (focusLayoutRestoreView != null) {
@@ -1406,53 +1169,45 @@ public class PLA_ListView extends PLA_AbsListView {
 				requestFocus();
 			}
 
-			// Clear out old views
-			detachAllViewsFromParent();
 
 			switch (mLayoutMode) {
-			case LAYOUT_SET_SELECTION:
-				if (newSel != null) {
-					sel = fillFromSelection(newSel.getTop(), childrenTop, childrenBottom);
-				} else {
-					sel = fillFromMiddle(childrenTop, childrenBottom);
-				}
-				break;
 			case LAYOUT_SYNC:
-				sel = fillSpecific(mSyncPosition, mSpecificTop);
+				onLayoutSync(mSyncPosition);
+				// Clear out old views
+				detachAllViewsFromParent();
+				fillSpecific(mSyncPosition, mSpecificTop);
 				onLayoutSyncFinished(mSyncPosition);
 				break;
 			case LAYOUT_FORCE_BOTTOM:
-				sel = fillUp(mItemCount - 1, childrenBottom);
+				detachAllViewsFromParent();
+				fillUp(mItemCount - 1, childrenBottom);
 				adjustViewsUpOrDown();
 				break;
 			case LAYOUT_FORCE_TOP:
+				detachAllViewsFromParent();
 				mFirstPosition = 0;
-				sel = fillFromTop(childrenTop);
+				fillFromTop(childrenTop);
 				adjustViewsUpOrDown();
-				break;
-			case LAYOUT_SPECIFIC:
-				sel = fillSpecific(reconcileSelectedPosition(), mSpecificTop);
 				break;
 			default:
 				if (childCount == 0) {
+					detachAllViewsFromParent();
 					if (!mStackFromBottom) {
-						final int position = lookForSelectablePosition(0, true);
-						setSelectedPositionInt(position);
-						sel = fillFromTop(childrenTop);
+						fillFromTop(childrenTop);
 					} else {
-						final int position = lookForSelectablePosition(mItemCount - 1, false);
-						setSelectedPositionInt(position);
-						sel = fillUp(mItemCount - 1, childrenBottom);
+						fillUp(mItemCount - 1, childrenBottom);
 					}
 				} else {
-					if (mSelectedPosition >= 0 && mSelectedPosition < mItemCount) {
-						sel = fillSpecific(mSelectedPosition,
-								oldSel == null ? childrenTop : oldSel.getTop());
-					} else if (mFirstPosition < mItemCount) {
-						sel = fillSpecific(mFirstPosition,
-								oldFirst == null ? childrenTop : oldFirst.getTop());
+					if (mFirstPosition < mItemCount) {
+						onLayoutSync(mFirstPosition);
+						detachAllViewsFromParent();
+						fillSpecific(mFirstPosition, oldFirst == null ? childrenTop : oldFirst.getTop());
+						onLayoutSyncFinished(mFirstPosition);
 					} else {
-						sel = fillSpecific(0, childrenTop);
+						onLayoutSync(0);
+						detachAllViewsFromParent();
+						fillSpecific(0, childrenTop);
+						onLayoutSyncFinished(0);
 					}
 				}
 				break;
@@ -1461,43 +1216,18 @@ public class PLA_ListView extends PLA_AbsListView {
 			// Flush any cached views that did not get reused above
 			recycleBin.scrapActiveViews();
 
-			if (sel != null) {
-				// the current selected item should get focus if items
-				// are focusable
-				if (mItemsCanFocus && hasFocus() && !sel.hasFocus()) {
-					final boolean focusWasTaken = (sel == focusLayoutRestoreDirectChild &&
-							focusLayoutRestoreView.requestFocus()) || sel.requestFocus();
-					if (!focusWasTaken) {
-						// selected item didn't take focus, fine, but still want
-						// to make sure something else outside of the selected view
-						// has focus
-						final View focused = getFocusedChild();
-						if (focused != null) {
-							focused.clearFocus();
-						}
-						positionSelector(sel);
-					} else {
-						sel.setSelected(false);
-						mSelectorRect.setEmpty();
-					}
-				} else {
-					positionSelector(sel);
-				}
-				mSelectedTop = sel.getTop();
+			if (mTouchMode > TOUCH_MODE_DOWN && mTouchMode < TOUCH_MODE_SCROLL) {
+				View child = getChildAt(mMotionPosition - mFirstPosition);
+				if (child != null) positionSelector(child);
 			} else {
-				if (mTouchMode > TOUCH_MODE_DOWN && mTouchMode < TOUCH_MODE_SCROLL) {
-					View child = getChildAt(mMotionPosition - mFirstPosition);
-					if (child != null) positionSelector(child);
-				} else {
-					mSelectedTop = 0;
-					mSelectorRect.setEmpty();
-				}
+				mSelectedTop = 0;
+				mSelectorRect.setEmpty();
+			}
 
-				// even if there is not selected position, we may need to restore
-				// focus (i.e. something focusable in touch mode)
-				if (hasFocus() && focusLayoutRestoreView != null) {
-					focusLayoutRestoreView.requestFocus();
-				}
+			// even if there is not selected position, we may need to restore
+			// focus (i.e. something focusable in touch mode)
+			if (hasFocus() && focusLayoutRestoreView != null) {
+				focusLayoutRestoreView.requestFocus();
 			}
 
 			// tell focus view we are done mucking with it, if it is still in
@@ -1510,11 +1240,6 @@ public class PLA_ListView extends PLA_AbsListView {
 			mLayoutMode = LAYOUT_NORMAL;
 			mDataChanged = false;
 			mNeedSync = false;
-			setNextSelectedPositionInt(mSelectedPosition);
-
-			if (mItemCount > 0) {
-				checkSelectionChanged();
-			}
 
 			invokeOnItemScrollListener();
 		} finally {
@@ -1585,6 +1310,7 @@ public class PLA_ListView extends PLA_AbsListView {
 		}
 
 		//Notify new item is added to view.
+		
 		onItemAddedToList( position, flow );
 		childrenLeft = getItemLeft( position );
 
@@ -1739,70 +1465,6 @@ public class PLA_ListView extends PLA_AbsListView {
 	 */
 	@Override
 	public void setSelection(int position) {
-		setSelectionFromTop(position, 0);
-	}
-
-	/**
-	 * Sets the selected item and positions the selection y pixels from the top edge
-	 * of the ListView. (If in touch mode, the item will not be selected but it will
-	 * still be positioned appropriately.)
-	 *
-	 * @param position Index (starting at 0) of the data item to be selected.
-	 * @param y The distance from the top edge of the ListView (plus padding) that the
-	 *        item will be positioned.
-	 */
-	public void setSelectionFromTop(int position, int y) {
-		if (mAdapter == null) {
-			return;
-		}
-
-		if (!isInTouchMode()) {
-			position = lookForSelectablePosition(position, true);
-			if (position >= 0) {
-				setNextSelectedPositionInt(position);
-			}
-		} else {
-			mResurrectToPosition = position;
-		}
-
-		if (position >= 0) {
-			mLayoutMode = LAYOUT_SPECIFIC;
-			mSpecificTop = mListPadding.top + y;
-
-			if (mNeedSync) {
-				mSyncPosition = position;
-				mSyncRowId = mAdapter.getItemId(position);
-			}
-
-			requestLayout();
-		}
-	}
-
-	/**
-	 * Makes the item at the supplied position selected.
-	 * 
-	 * @param position the position of the item to select
-	 */
-	@Override
-	void setSelectionInt(int position) {
-		setNextSelectedPositionInt(position);
-		boolean awakeScrollbars = false;
-
-		final int selectedPosition = mSelectedPosition;
-
-		if (selectedPosition >= 0) {
-			if (position == selectedPosition - 1) {
-				awakeScrollbars = true;
-			} else if (position == selectedPosition + 1) {
-				awakeScrollbars = true;
-			}
-		}
-
-		layoutChildren();
-
-		if (awakeScrollbars) {
-			awakenScrollBars();
-		}
 	}
 
 	/**
@@ -1880,71 +1542,6 @@ public class PLA_ListView extends PLA_AbsListView {
 	}
 
 	/**
-	 * setSelectionAfterHeaderView set the selection to be the first list item
-	 * after the header views.
-	 */
-	public void setSelectionAfterHeaderView() {
-		final int count = mHeaderViewInfos.size();
-		if (count > 0) {
-			mNextSelectedPosition = 0;
-			return;
-		}
-
-		if (mAdapter != null) {
-			setSelection(count);
-		} else {
-			mNextSelectedPosition = count;
-			mLayoutMode = LAYOUT_SET_SELECTION;
-		}
-
-	}
-
-	/**
-	 * Scrolls up or down by the number of items currently present on screen.
-	 *
-	 * @param direction either {@link View#FOCUS_UP} or {@link View#FOCUS_DOWN}
-	 * @return whether selection was moved
-	 */
-	boolean pageScroll(int direction) {
-		int nextPage = -1;
-		boolean down = false;
-
-		if (direction == FOCUS_UP) {
-			nextPage = Math.max(0, mSelectedPosition - getChildCount() - 1);
-		} else if (direction == FOCUS_DOWN) {
-			nextPage = Math.min(mItemCount - 1, mSelectedPosition + getChildCount() - 1);
-			down = true;
-		}
-
-		if (nextPage >= 0) {
-			int position = lookForSelectablePosition(nextPage, down);
-			if (position >= 0) {
-				mLayoutMode = LAYOUT_SPECIFIC;
-				//                mSpecificTop = mPaddingTop + getVerticalFadingEdgeLength();
-				mSpecificTop = getPaddingTop() + getVerticalFadingEdgeLength();
-
-				if (down && position > mItemCount - getChildCount()) {
-					mLayoutMode = LAYOUT_FORCE_BOTTOM;
-				}
-
-				if (!down && position < getChildCount()) {
-					mLayoutMode = LAYOUT_FORCE_TOP;
-				}
-
-				setSelectionInt(position);
-				invokeOnItemScrollListener();
-				if (!awakenScrollBars()) {
-					invalidate();
-				}
-
-				return true;
-			}
-		}
-
-		return false;
-	}
-
-	/**
 	 * Go to the last or first item if possible (not worrying about panning across or navigating
 	 * within the internal focus of the currently selected item.)
 	 *
@@ -1955,25 +1552,19 @@ public class PLA_ListView extends PLA_AbsListView {
 	public boolean fullScroll(int direction) {
 		boolean moved = false;
 		if (direction == FOCUS_UP) {
-			if (mSelectedPosition != 0) {
-				int position = lookForSelectablePosition(0, true);
-				if (position >= 0) {
-					mLayoutMode = LAYOUT_FORCE_TOP;
-					setSelectionInt(position);
-					invokeOnItemScrollListener();
-				}
+			int position = lookForSelectablePosition(0, true);
+			if (position >= 0) {
+				mLayoutMode = LAYOUT_FORCE_TOP;
+				invokeOnItemScrollListener();
 				moved = true;
 			}
 		} else if (direction == FOCUS_DOWN) {
-			if (mSelectedPosition < mItemCount - 1) {
-				int position = lookForSelectablePosition(mItemCount - 1, true);
-				if (position >= 0) {
-					mLayoutMode = LAYOUT_FORCE_BOTTOM;
-					setSelectionInt(position);
-					invokeOnItemScrollListener();
-				}
-				moved = true;
+			int position = lookForSelectablePosition(mItemCount - 1, true);
+			if (position >= 0) {
+				mLayoutMode = LAYOUT_FORCE_BOTTOM;
+				invokeOnItemScrollListener();
 			}
+			moved = true;
 		}
 
 		if (moved && !awakenScrollBars()) {
@@ -2471,9 +2062,12 @@ public class PLA_ListView extends PLA_AbsListView {
 	protected void onFocusChanged(boolean gainFocus, int direction, Rect previouslyFocusedRect) {
 		super.onFocusChanged(gainFocus, direction, previouslyFocusedRect);
 
+		if(DEBUG)
+			Log.v("PLA_ListView", "onFocusChanged");
+
 		int closetChildIndex = -1;
 		if (gainFocus && previouslyFocusedRect != null) {
-			//            previouslyFocusedRect.offset(mScrollX, mScrollY);
+			//previouslyFocusedRect.offset(mScrollX, mScrollY);
 			previouslyFocusedRect.offset(getScrollX(), getScrollY());
 
 			final ListAdapter adapter = mAdapter;
