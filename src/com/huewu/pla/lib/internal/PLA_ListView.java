@@ -931,7 +931,7 @@ public class PLA_ListView extends PLA_AbsListView {
 	 */
 	private View fillSpecific(int position, int top) {
 
-		Log.v("PLA_ListView", "FillSpecific: " + position + ":" + top);
+		if(DEBUG) Log.d("PLA_ListView", "FillSpecific: " + position + ":" + top);
 
 		View temp = makeAndAddView(position, top, true, false);
 

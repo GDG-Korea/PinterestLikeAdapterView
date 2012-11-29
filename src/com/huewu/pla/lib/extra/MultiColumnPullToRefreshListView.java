@@ -5,6 +5,7 @@ import java.util.Date;
 
 import android.content.Context;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
@@ -254,8 +255,8 @@ public class MultiColumnPullToRefreshListView extends MultiColumnListView {
 		ViewTreeObserver vto = header.getViewTreeObserver();
 		vto.addOnGlobalLayoutListener(new PTROnGlobalLayoutListener());
 
-		//        super.setOnItemClickListener(new PTROnItemClickListener());
-		//        super.setOnItemLongClickListener(new PTROnItemLongClickListener());
+		//super.setOnItemClickListener(new PTROnItemClickListener());
+		//super.setOnItemLongClickListener(new PTROnItemLongClickListener());
 	}
 
 	private void setHeaderPadding(int padding){
@@ -264,6 +265,32 @@ public class MultiColumnPullToRefreshListView extends MultiColumnListView {
 		MarginLayoutParams mlp = (ViewGroup.MarginLayoutParams) header.getLayoutParams();
 		mlp.setMargins(0, Math.round(padding), 0, 0);
 		header.setLayoutParams(mlp);
+	}
+	
+	private boolean isPull(MotionEvent event){
+		if( getFirstVisiblePosition() == 0 )
+			return true;
+		return false;
+	}
+	
+	@Override
+	public boolean onInterceptTouchEvent(MotionEvent event) {
+		if(lockScrollWhileRefreshing
+				&& (state == State.REFRESHING || getAnimation() != null && !getAnimation().hasEnded())){
+			return true;	//consume touch event here..
+		}
+		
+		switch(event.getAction()){
+		case MotionEvent.ACTION_MOVE:
+			if( getFirstVisiblePosition() == 0 && isPull(event) ) {
+				previousY = event.getY();
+				return true;
+			}
+			break;
+		}
+		
+		previousY = -1;
+		return super.onInterceptTouchEvent(event);
 	}
 
 	@Override
@@ -274,12 +301,6 @@ public class MultiColumnPullToRefreshListView extends MultiColumnListView {
 		}
 
 		switch(event.getAction()){
-		case MotionEvent.ACTION_DOWN:
-			if(getFirstVisiblePosition() == 0) 
-				previousY = event.getY();
-			else
-				previousY = -1;
-			break;
 
 		case MotionEvent.ACTION_UP:
 			if(previousY != -1 && (state == State.RELEASE_TO_REFRESH || getFirstVisiblePosition() == 0)){
@@ -344,9 +365,8 @@ public class MultiColumnPullToRefreshListView extends MultiColumnListView {
 				bounceAnimation.setFillEnabled(true);
 				bounceAnimation.setFillAfter(false);
 				bounceAnimation.setFillBefore(true);
-				bounceAnimation.setInterpolator(new OvershootInterpolator(BOUNCE_OVERSHOOT_TENSION));
+				//bounceAnimation.setInterpolator(new OvershootInterpolator(BOUNCE_OVERSHOOT_TENSION));
 				bounceAnimation.setAnimationListener(new HeaderAnimationListener(yTranslate));
-
 				startAnimation(bounceAnimation);
 	}
 
@@ -476,6 +496,7 @@ public class MultiColumnPullToRefreshListView extends MultiColumnListView {
 
 	private class PTROnGlobalLayoutListener implements OnGlobalLayoutListener{
 
+		@SuppressWarnings("deprecation")
 		@Override
 		public void onGlobalLayout(){
 			int initialHeaderHeight = header.getHeight();
