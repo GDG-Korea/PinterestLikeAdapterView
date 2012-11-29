@@ -13,7 +13,9 @@ http://developer.sonymobile.com/2010/05/20/android-tutorial-making-your-own-3d-l
 
 But, currenty it is implemented based on android framework 2.3's list view source. 
 You can check modified list view sources in internal package.
-(below features in original list view are removed...)
+
+Not supported Features
+---------------
 
 * Entry from XML layout.
 * Choice Mode & Item Selection.
@@ -163,6 +165,12 @@ https://github.com/erikwt/PullToRefresh-ListView
 
 리스트에 새로운 아이템이 추가되는 경우 Fling 속도가 비정상적으로 빨라지는 버그를 수정했습니다.
 
+**2012.11.28**
+
+Layout 이벤트 시, 아이템의 위치가 변경되는 버그를 수정했습니다.
+
+Item Select 관련된 코드가 제거되었습니다.
+
 TODO
 ---------------------------------------------
 > 1. Fling 및 스크롤바를 지원하지 않습니다.
@@ -177,7 +185,7 @@ TODO
 
 > 6. Fling 속도가 이상함.
 
-7. 복잡한 뷰를 사용하는 경우, 스크롤 할 떄 마다 뷰의 위치가 Y Position 이 변경됩니다.
+> 7. 복잡한 뷰를 사용하는 경우, 스크롤 할 떄 마다 뷰의 위치가 Y Position 이 변경됩니다.
 
 8. 어댑터에 데이터가 삭제, 변경되거나 중간에 삽입 되는 경우 처리
 
