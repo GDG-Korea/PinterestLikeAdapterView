@@ -22,6 +22,9 @@ Not supported Features
 * Filter
 * Handle Key Event & Arrow Scrolling..
 
+
+Screen Shot
+----------------
 This is a screen shot of sample activity.
 
 ![Example Image][3]
