@@ -5,7 +5,6 @@ import java.util.Date;
 
 import android.content.Context;
 import android.util.AttributeSet;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
@@ -15,7 +14,6 @@ import android.view.ViewTreeObserver.OnGlobalLayoutListener;
 import android.view.animation.Animation;
 import android.view.animation.Animation.AnimationListener;
 import android.view.animation.LinearInterpolator;
-import android.view.animation.OvershootInterpolator;
 import android.view.animation.RotateAnimation;
 import android.view.animation.TranslateAnimation;
 import android.widget.ImageView;
@@ -51,7 +49,6 @@ public class MultiColumnPullToRefreshListView extends MultiColumnListView {
 	private static final float PULL_RESISTANCE                 = 1.7f;
 	private static final int   BOUNCE_ANIMATION_DURATION       = 200;
 	private static final int   BOUNCE_ANIMATION_DELAY          = 0;
-	private static final float BOUNCE_OVERSHOOT_TENSION        = 1.0f;
 	private static final int   ROTATE_ARROW_ANIMATION_DURATION = 250;
 
 	private static enum State{
@@ -267,10 +264,9 @@ public class MultiColumnPullToRefreshListView extends MultiColumnListView {
 		header.setLayoutParams(mlp);
 	}
 	
+	private boolean isPulling = false;
 	private boolean isPull(MotionEvent event){
-		if( getFirstVisiblePosition() == 0 )
-			return true;
-		return false;
+		return isPulling;
 	}
 	
 	@Override
@@ -281,15 +277,24 @@ public class MultiColumnPullToRefreshListView extends MultiColumnListView {
 		}
 		
 		switch(event.getAction()){
-		case MotionEvent.ACTION_MOVE:
-			if( getFirstVisiblePosition() == 0 && isPull(event) ) {
+		case MotionEvent.ACTION_DOWN:
+			if( getFirstVisiblePosition() == 0 )
 				previousY = event.getY();
+			break;
+		case MotionEvent.ACTION_MOVE:
+			if( getFirstVisiblePosition() == 0 && event.getY() - previousY > 0 ) {
+				isPulling = true;
 				return true;
+			}else{
+				isPulling = false;
 			}
+			break;
+		case MotionEvent.ACTION_CANCEL:
+		case MotionEvent.ACTION_UP:
+			isPulling = false;
 			break;
 		}
 		
-		previousY = -1;
 		return super.onInterceptTouchEvent(event);
 	}
 
@@ -303,7 +308,7 @@ public class MultiColumnPullToRefreshListView extends MultiColumnListView {
 		switch(event.getAction()){
 
 		case MotionEvent.ACTION_UP:
-			if(previousY != -1 && (state == State.RELEASE_TO_REFRESH || getFirstVisiblePosition() == 0)){
+			if(isPull(event) && (state == State.RELEASE_TO_REFRESH || getFirstVisiblePosition() == 0)){
 				switch(state){
 				case RELEASE_TO_REFRESH:
 					setState(State.REFRESHING);
@@ -319,7 +324,7 @@ public class MultiColumnPullToRefreshListView extends MultiColumnListView {
 			break;
 
 		case MotionEvent.ACTION_MOVE:
-			if(previousY != -1){
+			if(isPull(event)){
 				float y = event.getY();
 				float diff = y - previousY;
 				if(diff > 0) diff /= PULL_RESISTANCE;
