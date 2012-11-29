@@ -96,7 +96,7 @@ public class MultiColumnPullToRefreshListView extends MultiColumnListView {
 	private TextView                text;
 	private TextView                lastUpdatedTextView;
 	private OnRefreshListener       onRefreshListener;
-
+	private TranslateAnimation		bounceAnimation;
 
 	public MultiColumnPullToRefreshListView(Context context){
 		super(context);
@@ -169,9 +169,9 @@ public class MultiColumnPullToRefreshListView extends MultiColumnListView {
 	 */
 	public void setRefreshing(){
 		state = State.REFRESHING;
-		scrollTo(0, 0);
 		setUiRefreshing();
-		setHeaderPadding(0);
+		//setHeaderPadding(0);
+		//scrollTo(0, 0);
 	}
 
 	/**
@@ -360,7 +360,7 @@ public class MultiColumnPullToRefreshListView extends MultiColumnListView {
 				header.getHeight() - headerContainer.getHeight() :
 					-headerContainer.getHeight() - headerContainer.getTop();
 
-				TranslateAnimation bounceAnimation = new TranslateAnimation(
+				bounceAnimation = new TranslateAnimation(
 						TranslateAnimation.ABSOLUTE, 0,
 						TranslateAnimation.ABSOLUTE, 0,
 						TranslateAnimation.ABSOLUTE, 0,
