@@ -23,6 +23,8 @@
     <declare-styleable name="PinterestLikeAdapterView">
         <attr name="plaColumnNumber" format="integer" />
         <attr name="plaLandscapeColumnNumber" format="integer" />
+        <attr name="plaColumnPaddingLeft" format="dimension" />
+        <attr name="plaColumnPaddingRight" format="dimension" />
     </declare-styleable>    
 
     <declare-styleable name="View">

@@ -42,6 +42,9 @@ public class MultiColumnListView extends PLA_ListView {
 	private Column[] mColumns = null;
 	private Column mFixedColumn = null;	//column for footers & headers.
 	private SparseIntArray mItems = new SparseIntArray();
+	
+	private int mColumnPaddingLeft = 0;
+	private int mColumnPaddingRight = 0;
 
 	public MultiColumnListView(Context context) {
 		super(context);
@@ -78,6 +81,9 @@ public class MultiColumnListView extends PLA_ListView {
 			}else{
 				mColumnNumber = DEFAULT_COLUMN_NUMBER;
 			}
+			
+			mColumnPaddingLeft = a.getDimensionPixelSize(R.styleable.PinterestLikeAdapterView_plaColumnPaddingLeft, 0);
+			mColumnPaddingRight = a.getDimensionPixelSize(R.styleable.PinterestLikeAdapterView_plaColumnPaddingRight, 0);
 			a.recycle();
 		}
 
@@ -101,11 +107,11 @@ public class MultiColumnListView extends PLA_ListView {
 	@Override
 	protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
 		super.onMeasure(widthMeasureSpec, heightMeasureSpec);
-		int width = (getMeasuredWidth() - mListPadding.left - mListPadding.right) / mColumnNumber;
+		int width = (getMeasuredWidth() - mListPadding.left - mListPadding.right - mColumnPaddingLeft - mColumnPaddingRight) / mColumnNumber;
 
 		for( int index = 0; index < mColumnNumber; ++ index ){
 			mColumns[index].mColumnWidth = width;
-			mColumns[index].mColumnLeft = mListPadding.left + width * index;
+			mColumns[index].mColumnLeft = mListPadding.left + mColumnPaddingLeft + width * index;
 		}
 
 		mFixedColumn.mColumnLeft = mListPadding.left;
@@ -212,6 +218,10 @@ public class MultiColumnListView extends PLA_ListView {
 
 	@Override
 	protected int getItemLeft(int pos) {
+		
+		if( isHeaderOrFooterPosition(pos) )
+			return mFixedColumn.getColumnLeft();
+		
 		return getColumnLeft(pos);
 	}
 
@@ -248,10 +258,14 @@ public class MultiColumnListView extends PLA_ListView {
 	//flow If flow is true, align top edge to y. If false, align bottom edge to y.
 	private Column getNextColumn(boolean flow, int position) {
 
+		//adjust position (exclude headers...)
+		position = Math.max(0, position - getHeaderViewsCount());
+		
 		//we already have this item...
 		int colIndex = mItems.get(position, -1);
-		if( colIndex != -1 )
+		if( colIndex != -1 ){
 			return mColumns[colIndex];
+		}
 
 		final int lastVisiblePos = Math.max( 0, position );
 		if( lastVisiblePos < mColumnNumber )
