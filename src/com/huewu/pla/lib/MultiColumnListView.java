@@ -258,14 +258,14 @@ public class MultiColumnListView extends PLA_ListView {
 	//flow If flow is true, align top edge to y. If false, align bottom edge to y.
 	private Column getNextColumn(boolean flow, int position) {
 
-		//adjust position (exclude headers...)
-		position = Math.max(0, position - getHeaderViewsCount());
-		
 		//we already have this item...
 		int colIndex = mItems.get(position, -1);
 		if( colIndex != -1 ){
 			return mColumns[colIndex];
 		}
+		
+		//adjust position (exclude headers...)
+		position = Math.max(0, position - getHeaderViewsCount());
 
 		final int lastVisiblePos = Math.max( 0, position );
 		if( lastVisiblePos < mColumnNumber )
