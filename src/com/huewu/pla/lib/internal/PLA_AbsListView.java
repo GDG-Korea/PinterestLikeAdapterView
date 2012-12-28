@@ -1862,7 +1862,7 @@ ViewTreeObserver.OnGlobalLayoutListener, ViewTreeObserver.OnTouchModeChangeListe
 					mMotionViewOriginalTop = getScrollChildTop();
 
 					// Don't fling more than 1 screen
-					//                    delta = Math.min(getHeight() - mPaddingBottom - mPaddingTop - 1, delta);
+					// delta = Math.min(getHeight() - mPaddingBottom - mPaddingTop - 1, delta);
 					delta = Math.min(getHeight() - getPaddingBottom() - getPaddingTop() - 1, delta);
 				} else {
 					// List is moving towards the bottom. Use last view as mMotionPosition
@@ -2226,7 +2226,7 @@ ViewTreeObserver.OnGlobalLayoutListener, ViewTreeObserver.OnTouchModeChangeListe
 		if (childCount == 0) {
 			return true;
 		}
-
+		
 		final int firstTop = getScrollChildTop();	//check scroll.
 		final int lastBottom = getScrollChildBottom();		//check scroll.
 		final Rect listPadding = mListPadding;
@@ -2245,9 +2245,9 @@ ViewTreeObserver.OnGlobalLayoutListener, ViewTreeObserver.OnTouchModeChangeListe
 		}
 
 		if (incrementalDeltaY < 0) {
-			incrementalDeltaY = Math.max(-(height - 1), incrementalDeltaY);
+			incrementalDeltaY = Math.max(-(height - 1)/2, incrementalDeltaY);
 		} else {
-			incrementalDeltaY = Math.min(height - 1, incrementalDeltaY);
+			incrementalDeltaY = Math.min((height - 1)/2, incrementalDeltaY);
 		}
 
 		final int firstPosition = mFirstPosition;

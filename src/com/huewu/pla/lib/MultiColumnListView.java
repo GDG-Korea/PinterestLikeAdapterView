@@ -128,7 +128,7 @@ public class MultiColumnListView extends PLA_ListView {
 
 	@Override
 	protected int modifyFlingInitialVelocity(int initialVelocity) {
-		return initialVelocity / mColumnNumber;
+		return initialVelocity;
 	}
 
 	@Override
