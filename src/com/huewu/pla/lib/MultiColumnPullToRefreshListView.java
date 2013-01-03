@@ -1,4 +1,4 @@
-package com.huewu.pla.lib.extra;
+package com.huewu.pla.lib;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -23,7 +23,6 @@ import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
-import com.huewu.pla.lib.MultiColumnListView;
 import com.huewu.pla.smaple.R;
 
 /**
