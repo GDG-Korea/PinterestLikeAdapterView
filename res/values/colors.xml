@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <color name="comments_bg">#dbdbdb</color>
+    <color name="comments_bg_pressed">#ababab</color>
+    <color name="btn_bg">#efe0e0</color>
+    <color name="green_ink">#51714A</color>
+    <color name="vingle_red">#a90321</color>
+    <color name="vingle_red_selected">#999999</color>
+    <color name="transparent_vingle_red">#bba30011</color>
+    <color name="vingle_red_pressed">#999999</color>
+    <color name="card_show_bg">#f0f0f0</color>
+    <color name="light_black">#cccccc</color>
+    <color name="transparent_black">#bb000000</color>
+    <color name="half_transparent_black">#99000000</color>
+    <color name="quarter_transparent_black">#44000000</color>
+    <color name="transparent_grey">#bbcccccc</color>
+    <color name="vingle_white">#f0f0f0</color>
+    <color name="vingle_grey">#dddddd</color>
+    <color name="vingle_light_black">#777777</color>
+    <color name="vingle_dark_grey">#cccccc</color>
+    <color name="vingle_light_grey">#eeeeee</color>
+    <color name="Vingle_blue">#0088CC</color>
+    <color name="transparent_white">#33ffffff</color>
+
+    <color name="black_text">#333333</color>
+    <color name="dark_grey_text">#404040</color>
+    <color name="grey_text">#666666</color>
+    <color name="lighter_grey_text">#808080</color>
+    <color name="light_grey_text">#999999</color>
+    <color name="light_black_text">#cccccc</color>
+    <color name="green_text">@color/green_ink</color>
+    
+    <color name="grey_pannel">#EBEBEB</color>
+    <color name="darker_grey_pannel">#BFBFBF</color>
+    <color name="darkest_grey_pannel">#B2B2B2</color>
+    
+    <color name="dark_grey_divider">@color/vingle_dark_grey</color>
+    
+    <color name="card_deck_bg">@color/grey_pannel</color>
+    <color name="card_btn_text">@color/light_grey_text</color>
+    <color name="card_btn_divider">#CCCCCC</color>
+    <color name="card_content">@color/grey_text</color>
+    
+    <color name="source_bg">#FAFAFA</color>
+    <color name="source_title">#6F899C</color>
+    <color name="source_content">@color/grey_text</color>
+    <color name="source_link">@color/light_grey_text</color>
+    
+    <color name="card_show_title">@color/black_text</color>
+    <color name="card_show_content">@color/dark_grey_text</color>
+    <color name="card_show_tag">@color/light_grey_text</color>
+    <color name="card_show_author">@color/green_text</color>
+    <color name="card_show_author_meta">@color/light_grey_text</color>
+    
+    <color name="user_header_meta_text">@color/light_grey_text</color>
+    
+    <color name="side_navigation_background">#404040</color>
+    <color name="side_navigation_pressed">#262626</color>
+    <color name="side_navigation_dark_divider">#595959</color>
+    <color name="side_navigation_gradient_start">#343434</color>
+    <color name="side_navigation_gradient_center">#474747</color>
+    <color name="side_navigation_gradient_end">#5c5c5c</color>
+    <color name="side_navigation_title_gradient_start">#2b2824</color>
+    <color name="side_navigation_title_gradient_end">#3E3D3B</color>
+    
+    <color name="collection_cover_shadow">#9E9E9E</color>
+    
+    <color name="loading_background">#FAFAFA</color>
+</resources>

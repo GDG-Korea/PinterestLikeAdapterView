@@ -10,6 +10,7 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewTreeObserver;
+import android.view.ViewGroup.LayoutParams;
 import android.view.ViewTreeObserver.OnGlobalLayoutListener;
 import android.view.animation.Animation;
 import android.view.animation.Animation.AnimationListener;
@@ -46,9 +47,9 @@ import com.huewu.pla.smaple.R;
  */
 public class MultiColumnPullToRefreshListView extends MultiColumnListView {
 
-	private static final float PULL_RESISTANCE                 = 1.7f;
-	private static final int   BOUNCE_ANIMATION_DURATION       = 200;
-	private static final int   BOUNCE_ANIMATION_DELAY          = 0;
+	private static final float PULL_RESISTANCE                 = 3.0f;
+	private static final int   BOUNCE_ANIMATION_DURATION       = 215;
+	private static final int   BOUNCE_ANIMATION_DELAY          = 20;
 	private static final int   ROTATE_ARROW_ANIMATION_DURATION = 250;
 
 	private static enum State{
@@ -229,7 +230,7 @@ public class MultiColumnPullToRefreshListView extends MultiColumnListView {
 		lastUpdatedTextView = (TextView) header.findViewById(R.id.ptr_id_last_updated);
 		image = (ImageView) header.findViewById(R.id.ptr_id_image);
 		spinner = (ProgressBar) header.findViewById(R.id.ptr_id_spinner);
-
+		
 		pullToRefreshText = getContext().getString(R.string.ptr_pull_to_refresh);
 		releaseToRefreshText = getContext().getString(R.string.ptr_release_to_refresh);
 		refreshingText = getContext().getString(R.string.ptr_refreshing);
