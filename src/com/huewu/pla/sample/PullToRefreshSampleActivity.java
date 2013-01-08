@@ -1,7 +1,4 @@
-package com.huewu.pla.sample.extra;
-
-import java.util.Arrays;
-import java.util.Random;
+package com.huewu.pla.sample;
 
 import android.app.Activity;
 import android.content.Context;
@@ -12,9 +9,11 @@ import android.view.MenuItem;
 import android.widget.ArrayAdapter;
 import android.widget.ListAdapter;
 
+import com.huewu.pla.R;
 import com.huewu.pla.lib.internal.PLA_AdapterView;
-import com.huewu.pla.sample.extra.PullToRefreshSampleActivity;
-import com.huewu.pla.smaple.R;
+
+import java.util.Arrays;
+import java.util.Random;
 
 public class PullToRefreshSampleActivity extends Activity {
 
@@ -32,7 +31,7 @@ public class PullToRefreshSampleActivity extends Activity {
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		setContentView(R.layout.act_pull_to_refresh_sample);
+		setContentView(R.layout.sample_pull_to_refresh_act);
 		//mAdapterView = (PLA_AdapterView<Adapter>) findViewById(R.id.list);
 		mAdapterView = (PLA_AdapterView<ListAdapter>) findViewById(R.id.list);
 	}
@@ -85,7 +84,7 @@ public class PullToRefreshSampleActivity extends Activity {
 
 	private Random mRand = new Random();
 	private void initAdapter() {
-		mAdapter = new MySimpleAdapter(this, R.layout.item_sample);
+		mAdapter = new MySimpleAdapter(this, R.layout.sample_item);
 
 		for( int i = 0; i < 30; ++i){
 			//generate 30 random items.
