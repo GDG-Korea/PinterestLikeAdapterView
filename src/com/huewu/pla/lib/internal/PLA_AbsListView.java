@@ -1350,7 +1350,10 @@ ViewTreeObserver.OnGlobalLayoutListener, ViewTreeObserver.OnTouchModeChangeListe
 		// Check if we have moved far enough that it looks more like a
 		// scroll than a tap
 		final int distance = Math.abs(deltaY);
-		if (distance > mTouchSlop) {
+		int touchSlop = mTouchSlop;
+		if(getFirstVisiblePosition() < getHeaderViewsCount())
+		    touchSlop *= 5;
+		if (distance > touchSlop) {
 			createScrollingCache();
 			mTouchMode = TOUCH_MODE_SCROLL;
 			mMotionCorrection = deltaY;
@@ -1653,6 +1656,7 @@ ViewTreeObserver.OnGlobalLayoutListener, ViewTreeObserver.OnTouchModeChangeListe
 
 	@Override
 	public boolean onInterceptTouchEvent(MotionEvent ev) {
+	    
 		int action = ev.getAction();
 		View v;
 
