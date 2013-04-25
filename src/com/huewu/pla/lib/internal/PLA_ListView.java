@@ -16,8 +16,6 @@
 
 package com.huewu.pla.lib.internal;
 
-import java.util.ArrayList;
-
 import android.content.Context;
 import android.content.res.TypedArray;
 import android.graphics.Canvas;
@@ -27,7 +25,6 @@ import android.graphics.Rect;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
 import android.util.AttributeSet;
-import android.util.Log;
 import android.util.SparseBooleanArray;
 import android.view.MotionEvent;
 import android.view.View;
@@ -38,6 +35,9 @@ import android.widget.ListAdapter;
 import android.widget.WrapperListAdapter;
 
 import com.huewu.pla.R;
+import com.huewu.pla.lib.DebugUtil;
+
+import java.util.ArrayList;
 
 /*
  * Implementation Notes:
@@ -451,7 +451,6 @@ public class PLA_ListView extends PLA_AbsListView {
 			mAreAllItemsSelectable = mAdapter.areAllItemsEnabled();
 			mOldItemCount = mItemCount;
 			mItemCount = mAdapter.getCount();
-			checkFocus();
 
 			mDataSetObserver = new AdapterDataSetObserver();
 			mAdapter.registerDataSetObserver(mDataSetObserver);
@@ -460,7 +459,6 @@ public class PLA_ListView extends PLA_AbsListView {
 
 		} else {
 			mAreAllItemsSelectable = true;
-			checkFocus();
 			// Nothing selected
 		}
 
@@ -669,6 +667,8 @@ public class PLA_ListView extends PLA_AbsListView {
 	 *         range that we draw.
 	 */
 	private View fillDown(int pos, int top) {
+	    
+	    DebugUtil.i("fill down: " + pos);
 
 		//int end = (mBottom - mTop) - mListPadding.bottom;
 		int end = (getBottom() - getTop()) - mListPadding.bottom;
@@ -695,6 +695,9 @@ public class PLA_ListView extends PLA_AbsListView {
 	 * @return The view that is currently selected
 	 */
 	private View fillUp(int pos, int bottom) {
+	    
+	    DebugUtil.i("fill up: " + pos);
+	    
 		int end = mListPadding.top;
 		int childBottom = getFillChildTop();
 		while (childBottom > end && pos >= 0) {
@@ -857,6 +860,7 @@ public class PLA_ListView extends PLA_AbsListView {
 		final boolean[] isScrap = mIsScrap;
 
 		for (i = startPosition; i <= endPosition; ++i) {
+		    DebugUtil.i("measureHeightOfChildren:" + i);
 			child = obtainView(i, isScrap);
 
 			measureScrapChild(child, i, widthMeasureSpec);
@@ -869,6 +873,7 @@ public class PLA_ListView extends PLA_AbsListView {
 			// Recycle the view before we possibly return from the method
 			if (recyle && recycleBin.shouldRecycleViewType(
 					((LayoutParams) child.getLayoutParams()).viewType)) {
+			    DebugUtil.i("measureHeightOfChildren");
 				recycleBin.addScrapView(child);
 			}
 
@@ -931,7 +936,8 @@ public class PLA_ListView extends PLA_AbsListView {
 	 */
 	private View fillSpecific(int position, int top) {
 
-		if(DEBUG) Log.d("PLA_ListView", "FillSpecific: " + position + ":" + top);
+	    if(mDataChanged)
+	        DebugUtil.i("fill specific: " + position + ":" + top);
 
 		View temp = makeAndAddView(position, top, true, false);
 
@@ -1078,7 +1084,6 @@ public class PLA_ListView extends PLA_AbsListView {
 		}
 
 		try {
-			super.layoutChildren();
 			invalidate();
 			if (mAdapter == null) {
 				resetList();
@@ -1094,7 +1099,6 @@ public class PLA_ListView extends PLA_AbsListView {
 			int index = 0;
 
 			View oldFirst = null;
-			View focusLayoutRestoreView = null;
 
 			// Remember stuff we will need down below
 			switch (mLayoutMode) {
@@ -1107,7 +1111,6 @@ public class PLA_ListView extends PLA_AbsListView {
 				// Remember the previous first child
 				oldFirst = getChildAt(0);
 			}
-
 
 			boolean dataChanged = mDataChanged;
 			if (dataChanged) {
@@ -1138,7 +1141,7 @@ public class PLA_ListView extends PLA_AbsListView {
 			// Don't put header or footer views into the Recycler. Those are
 			// already cached in mHeaderViews;
 			if (dataChanged) {
-				for (int i = 0; i < childCount; i++) {
+				for (int i = childCount - 1; i >= 0; i--) {
 					recycleBin.addScrapView(getChildAt(i));
 					if (ViewDebug.TRACE_RECYCLER) {
 						ViewDebug.trace(getChildAt(i),
@@ -1148,27 +1151,6 @@ public class PLA_ListView extends PLA_AbsListView {
 			} else {
 				recycleBin.fillActiveViews(childCount, firstPosition);
 			}
-
-			// take focus back to us temporarily to avoid the eventual
-			// call to clear focus when removing the focused child below
-			// from messing things up when ViewRoot assigns focus back
-			// to someone else
-			final View focusedChild = getFocusedChild();
-			if (focusedChild != null) {
-				// TODO: in some cases focusedChild.getParent() == null
-				// we can remember the focused view to restore after relayout if the
-				// data hasn't changed, or if the focused position is a header or footer
-				if (!dataChanged || isDirectChildHeaderOrFooter(focusedChild)) {
-					// remember the specific view that had focus
-					focusLayoutRestoreView = findFocus();
-					if (focusLayoutRestoreView != null) {
-						// tell it we are going to mess with it
-						focusLayoutRestoreView.onStartTemporaryDetach();
-					}
-				}
-				requestFocus();
-			}
-
 
 			switch (mLayoutMode) {
 			case LAYOUT_SYNC:
@@ -1224,19 +1206,6 @@ public class PLA_ListView extends PLA_AbsListView {
 				mSelectorRect.setEmpty();
 			}
 
-			// even if there is not selected position, we may need to restore
-			// focus (i.e. something focusable in touch mode)
-			if (hasFocus() && focusLayoutRestoreView != null) {
-				focusLayoutRestoreView.requestFocus();
-			}
-
-			// tell focus view we are done mucking with it, if it is still in
-			// our view hierarchy.
-			if (focusLayoutRestoreView != null
-					&& focusLayoutRestoreView.getWindowToken() != null) {
-				focusLayoutRestoreView.onFinishTemporaryDetach();
-			}
-
 			mLayoutMode = LAYOUT_NORMAL;
 			mDataChanged = false;
 			mNeedSync = false;
@@ -1247,29 +1216,6 @@ public class PLA_ListView extends PLA_AbsListView {
 				mBlockLayoutRequests = false;
 			}
 		}
-	}
-
-	/**
-	 * @param child a direct child of this list.
-	 * @return Whether child is a header or footer view.
-	 */
-	private boolean isDirectChildHeaderOrFooter(View child) {
-
-		final ArrayList<FixedViewInfo> headers = mHeaderViewInfos;
-		final int numHeaders = headers.size();
-		for (int i = 0; i < numHeaders; i++) {
-			if (child == headers.get(i).view) {
-				return true;
-			}
-		}
-		final ArrayList<FixedViewInfo> footers = mFooterViewInfos;
-		final int numFooters = footers.size();
-		for (int i = 0; i < numFooters; i++) {
-			if (child == footers.get(i).view) {
-				return true;
-			}
-		}
-		return false;
 	}
 
 	/**
@@ -1315,6 +1261,7 @@ public class PLA_ListView extends PLA_AbsListView {
 		childrenLeft = getItemLeft( position );
 
 		// Make a new view for this position, or convert an unused view if possible
+		DebugUtil.i("makeAndAddView:" + position);
 		child = obtainView(position, mIsScrap);
 
 		// This needs to be positioned and measured
@@ -1670,6 +1617,7 @@ public class PLA_ListView extends PLA_AbsListView {
 
 	private View addViewAbove(View theView, int position) {
 		int abovePosition = position - 1;
+		DebugUtil.i("addViewAbove:" + position);
 		View view = obtainView(abovePosition, mIsScrap);
 		int edgeOfNewChild = theView.getTop() - mDividerHeight;
 		setupChild(view, abovePosition, edgeOfNewChild, false, mListPadding.left,
@@ -1679,6 +1627,7 @@ public class PLA_ListView extends PLA_AbsListView {
 
 	private View addViewBelow(View theView, int position) {
 		int belowPosition = position + 1;
+		DebugUtil.i("addViewBelow:" + position);
 		View view = obtainView(belowPosition, mIsScrap);
 		int edgeOfNewChild = theView.getBottom() + mDividerHeight;
 		setupChild(view, belowPosition, edgeOfNewChild, true, mListPadding.left,
@@ -2061,9 +2010,6 @@ public class PLA_ListView extends PLA_AbsListView {
 	@Override
 	protected void onFocusChanged(boolean gainFocus, int direction, Rect previouslyFocusedRect) {
 		super.onFocusChanged(gainFocus, direction, previouslyFocusedRect);
-
-		if(DEBUG)
-			Log.v("PLA_ListView", "onFocusChanged");
 
 		int closetChildIndex = -1;
 		if (gainFocus && previouslyFocusedRect != null) {

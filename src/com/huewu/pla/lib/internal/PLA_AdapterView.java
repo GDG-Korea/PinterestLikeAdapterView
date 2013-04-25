@@ -16,6 +16,7 @@
 
 package com.huewu.pla.lib.internal;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.database.DataSetObserver;
 import android.os.Parcelable;
@@ -30,6 +31,8 @@ import android.view.ViewDebug;
 import android.view.ViewGroup;
 import android.view.accessibility.AccessibilityEvent;
 import android.widget.Adapter;
+
+import com.huewu.pla.lib.DebugUtil;
 
 
 /**
@@ -173,18 +176,6 @@ public abstract class PLA_AdapterView<T extends Adapter> extends ViewGroup {
 	 * The id of the last selected position we used when notifying
 	 */
 	long mOldSelectedRowId = INVALID_ROW_ID;
-
-	/**
-	 * Indicates what focusable state is requested when calling setFocusable().
-	 * In addition to this, this view has other criteria for actually
-	 * determining the focusable state (such as whether its empty or the text
-	 * filter is shown).
-	 *
-	 * @see #setFocusable(boolean)
-	 * @see #checkFocus()
-	 */
-	private boolean mDesiredFocusableState;
-	private boolean mDesiredFocusableInTouchModeState;
 
 	/**
 	 * When set to true, calls to requestLayout() will not propagate up the parent hierarchy.
@@ -634,52 +625,13 @@ public abstract class PLA_AdapterView<T extends Adapter> extends ViewGroup {
 		return false;
 	}
 
-	@Override
-	public void setFocusable(boolean focusable) {
-		final T adapter = getAdapter();
-		final boolean empty = adapter == null || adapter.getCount() == 0;
-
-		mDesiredFocusableState = focusable;
-		if (!focusable) {
-			mDesiredFocusableInTouchModeState = false;
-		}
-
-		super.setFocusable(focusable && (!empty || isInFilterMode()));
-	}
-
-	@Override
-	public void setFocusableInTouchMode(boolean focusable) {
-		final T adapter = getAdapter();
-		final boolean empty = adapter == null || adapter.getCount() == 0;
-
-		mDesiredFocusableInTouchModeState = focusable;
-		if (focusable) {
-			mDesiredFocusableState = true;
-		}
-
-		super.setFocusableInTouchMode(focusable && (!empty || isInFilterMode()));
-	}
-
-	void checkFocus() {
-		final T adapter = getAdapter();
-		final boolean empty = adapter == null || adapter.getCount() == 0;
-		final boolean focusable = !empty || isInFilterMode();
-		// The order in which we set focusable in touch mode/focusable may matter
-		// for the client, see View.setFocusableInTouchMode() comments for more
-		// details
-		super.setFocusableInTouchMode(focusable && mDesiredFocusableInTouchModeState);
-		super.setFocusable(focusable && mDesiredFocusableState);
-		if (mEmptyView != null) {
-			updateEmptyStatus((adapter == null) || adapter.isEmpty());
-		}
-	}
-
 	/**
 	 * Update the status of the list based on the empty parameter.  If empty is true and
 	 * we have an empty view, display it.  In all the other cases, make sure that the listview
 	 * is VISIBLE and that the empty view is GONE (if it's not null).
 	 */
-	private void updateEmptyStatus(boolean empty) {
+	@SuppressLint("WrongCall")
+    private void updateEmptyStatus(boolean empty) {
 		if (isInFilterMode()) {
 			empty = false;
 		}
@@ -749,6 +701,9 @@ public abstract class PLA_AdapterView<T extends Adapter> extends ViewGroup {
 
 		@Override
 		public void onChanged() {
+		    
+		    DebugUtil.LogDebug("data changed by onChanged()");
+		    
 			mDataChanged = true;
 			mOldItemCount = mItemCount;
 			mItemCount = getAdapter().getCount();
@@ -762,12 +717,14 @@ public abstract class PLA_AdapterView<T extends Adapter> extends ViewGroup {
 			} else {
 				rememberSyncState();
 			}
-			checkFocus();
 			requestLayout();
 		}
 
 		@Override
 		public void onInvalidated() {
+		    
+	        DebugUtil.LogDebug("data changed by onInvalidated()");
+		    
 			mDataChanged = true;
 
 			if (PLA_AdapterView.this.getAdapter().hasStableIds()) {
@@ -780,8 +737,6 @@ public abstract class PLA_AdapterView<T extends Adapter> extends ViewGroup {
 			mOldItemCount = mItemCount;
 			mItemCount = 0;
 			mNeedSync = false;
-
-			checkFocus();
 			requestLayout();
 		}
 
