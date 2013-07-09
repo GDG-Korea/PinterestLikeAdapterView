@@ -49,14 +49,6 @@
             <url>https://github.com/balmbees/vingle-maven-repo/raw/PLA/master/snapshots</url>
         </snapshotRepository>
     </distributionManagement>
-    
-    <dependencies>
-        <dependency>
-            <groupId>com.huewe.pla</groupId>
-            <artifactId>pla</artifactId>
-            <version>1.0-SNAPSHOT</version>
-        </dependency>
-    </dependencies>
 
     <repositories>
         <repository>
