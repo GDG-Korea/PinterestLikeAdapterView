@@ -2,10 +2,10 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>com.huewe.pla</groupId>
+    <groupId>com.huewu.pla</groupId>
     <artifactId>pla</artifactId>
     <version>1.0</version>
-    <packaging>pom</packaging>
+    <packaging>apklib</packaging>
 
     <name>Vingle Android App</name>
     <description></description>
@@ -17,10 +17,9 @@
 
         <!-- Compilation -->
         <java.version>1.6</java.version>
-
         <!-- Dependencies -->
         <android.version>4.1.1.4</android.version>
-        <android.platform>16</android.platform>
+        <android.platform>17</android.platform>
     </properties>
 
     <scm>
@@ -49,7 +48,22 @@
             <url>https://github.com/balmbees/vingle-maven-repo/raw/PLA/master/snapshots</url>
         </snapshotRepository>
     </distributionManagement>
-
+    <build>
+       <plugins>
+           <plugin>
+              <groupId>com.jayway.maven.plugins.android.generation2</groupId>
+              <artifactId>android-maven-plugin</artifactId>
+              <extensions>true</extensions>
+              <version>3.5.3</version>
+              <configuration>
+                  <nativeLibrariesDirectory>ignored</nativeLibrariesDirectory>
+                  <sdk>
+                      <platform>${android.platform}</platform>
+                  </sdk>
+              </configuration>
+           </plugin>
+       </plugins>
+    </build>
     <repositories>
         <repository>
             <id>pusher-java-client-mvn-repo</id>
