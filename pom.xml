@@ -4,7 +4,7 @@
 
     <groupId>com.huewu.pla</groupId>
     <artifactId>pla</artifactId>
-    <version>1.0</version>
+    <version>1.01</version>
     <packaging>apklib</packaging>
 
     <name>Vingle Android App</name>
