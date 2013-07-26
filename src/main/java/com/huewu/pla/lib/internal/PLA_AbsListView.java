@@ -60,14 +60,14 @@ import java.util.Stack;
  * @attr ref android.R.styleable#AbsListView_fastScrollEnabled
  * @attr ref android.R.styleable#AbsListView_smoothScrollbar
  */
-public abstract class PLA_AbsListView extends PLA_AdapterView<ListAdapter> implements 
+public abstract class PLA_AbsListView extends PLA_AdapterView<ListAdapter> implements
 ViewTreeObserver.OnGlobalLayoutListener, ViewTreeObserver.OnTouchModeChangeListener {
-
+    
     //FIXME not supported features... (removed from original AbsListView)...
     //Filter
     //Fast Scroll
     //Clipping Padding Region
-
+    
     /**
      * Disables the transcript mode.
      *
@@ -89,334 +89,334 @@ ViewTreeObserver.OnGlobalLayoutListener, ViewTreeObserver.OnTouchModeChangeListe
      * @see #setTranscriptMode(int)
      */
     public static final int TRANSCRIPT_MODE_ALWAYS_SCROLL = 2;
-
+    
     /**
      * Indicates that we are not in the middle of a touch gesture
      */
     static final int TOUCH_MODE_REST = -1;
-
+    
     /**
      * Indicates we just received the touch event and we are waiting to see if the it is a tap or a
      * scroll gesture.
      */
     protected static final int TOUCH_MODE_DOWN = 0;
-
+    
     /**
      * Indicates the touch has been recognized as a tap and we are now waiting to see if the touch
      * is a longpress
      */
     protected static final int TOUCH_MODE_TAP = 1;
-
+    
     /**
      * Indicates we have waited for everything we can wait for, but the user's finger is still down
      */
     protected static final int TOUCH_MODE_DONE_WAITING = 2;
-
+    
     /**
      * Indicates the touch gesture is a scroll
      */
     protected static final int TOUCH_MODE_SCROLL = 3;
-
+    
     /**
      * Indicates the view is in the process of being flung
      */
     protected static final int TOUCH_MODE_FLING = 4;
-
+    
     /**
      * Regular layout - usually an unsolicited layout from the view system
      */
     static final int LAYOUT_NORMAL = 0;
-
+    
     /**
      * Show the first item
      */
     static final int LAYOUT_FORCE_TOP = 1;
-
+    
     /**
      * Force the selected item to be on somewhere on the screen
      */
     static final int LAYOUT_SET_SELECTION = 2;
-
+    
     /**
      * Show the last item
      */
     static final int LAYOUT_FORCE_BOTTOM = 3;
-
+    
     /**
      * Make a mSelectedItem appear in a specific location and build the rest of
      * the views from there. The top is specified by mSpecificTop.
      */
     static final int LAYOUT_SPECIFIC = 4;
-
+    
     /**
      * Layout to sync as a result of a data change. Restore mSyncPosition to have its top
      * at mSpecificTop
      */
     static final int LAYOUT_SYNC = 5;
-
+    
     /**
      * Layout as a result of using the navigation keys
      */
     static final int LAYOUT_MOVE_SELECTION = 6;
-
+    
     /**
      * Controls how the next layout will happen
      */
     int mLayoutMode = LAYOUT_NORMAL;
-
+    
     /**
      * Should be used by subclasses to listen to changes in the dataset
      */
     AdapterDataSetObserver mDataSetObserver;
-
+    
     /**
      * The adapter containing the data to be displayed by this view
      */
     protected ListAdapter mAdapter;
-
+    
     /**
      * Indicates whether the list selector should be drawn on top of the children or behind
      */
     boolean mDrawSelectorOnTop = false;
-
+    
     /**
      * The drawable used to draw the selector
      */
     Drawable mSelector;
-
+    
     /**
      * Defines the selector's location and dimension at drawing time
      */
     Rect mSelectorRect = new Rect();
-
+    
     /**
      * The data set used to store unused views that should be reused during the next layout
      * to avoid creating new ones
      */
     final RecycleBin mRecycler = new RecycleBin();
-
+    
     /**
      * The selection's left padding
      */
     int mSelectionLeftPadding = 0;
-
+    
     /**
      * The selection's top padding
      */
     int mSelectionTopPadding = 0;
-
+    
     /**
      * The selection's right padding
      */
     int mSelectionRightPadding = 0;
-
+    
     /**
      * The selection's bottom padding
      */
     int mSelectionBottomPadding = 0;
-
+    
     /**
      * This view's padding
      */
     protected Rect mListPadding = new Rect();
-
+    
     /**
      * Subclasses must retain their measure spec from onMeasure() into this member
      */
     protected int mWidthMeasureSpec = 0;
-
+    
     /**
      * When the view is scrolling, this flag is set to true to indicate subclasses that
      * the drawing cache was enabled on the children
      */
     protected boolean mCachingStarted;
-
+    
     /**
      * The position of the view that received the down motion event
      */
     protected int mMotionPosition;
-
+    
     /**
      * The offset to the top of the mMotionPosition view when the down motion event was received
      */
     int mMotionViewOriginalTop;
-
+    
     /**
      * The desired offset to the top of the mMotionPosition view after a scroll
      */
     int mMotionViewNewTop;
-
+    
     /**
      * The X value associated with the the down motion event
      */
     int mMotionX;
-
+    
     /**
      * The Y value associated with the the down motion event
      */
     int mMotionY;
-
+    
     /**
      * One of TOUCH_MODE_REST, TOUCH_MODE_DOWN, TOUCH_MODE_TAP, TOUCH_MODE_SCROLL, or
      * TOUCH_MODE_DONE_WAITING
      */
     protected int mTouchMode = TOUCH_MODE_REST;
-
+    
     /**
      * Y value from on the previous motion event (if any)
      */
     int mLastY;
-
+    
     /**
      * How far the finger moved before we started scrolling
      */
     int mMotionCorrection;
-
+    
     /**
      * Determines speed during touch scrolling
      */
     private VelocityTracker mVelocityTracker;
-
+    
     /**
      * Handles one frame of a fling
      */
     private FlingRunnable mFlingRunnable;
-
+    
     /**
      * Handles scrolling between positions within the list.
      */
-    private PositionScroller mPositionScroller;
-
+    PositionScroller mPositionScroller;
+    
     /**
      * The offset in pixels form the top of the AdapterView to the top
      * of the currently selected view. Used to save and restore state.
      */
     int mSelectedTop = 0;
-
+    
     /**
      * Indicates whether the list is stacked from the bottom edge or
      * the top edge.
      */
     boolean mStackFromBottom;
-
+    
     /**
      * When set to true, the list automatically discards the children's
      * bitmap cache after scrolling.
      */
     boolean mScrollingCacheEnabled;
-
+    
     /**
      * Optional callback to notify client when scroll position has changed
      */
     private OnScrollListener mOnScrollListener;
-
+    
     /**
      * Indicates whether to use pixels-based or position-based scrollbar
      * properties.
      */
     private boolean mSmoothScrollbarEnabled = true;
-
+    
     /**
      * Rectangle used for hit testing children
      */
     private Rect mTouchFrame;
-
+    
     /**
      * The position to resurrect the selected position to.
      */
     int mResurrectToPosition = INVALID_POSITION;
-
+    
     private ContextMenuInfo mContextMenuInfo = null;
-
+    
     /**
      * Used to request a layout when we changed touch mode
      */
     private static final int TOUCH_MODE_UNKNOWN = -1;
     private static final int TOUCH_MODE_ON = 0;
     private static final int TOUCH_MODE_OFF = 1;
-
+    
     private int mLastTouchMode = TOUCH_MODE_UNKNOWN;
-
+    
     private static final boolean PROFILE_SCROLLING = false;
     private boolean mScrollProfilingStarted = false;
-
+    
     private static final boolean PROFILE_FLINGING = false;
     private boolean mFlingProfilingStarted = false;
-
+    
     /**
      * The last CheckForTap runnable we posted, if any
      */
     private Runnable mPendingCheckForTap;
-
+    
     /**
      * Acts upon click
      */
     private PLA_AbsListView.PerformClick mPerformClick;
-
+    
     /**
      * This view is in transcript mode -- it shows the bottom of the list when the data
      * changes
      */
     private int mTranscriptMode;
-
+    
     /**
      * Indicates that this list is always drawn on top of a solid, single-color, opaque
      * background
      */
     private int mCacheColorHint;
-
+    
     /**
      * The select child's view (from the adapter's getView) is enabled.
      */
     private boolean mIsChildViewEnabled;
-
+    
     /**
      * The last scroll state reported to clients through {@link OnScrollListener}.
      */
     private int mLastScrollState = OnScrollListener.SCROLL_STATE_IDLE;
-
+    
     private int mTouchSlop;
     private Runnable mClearScrollingCache;
     private int mMinimumVelocity;
     private int mMaximumVelocity;
-
+    
     final boolean[] mIsScrap = new boolean[1];
-
+    
     /**
      * ID of the active pointer. This is used to retain consistency during
      * drags/flings if multiple pointers are used.
      */
     private int mActivePointerId = INVALID_POINTER;
-
+    
     /**
      * Sentinel value for no current active pointer.
      * Used by {@link #mActivePointerId}.
      */
     private static final int INVALID_POINTER = -1;
-
+    
     /**
      * Interface definition for a callback to be invoked when the list or grid
      * has been scrolled.
      */
     public interface OnScrollListener {
-
+        
         /**
          * The view is not scrolling. Note navigating the list using the trackball counts as
          * being in the idle state since these transitions are not animated.
          */
         public static int SCROLL_STATE_IDLE = 0;
-
+        
         /**
          * The user is scrolling using touch, and their finger is still on the screen
          */
         public static int SCROLL_STATE_TOUCH_SCROLL = 1;
-
+        
         /**
          * The user had previously been scrolling using touch and had performed a fling. The
          * animation is now coasting to a stop
          */
         public static int SCROLL_STATE_FLING = 2;
-
+        
         /**
          * Callback method to be invoked while the list view or grid view is being scrolled. If the
          * view is being scrolled, this method will be called before the next frame of the scroll is
@@ -429,7 +429,7 @@ ViewTreeObserver.OnGlobalLayoutListener, ViewTreeObserver.OnTouchModeChangeListe
          * {@link #SCROLL_STATE_TOUCH_SCROLL} or {@link #SCROLL_STATE_IDLE}.
          */
         public void onScrollStateChanged(PLA_AbsListView view, int scrollState);
-
+        
         /**
          * Callback method to be invoked when the list or grid has been scrolled. This will be
          * called after the scroll has completed
@@ -440,57 +440,57 @@ ViewTreeObserver.OnGlobalLayoutListener, ViewTreeObserver.OnTouchModeChangeListe
          * @param totalItemCount the number of items in the list adaptor
          */
         public void onScroll(PLA_AbsListView view, int firstVisibleItem, int visibleItemCount,
-                int totalItemCount);
+                             int totalItemCount);
     }
-
+    
     public PLA_AbsListView(Context context) {
         super(context);
         initAbsListView();
-
+        
         setVerticalScrollBarEnabled(true);
         TypedArray a = context.obtainStyledAttributes(R.styleable.View);
         initializeScrollbars(a);
         a.recycle();
     }
-
+    
     public PLA_AbsListView(Context context, AttributeSet attrs) {
         this(context, attrs, R.attr.absListViewStyle);
     }
-
+    
     public PLA_AbsListView(Context context, AttributeSet attrs, int defStyle) {
         super(context, attrs, defStyle);
         initAbsListView();
-
+        
         TypedArray a = context.obtainStyledAttributes(attrs,
-                R.styleable.AbsListView, defStyle, 0);
-
+                                                      R.styleable.AbsListView, defStyle, 0);
+        
         Drawable d = a.getDrawable(R.styleable.AbsListView_listSelector);
         if (d != null) {
             setSelector(d);
         }
-
+        
         mDrawSelectorOnTop = a.getBoolean(
-                R.styleable.AbsListView_drawSelectorOnTop, false);
-
+                                          R.styleable.AbsListView_drawSelectorOnTop, false);
+        
         boolean stackFromBottom = a.getBoolean(R.styleable.AbsListView_stackFromBottom, false);
         setStackFromBottom(stackFromBottom);
-
+        
         boolean scrollingCacheEnabled = a.getBoolean(R.styleable.AbsListView_scrollingCache, true);
         setScrollingCacheEnabled(scrollingCacheEnabled);
-
+        
         int transcriptMode = a.getInt(R.styleable.AbsListView_transcriptMode,
-                TRANSCRIPT_MODE_DISABLED);
+                                      TRANSCRIPT_MODE_DISABLED);
         setTranscriptMode(transcriptMode);
-
+        
         int color = a.getColor(R.styleable.AbsListView_cacheColorHint, 0);
         setCacheColorHint(color);
-
+        
         boolean smoothScrollbar = a.getBoolean(R.styleable.AbsListView_smoothScrollbar, true);
         setSmoothScrollbarEnabled(smoothScrollbar);
-
+        
         a.recycle();
     }
-
+    
     private void initAbsListView() {
         // Setting focusable in touch mode will set the focusable property to true
         setClickable(true);
@@ -498,13 +498,13 @@ ViewTreeObserver.OnGlobalLayoutListener, ViewTreeObserver.OnTouchModeChangeListe
         setWillNotDraw(false);
         setAlwaysDrawnWithCacheEnabled(false);
         setScrollingCacheEnabled(true);
-
+        
         final ViewConfiguration configuration = ViewConfiguration.get(getContext());
         mTouchSlop = configuration.getScaledTouchSlop();
         mMinimumVelocity = configuration.getScaledMinimumFlingVelocity();
         mMaximumVelocity = configuration.getScaledMaximumFlingVelocity();
     }
-
+    
     /**
      * When smooth scrollbar is enabled, the position and size of the scrollbar thumb
      * is computed based on the number of visible pixels in the visible items. This
@@ -526,7 +526,7 @@ ViewTreeObserver.OnGlobalLayoutListener, ViewTreeObserver.OnTouchModeChangeListe
     public void setSmoothScrollbarEnabled(boolean enabled) {
         mSmoothScrollbarEnabled = enabled;
     }
-
+    
     /**
      * Returns the current state of the fast scroll feature.
      *
@@ -538,7 +538,7 @@ ViewTreeObserver.OnGlobalLayoutListener, ViewTreeObserver.OnTouchModeChangeListe
     public boolean isSmoothScrollbarEnabled() {
         return mSmoothScrollbarEnabled;
     }
-
+    
     /**
      * Set the listener that will receive notifications every time the list scrolls.
      *
@@ -548,7 +548,7 @@ ViewTreeObserver.OnGlobalLayoutListener, ViewTreeObserver.OnTouchModeChangeListe
         mOnScrollListener = l;
         invokeOnItemScrollListener();
     }
-
+    
     /**
      * Notify our scroll listener (if there is one) of a change in scroll state
      */
@@ -557,7 +557,7 @@ ViewTreeObserver.OnGlobalLayoutListener, ViewTreeObserver.OnTouchModeChangeListe
             mOnScrollListener.onScroll(this, mFirstPosition, getChildCount(), mItemCount);
         }
     }
-
+    
     /**
      * Indicates whether the children's drawing cache is used during a scroll.
      * By default, the drawing cache is enabled but this will consume more memory.
@@ -571,7 +571,7 @@ ViewTreeObserver.OnGlobalLayoutListener, ViewTreeObserver.OnTouchModeChangeListe
     public boolean isScrollingCacheEnabled() {
         return mScrollingCacheEnabled;
     }
-
+    
     /**
      * Enables or disables the children's drawing cache during a scroll.
      * By default, the drawing cache is enabled but this will use more memory.
@@ -591,7 +591,7 @@ ViewTreeObserver.OnGlobalLayoutListener, ViewTreeObserver.OnTouchModeChangeListe
         }
         mScrollingCacheEnabled = enabled;
     }
-
+    
     @Override
     public void getFocusedRect(Rect r) {
         View view = getSelectedView();
@@ -605,12 +605,12 @@ ViewTreeObserver.OnGlobalLayoutListener, ViewTreeObserver.OnTouchModeChangeListe
             super.getFocusedRect(r);
         }
     }
-
+    
     private void useDefaultSelector() {
         setSelector(getResources().getDrawable(
-                android.R.drawable.list_selector_background));
+                                               android.R.drawable.list_selector_background));
     }
-
+    
     /**
      * Indicates whether the content of this view is pinned to, or stacked from,
      * the bottom edge.
@@ -621,7 +621,7 @@ ViewTreeObserver.OnGlobalLayoutListener, ViewTreeObserver.OnTouchModeChangeListe
     public boolean isStackFromBottom() {
         return mStackFromBottom;
     }
-
+    
     /**
      * When stack from bottom is set to true, the list fills its content starting from
      * the bottom of the view.
@@ -635,7 +635,7 @@ ViewTreeObserver.OnGlobalLayoutListener, ViewTreeObserver.OnTouchModeChangeListe
             requestLayoutIfNecessary();
         }
     }
-
+    
     void requestLayoutIfNecessary() {
         if (getChildCount() > 0) {
             resetList();
@@ -643,7 +643,7 @@ ViewTreeObserver.OnGlobalLayoutListener, ViewTreeObserver.OnTouchModeChangeListe
             invalidate();
         }
     }
-
+    
     @Override
     public void onRestoreInstanceState(Parcelable state) {
         super.onRestoreInstanceState(state);
@@ -653,14 +653,14 @@ ViewTreeObserver.OnGlobalLayoutListener, ViewTreeObserver.OnTouchModeChangeListe
         mDataChanged = true;
         requestLayout();
     }
-
+    
     @Override
     public void requestLayout() {
         if (!mBlockLayoutRequests && !mInLayout) {
             super.requestLayout();
         }
     }
-
+    
     /**
      * The list is empty. Clear everything out.
      */
@@ -675,23 +675,23 @@ ViewTreeObserver.OnGlobalLayoutListener, ViewTreeObserver.OnTouchModeChangeListe
         mSelectorRect.setEmpty();
         invalidate();
     }
-
+    
     @Override
     protected int computeVerticalScrollExtent() {
         final int count = getChildCount();
         if (count > 0) {
             if (mSmoothScrollbarEnabled) {
                 int extent = count * 100;
-
+                
                 View view = getChildAt(0);
                 //final int top = view.getTop();
                 final int top = getFillChildTop();
-
+                
                 int height = view.getHeight();
                 if (height > 0) {
                     extent += (top * 100) / height;
                 }
-
+                
                 view = getChildAt(count - 1);
                 //final int bottom = view.getBottom();
                 final int bottom = getScrollChildBottom();
@@ -699,7 +699,7 @@ ViewTreeObserver.OnGlobalLayoutListener, ViewTreeObserver.OnTouchModeChangeListe
                 if (height > 0) {
                     extent -= ((bottom - getHeight()) * 100) / height;
                 }
-
+                
                 return extent;
             } else {
                 return 1;
@@ -707,7 +707,7 @@ ViewTreeObserver.OnGlobalLayoutListener, ViewTreeObserver.OnTouchModeChangeListe
         }
         return 0;
     }
-
+    
     @Override
     protected int computeVerticalScrollOffset() {
         final int firstPosition = mFirstPosition;
@@ -720,7 +720,7 @@ ViewTreeObserver.OnGlobalLayoutListener, ViewTreeObserver.OnTouchModeChangeListe
                 int height = view.getHeight();
                 if (height > 0) {
                     return Math.max(firstPosition * 100 - (top * 100) / height +
-                            (int)((float)getScrollY() / getHeight() * mItemCount * 100), 0);
+                                    (int)((float)getScrollY() / getHeight() * mItemCount * 100), 0);
                 }
             } else {
                 int index;
@@ -737,7 +737,7 @@ ViewTreeObserver.OnGlobalLayoutListener, ViewTreeObserver.OnTouchModeChangeListe
         }
         return 0;
     }
-
+    
     @Override
     protected int computeVerticalScrollRange() {
         int result;
@@ -748,7 +748,7 @@ ViewTreeObserver.OnGlobalLayoutListener, ViewTreeObserver.OnTouchModeChangeListe
         }
         return result;
     }
-
+    
     @Override
     protected float getTopFadingEdgeStrength() {
         final int count = getChildCount();
@@ -759,14 +759,14 @@ ViewTreeObserver.OnGlobalLayoutListener, ViewTreeObserver.OnTouchModeChangeListe
             if (mFirstPosition > 0) {
                 return 1.0f;
             }
-
+            
             final int top = getChildAt(0).getTop();
             final float fadeLength = (float) getVerticalFadingEdgeLength();
             //            return top < mPaddingTop ? (float) -(top - mPaddingTop) / fadeLength : fadeEdge;
             return top < getPaddingTop() ? (float) -(top - getPaddingTop()) / fadeLength : fadeEdge;
         }
     }
-
+    
     @Override
     protected float getBottomFadingEdgeStrength() {
         final int count = getChildCount();
@@ -777,7 +777,7 @@ ViewTreeObserver.OnGlobalLayoutListener, ViewTreeObserver.OnTouchModeChangeListe
             if (mFirstPosition + count - 1 < mItemCount - 1) {
                 return 1.0f;
             }
-
+            
             final int bottom = getChildAt(count - 1).getBottom();
             final int height = getHeight();
             final float fadeLength = (float) getVerticalFadingEdgeLength();
@@ -785,7 +785,7 @@ ViewTreeObserver.OnGlobalLayoutListener, ViewTreeObserver.OnTouchModeChangeListe
             return bottom > height - getPaddingBottom() ? (float) (bottom - height + getPaddingBottom()) / fadeLength : fadeEdge;
         }
     }
-
+    
     @Override
     protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
         if (mSelector == null) {
@@ -801,7 +801,7 @@ ViewTreeObserver.OnGlobalLayoutListener, ViewTreeObserver.OnTouchModeChangeListe
         listPadding.right = mSelectionRightPadding + getPaddingRight();
         listPadding.bottom = mSelectionBottomPadding + getPaddingBottom();
     }
-
+    
     /**
      * Subclasses should NOT override this method but
      *  {@link #layoutChildren()} instead.
@@ -819,22 +819,22 @@ ViewTreeObserver.OnGlobalLayoutListener, ViewTreeObserver.OnTouchModeChangeListe
         }
         DebugUtil.i("onLayout");
         layoutChildren();
-
+        
         mInLayout = false;
     }
-
+    
     /**
      * Subclasses must override this method to layout their children.
      */
     protected void layoutChildren() {
     }
-
+    
     @Override
     @ViewDebug.ExportedProperty
     public View getSelectedView() {
         return null;
     }
-
+    
     /**
      * List padding is the maximum of the normal view's padding and the padding of the selector.
      *
@@ -846,7 +846,7 @@ ViewTreeObserver.OnGlobalLayoutListener, ViewTreeObserver.OnTouchModeChangeListe
     public int getListPaddingTop() {
         return mListPadding.top;
     }
-
+    
     /**
      * List padding is the maximum of the normal view's padding and the padding of the selector.
      *
@@ -858,7 +858,7 @@ ViewTreeObserver.OnGlobalLayoutListener, ViewTreeObserver.OnTouchModeChangeListe
     public int getListPaddingBottom() {
         return mListPadding.bottom;
     }
-
+    
     /**
      * List padding is the maximum of the normal view's padding and the padding of the selector.
      *
@@ -870,7 +870,7 @@ ViewTreeObserver.OnGlobalLayoutListener, ViewTreeObserver.OnTouchModeChangeListe
     public int getListPaddingLeft() {
         return mListPadding.left;
     }
-
+    
     /**
      * List padding is the maximum of the normal view's padding and the padding of the selector.
      *
@@ -882,7 +882,7 @@ ViewTreeObserver.OnGlobalLayoutListener, ViewTreeObserver.OnTouchModeChangeListe
     public int getListPaddingRight() {
         return mListPadding.right;
     }
-
+    
     /**
      * Get a view and have it show the data associated with the specified
      * position. This is called when we have already discovered that the view is
@@ -892,30 +892,30 @@ ViewTreeObserver.OnGlobalLayoutListener, ViewTreeObserver.OnTouchModeChangeListe
      * @param position The position to display
      * @param isScrap Array of at least 1 boolean, the first entry will become true if
      *                the returned view was taken from the scrap heap, false if otherwise.
-     * 
+     *
      * @return A view displaying the data associated with the specified position
      */
     @SuppressWarnings("deprecation")
     View obtainView(int position, boolean[] isScrap) {
         isScrap[0] = false;
         View scrapView;
-
+        
         scrapView = mRecycler.getScrapView(position);
-
+        
         View child;
         if (scrapView != null) {
             if (ViewDebug.TRACE_RECYCLER) {
                 ViewDebug.trace(scrapView, ViewDebug.RecyclerTraceType.RECYCLE_FROM_SCRAP_HEAP,
-                        position, -1);
+                                position, -1);
             }
-
+            
             child = mAdapter.getView(position, scrapView, this);
-
+            
             if (ViewDebug.TRACE_RECYCLER) {
                 ViewDebug.trace(child, ViewDebug.RecyclerTraceType.BIND_VIEW,
-                        position, getChildCount());
+                                position, getChildCount());
             }
-
+            
             if (child != scrapView) {
                 DebugUtil.i("obtainView");
                 mRecycler.addScrapView(scrapView);
@@ -924,7 +924,7 @@ ViewTreeObserver.OnGlobalLayoutListener, ViewTreeObserver.OnTouchModeChangeListe
                 }
                 if (ViewDebug.TRACE_RECYCLER) {
                     ViewDebug.trace(scrapView, ViewDebug.RecyclerTraceType.MOVE_TO_SCRAP_HEAP,
-                            position, -1);
+                                    position, -1);
                 }
             } else {
                 isScrap[0] = true;
@@ -939,46 +939,46 @@ ViewTreeObserver.OnGlobalLayoutListener, ViewTreeObserver.OnTouchModeChangeListe
             }
             if (ViewDebug.TRACE_RECYCLER) {
                 ViewDebug.trace(child, ViewDebug.RecyclerTraceType.NEW_VIEW,
-                        position, getChildCount());
+                                position, getChildCount());
             }
         }
-
+        
         return child;
     }
-
+    
     void positionSelector(View sel) {
         final Rect selectorRect = mSelectorRect;
         selectorRect.set(sel.getLeft(), sel.getTop(), sel.getRight(), sel.getBottom());
         positionSelector(selectorRect.left, selectorRect.top, selectorRect.right,
-                selectorRect.bottom);
-
+                         selectorRect.bottom);
+        
         final boolean isChildViewEnabled = mIsChildViewEnabled;
         if (sel.isEnabled() != isChildViewEnabled) {
             mIsChildViewEnabled = !isChildViewEnabled;
             refreshDrawableState();
         }
     }
-
+    
     private void positionSelector(int l, int t, int r, int b) {
         mSelectorRect.set(l - mSelectionLeftPadding, t - mSelectionTopPadding, r
-                + mSelectionRightPadding, b + mSelectionBottomPadding);
+                          + mSelectionRightPadding, b + mSelectionBottomPadding);
     }
-
+    
     @Override
     protected void dispatchDraw(Canvas canvas) {
-
+        
         final boolean drawSelectorOnTop = mDrawSelectorOnTop;
         if (!drawSelectorOnTop) {
             drawSelector(canvas);
         }
-
+        
         super.dispatchDraw(canvas);
-
+        
         if (drawSelectorOnTop) {
             drawSelector(canvas);
         }
     }
-
+    
     @Override
     protected void onSizeChanged(int w, int h, int oldw, int oldh) {
         if (getChildCount() > 0) {
@@ -989,7 +989,7 @@ ViewTreeObserver.OnGlobalLayoutListener, ViewTreeObserver.OnTouchModeChangeListe
             rememberSyncState();
         }
     }
-
+    
     /**
      * @return True if the current touch mode requires that we draw the selector in the pressed
      *         state.
@@ -1004,7 +1004,7 @@ ViewTreeObserver.OnGlobalLayoutListener, ViewTreeObserver.OnTouchModeChangeListe
                 return false;
         }
     }
-
+    
     /**
      * Indicates whether this view is in a state where the selector should be drawn. This will
      * happen if we have focus but are not in touch mode, or we are in the middle of displaying
@@ -1015,7 +1015,7 @@ ViewTreeObserver.OnGlobalLayoutListener, ViewTreeObserver.OnTouchModeChangeListe
     protected boolean shouldShowSelector() {
         return (hasFocus() && !isInTouchMode()) || touchModeDrawsInPressedState();
     }
-
+    
     private void drawSelector(Canvas canvas) {
         if (shouldShowSelector() && mSelectorRect != null && !mSelectorRect.isEmpty()) {
             final Drawable selector = mSelector;
@@ -1023,7 +1023,7 @@ ViewTreeObserver.OnGlobalLayoutListener, ViewTreeObserver.OnTouchModeChangeListe
             selector.draw(canvas);
         }
     }
-
+    
     /**
      * Controls whether the selection highlight drawable should be drawn on top of the item or
      * behind it.
@@ -1036,7 +1036,7 @@ ViewTreeObserver.OnGlobalLayoutListener, ViewTreeObserver.OnTouchModeChangeListe
     public void setDrawSelectorOnTop(boolean onTop) {
         mDrawSelectorOnTop = onTop;
     }
-
+    
     /**
      * Set a Drawable that should be used to highlight the currently selected item.
      *
@@ -1047,7 +1047,7 @@ ViewTreeObserver.OnGlobalLayoutListener, ViewTreeObserver.OnTouchModeChangeListe
     public void setSelector(int resID) {
         setSelector(getResources().getDrawable(resID));
     }
-
+    
     public void setSelector(Drawable sel) {
         if (mSelector != null) {
             mSelector.setCallback(null);
@@ -1063,7 +1063,7 @@ ViewTreeObserver.OnGlobalLayoutListener, ViewTreeObserver.OnTouchModeChangeListe
         sel.setCallback(this);
         sel.setState(getDrawableState());
     }
-
+    
     /**
      * Returns the selector {@link android.graphics.drawable.Drawable} that is used to draw the
      * selection in the list.
@@ -1073,7 +1073,7 @@ ViewTreeObserver.OnGlobalLayoutListener, ViewTreeObserver.OnTouchModeChangeListe
     public Drawable getSelector() {
         return mSelector;
     }
-
+    
     @Override
     protected void drawableStateChanged() {
         super.drawableStateChanged();
@@ -1081,7 +1081,7 @@ ViewTreeObserver.OnGlobalLayoutListener, ViewTreeObserver.OnTouchModeChangeListe
             mSelector.setState(getDrawableState());
         }
     }
-
+    
     @Override
     protected int[] onCreateDrawableState(int extraSpace) {
         // If the child view is enabled then do the default behavior.
@@ -1089,12 +1089,12 @@ ViewTreeObserver.OnGlobalLayoutListener, ViewTreeObserver.OnTouchModeChangeListe
             // Common case
             return super.onCreateDrawableState(extraSpace);
         }
-
+        
         // The selector uses this View's drawable state. The selected child view
         // is disabled, so we need to remove the enabled state from the drawable
         // states.
         final int enabledState = ENABLED_STATE_SET[0];
-
+        
         // If we don't have any extra space, it will return one of the static state arrays,
         // and clearing the enabled state on those arrays is a bad thing!  If we specify
         // we need extra space, it will create+copy into a new array that safely mutable.
@@ -1106,51 +1106,51 @@ ViewTreeObserver.OnGlobalLayoutListener, ViewTreeObserver.OnTouchModeChangeListe
                 break;
             }
         }
-
+        
         // Remove the enabled state
         if (enabledPos >= 0) {
             System.arraycopy(state, enabledPos + 1, state, enabledPos,
-                    state.length - enabledPos - 1);
+                             state.length - enabledPos - 1);
         }
-
+        
         return state;
     }
-
+    
     @Override
     public boolean verifyDrawable(Drawable dr) {
         return mSelector == dr || super.verifyDrawable(dr);
     }
-
+    
     @Override
     protected void onAttachedToWindow() {
         super.onAttachedToWindow();
-
+        
         final ViewTreeObserver treeObserver = getViewTreeObserver();
         if (treeObserver != null) {
             treeObserver.addOnTouchModeChangeListener(this);
         }
     }
-
+    
     @Override
     protected void onDetachedFromWindow() {
         super.onDetachedFromWindow();
-
+        
         // Detach any view left in the scrap heap
         mRecycler.clear();
-
+        
         final ViewTreeObserver treeObserver = getViewTreeObserver();
         if (treeObserver != null) {
             treeObserver.removeOnTouchModeChangeListener(this);
         }
     }
-
+    
     @Override
     public void onWindowFocusChanged(boolean hasWindowFocus) {
         super.onWindowFocusChanged(hasWindowFocus);
         DebugUtil.i("onWindowFocusChanged");
-
+        
         final int touchMode = isInTouchMode() ? TOUCH_MODE_ON : TOUCH_MODE_OFF;
-
+        
         if (!hasWindowFocus) {
             setChildrenDrawingCacheEnabled(false);
             if (mFlingRunnable != null) {
@@ -1158,7 +1158,7 @@ ViewTreeObserver.OnGlobalLayoutListener, ViewTreeObserver.OnTouchModeChangeListe
                 // let the fling runnable report it's new state which
                 // should be idle
                 mFlingRunnable.endFling();
-
+                
                 if (getScrollY() != 0) {
                     //mScrollY = 0;
                     scrollTo(getScrollX(), 0);
@@ -1166,7 +1166,7 @@ ViewTreeObserver.OnGlobalLayoutListener, ViewTreeObserver.OnTouchModeChangeListe
                 }
             }
         } else {
-
+            
             // If we changed touch mode since the last time we had focus
             if (touchMode != mLastTouchMode && mLastTouchMode != TOUCH_MODE_UNKNOWN) {
                 // If we come back in trackball mode, we bring the selection back
@@ -1175,10 +1175,10 @@ ViewTreeObserver.OnGlobalLayoutListener, ViewTreeObserver.OnTouchModeChangeListe
                 layoutChildren();
             }
         }
-
+        
         mLastTouchMode = touchMode;
     }
-
+    
     /**
      * Creates the ContextMenuInfo returned from {@link #getContextMenuInfo()}. This
      * methods knows the view, position and ID of the item that received the
@@ -1193,7 +1193,7 @@ ViewTreeObserver.OnGlobalLayoutListener, ViewTreeObserver.OnTouchModeChangeListe
     ContextMenuInfo createContextMenuInfo(View view, int position, long id) {
         return new AdapterContextMenuInfo(view, position, id);
     }
-
+    
     /**
      * A base class for Runnables that will check that their view is still attached to
      * the original window as when the Runnable was created.
@@ -1201,74 +1201,74 @@ ViewTreeObserver.OnGlobalLayoutListener, ViewTreeObserver.OnTouchModeChangeListe
      */
     private class WindowRunnnable {
         private int mOriginalAttachCount;
-
+        
         public void rememberWindowAttachCount() {
             mOriginalAttachCount = getWindowAttachCount();
         }
-
+        
         public boolean sameWindow() {
             return hasWindowFocus() && getWindowAttachCount() == mOriginalAttachCount;
         }
     }
-
+    
     private class PerformClick extends WindowRunnnable implements Runnable {
         View mChild;
         int mClickMotionPosition;
-
+        
         public void run() {
             // The data has changed since we posted this action in the event queue,
             // bail out before bad things happen
             if (mDataChanged) return;
-
+            
             final ListAdapter adapter = mAdapter;
             final int motionPosition = mClickMotionPosition;
             if (adapter != null && mItemCount > 0 &&
-                    motionPosition != INVALID_POSITION &&
-                    motionPosition < adapter.getCount() && sameWindow()) {
+                motionPosition != INVALID_POSITION &&
+                motionPosition < adapter.getCount() && sameWindow()) {
                 performItemClick(mChild, motionPosition, adapter.getItemId(motionPosition));
             }
         }
     }
-
+    
     @Override
     protected ContextMenuInfo getContextMenuInfo() {
         return mContextMenuInfo;
     }
-
+    
     @Override
     public boolean showContextMenuForChild(View originalView) {
         final int longPressPosition = getPositionForView(originalView);
         if (longPressPosition >= 0) {
             final long longPressId = mAdapter.getItemId(longPressPosition);
             boolean handled = false;
-
+            
             if (mOnItemLongClickListener != null) {
                 handled = mOnItemLongClickListener.onItemLongClick(PLA_AbsListView.this, originalView,
-                        longPressPosition, longPressId);
+                                                                   longPressPosition, longPressId);
             }
             if (!handled) {
                 mContextMenuInfo = createContextMenuInfo(
-                        getChildAt(longPressPosition - mFirstPosition),
-                        longPressPosition, longPressId);
+                                                         getChildAt(longPressPosition - mFirstPosition),
+                                                         longPressPosition, longPressId);
                 handled = super.showContextMenuForChild(originalView);
             }
-
+            
             return handled;
         }
         return false;
     }
-
+    
     @Override
     public boolean onKeyDown(int keyCode, KeyEvent event) {
         return false;
     }
-
+    
     @Override
     protected void dispatchSetPressed(boolean pressed) {
         // Don't dispatch setPressed to our children. We call setPressed on ourselves to
         // get the selector in the right state, but we don't want to press each child.
     }
-
+    
     /**
      * Maps a point to a position in the list.
      *
@@ -1283,7 +1283,7 @@ ViewTreeObserver.OnGlobalLayoutListener, ViewTreeObserver.OnTouchModeChangeListe
             mTouchFrame = new Rect();
             frame = mTouchFrame;
         }
-
+        
         final int count = getChildCount();
         for (int i = count - 1; i >= 0; i--) {
             final View child = getChildAt(i);
@@ -1296,8 +1296,8 @@ ViewTreeObserver.OnGlobalLayoutListener, ViewTreeObserver.OnTouchModeChangeListe
         }
         return INVALID_POSITION;
     }
-
-
+    
+    
     /**
      * Maps a point to a the rowId of the item which intersects that point.
      *
@@ -1313,7 +1313,7 @@ ViewTreeObserver.OnGlobalLayoutListener, ViewTreeObserver.OnTouchModeChangeListe
         }
         return INVALID_ROW_ID;
     }
-
+    
     final class CheckForTap implements Runnable {
         public void run() {
             if (mTouchMode == TOUCH_MODE_DOWN) {
@@ -1321,16 +1321,16 @@ ViewTreeObserver.OnGlobalLayoutListener, ViewTreeObserver.OnTouchModeChangeListe
                 final View child = getChildAt(mMotionPosition - mFirstPosition);
                 if (child != null && !child.hasFocusable()) {
                     mLayoutMode = LAYOUT_NORMAL;
-
+                    
                     if (!mDataChanged) {
                         layoutChildren();
                         child.setPressed(true);
                         positionSelector(child);
                         setPressed(true);
-
+                        
                         final int longPressTimeout = ViewConfiguration.getLongPressTimeout();
                         final boolean longClickable = isLongClickable();
-
+                        
                         if (mSelector != null) {
                             Drawable d = mSelector.getCurrent();
                             if (d != null && d instanceof TransitionDrawable) {
@@ -1341,7 +1341,7 @@ ViewTreeObserver.OnGlobalLayoutListener, ViewTreeObserver.OnTouchModeChangeListe
                                 }
                             }
                         }
-
+                        
                         if (longClickable) {
                         } else {
                             mTouchMode = TOUCH_MODE_DONE_WAITING;
@@ -1353,7 +1353,7 @@ ViewTreeObserver.OnGlobalLayoutListener, ViewTreeObserver.OnTouchModeChangeListe
             }
         }
     }
-
+    
     private boolean startScrollIfNeeded(int deltaY) {
         // Check if we have moved far enough that it looks more like a
         // scroll than a tap
@@ -1376,10 +1376,10 @@ ViewTreeObserver.OnGlobalLayoutListener, ViewTreeObserver.OnTouchModeChangeListe
             requestDisallowInterceptTouchEvent(true);
             return true;
         }
-
+        
         return false;
     }
-
+    
     public void onTouchModeChanged(boolean isInTouchMode) {
         if (isInTouchMode) {
             // Get rid of the selection when we enter touch mode
@@ -1393,7 +1393,7 @@ ViewTreeObserver.OnGlobalLayoutListener, ViewTreeObserver.OnTouchModeChangeListe
             }
         }
     }
-
+    
     @Override
     public boolean onTouchEvent(MotionEvent ev) {
         if (!isEnabled()) {
@@ -1401,17 +1401,17 @@ ViewTreeObserver.OnGlobalLayoutListener, ViewTreeObserver.OnTouchModeChangeListe
             // events, it just doesn't respond to them.
             return isClickable() || isLongClickable();
         }
-
+        
         final int action = ev.getAction();
-
+        
         View v;
         int deltaY;
-
+        
         if (mVelocityTracker == null) {
             mVelocityTracker = VelocityTracker.obtain();
         }
         mVelocityTracker.addMovement(ev);
-
+        
         switch (action & MotionEvent.ACTION_MASK) {
             case MotionEvent.ACTION_DOWN: {
                 mActivePointerId = ev.getPointerId(0);
@@ -1420,7 +1420,7 @@ ViewTreeObserver.OnGlobalLayoutListener, ViewTreeObserver.OnTouchModeChangeListe
                 int motionPosition = pointToPosition(x, y);
                 if (!mDataChanged) {
                     if ((mTouchMode != TOUCH_MODE_FLING) && (motionPosition >= 0)
-                            && (getAdapter().isEnabled(motionPosition))) {
+                        && (getAdapter().isEnabled(motionPosition))) {
                         // User clicked on an actual view (and was not stopping a fling). It might be a
                         // click or a scroll. Assume it is a click until proven otherwise
                         mTouchMode = TOUCH_MODE_DOWN;
@@ -1436,7 +1436,7 @@ ViewTreeObserver.OnGlobalLayoutListener, ViewTreeObserver.OnTouchModeChangeListe
                             // code in ViewRoot to try to find a nearby view to select
                             return false;
                         }
-
+                        
                         if (mTouchMode == TOUCH_MODE_FLING) {
                             // Stopped a fling. It is a scroll.
                             createScrollingCache();
@@ -1447,7 +1447,7 @@ ViewTreeObserver.OnGlobalLayoutListener, ViewTreeObserver.OnTouchModeChangeListe
                         }
                     }
                 }
-
+                
                 if (motionPosition >= 0) {
                     // Remember where the motion event started
                     v = getChildAt(motionPosition - mFirstPosition);
@@ -1459,7 +1459,7 @@ ViewTreeObserver.OnGlobalLayoutListener, ViewTreeObserver.OnTouchModeChangeListe
                 mLastY = Integer.MIN_VALUE;
                 break;
             }
-
+                
             case MotionEvent.ACTION_MOVE: {
                 final int pointerIndex = ev.findPointerIndex(mActivePointerId);
                 final int y = (int) ev.getY(pointerIndex);
@@ -1479,17 +1479,17 @@ ViewTreeObserver.OnGlobalLayoutListener, ViewTreeObserver.OnTouchModeChangeListe
                                 mScrollProfilingStarted = true;
                             }
                         }
-
+                        
                         if (y != mLastY) {
                             deltaY -= mMotionCorrection;
                             int incrementalDeltaY = mLastY != Integer.MIN_VALUE ? y - mLastY : deltaY;
-
+                            
                             // No need to do all this work if we're not going to move anyway
                             boolean atEdge = false;
                             if (incrementalDeltaY != 0) {
                                 atEdge = trackMotionScroll(deltaY, incrementalDeltaY);
                             }
-
+                            
                             // Check to see if we have bumped into the scroll limit
                             if (atEdge && getChildCount() > 0) {
                                 // Treat this like we're starting a new scroll from the current
@@ -1509,10 +1509,10 @@ ViewTreeObserver.OnGlobalLayoutListener, ViewTreeObserver.OnTouchModeChangeListe
                         }
                         break;
                 }
-
+                
                 break;
             }
-
+                
             case MotionEvent.ACTION_UP: {
                 switch (mTouchMode) {
                     case TOUCH_MODE_DOWN:
@@ -1524,18 +1524,18 @@ ViewTreeObserver.OnGlobalLayoutListener, ViewTreeObserver.OnTouchModeChangeListe
                             if (mTouchMode != TOUCH_MODE_DOWN) {
                                 child.setPressed(false);
                             }
-
+                            
                             if (mPerformClick == null) {
                                 mPerformClick = new PerformClick();
                             }
-
+                            
                             final PLA_AbsListView.PerformClick performClick = mPerformClick;
                             performClick.mChild = child;
                             performClick.mClickMotionPosition = motionPosition;
                             performClick.rememberWindowAttachCount();
-
+                            
                             mResurrectToPosition = motionPosition;
-
+                            
                             if (mTouchMode == TOUCH_MODE_DOWN || mTouchMode == TOUCH_MODE_TAP) {
                                 mLayoutMode = LAYOUT_NORMAL;
                                 if (!mDataChanged && mAdapter.isEnabled(motionPosition)) {
@@ -1576,21 +1576,21 @@ ViewTreeObserver.OnGlobalLayoutListener, ViewTreeObserver.OnTouchModeChangeListe
                             int top = getFillChildTop();
                             int bottom = getFillChildBottom();
                             if (mFirstPosition == 0 && top >= mListPadding.top &&
-                                    mFirstPosition + childCount < mItemCount &&
-                                    bottom <= getHeight() - mListPadding.bottom) {
+                                mFirstPosition + childCount < mItemCount &&
+                                bottom <= getHeight() - mListPadding.bottom) {
                                 mTouchMode = TOUCH_MODE_REST;
                                 reportScrollStateChange(OnScrollListener.SCROLL_STATE_IDLE);
                             } else {
                                 final VelocityTracker velocityTracker = mVelocityTracker;
                                 velocityTracker.computeCurrentVelocity(1000, mMaximumVelocity);
                                 final int initialVelocity = (int) velocityTracker.getYVelocity(mActivePointerId);
-
+                                
                                 if (Math.abs(initialVelocity) > mMinimumVelocity) {
                                     if (mFlingRunnable == null) {
                                         mFlingRunnable = new FlingRunnable();
                                     }
                                     reportScrollStateChange(OnScrollListener.SCROLL_STATE_FLING);
-
+                                    
                                     mFlingRunnable.start(-initialVelocity);
                                 } else {
                                     mTouchMode = TOUCH_MODE_REST;
@@ -1603,19 +1603,19 @@ ViewTreeObserver.OnGlobalLayoutListener, ViewTreeObserver.OnTouchModeChangeListe
                         }
                         break;
                 }
-
+                
                 setPressed(false);
-
+                
                 // Need to redraw since we probably aren't drawing the selector anymore
                 invalidate();
-
+                
                 if (mVelocityTracker != null) {
                     mVelocityTracker.recycle();
                     mVelocityTracker = null;
                 }
-
+                
                 mActivePointerId = INVALID_POINTER;
-
+                
                 if (PROFILE_SCROLLING) {
                     if (mScrollProfilingStarted) {
                         Debug.stopMethodTracing();
@@ -1624,7 +1624,7 @@ ViewTreeObserver.OnGlobalLayoutListener, ViewTreeObserver.OnTouchModeChangeListe
                 }
                 break;
             }
-
+                
             case MotionEvent.ACTION_CANCEL: {
                 mTouchMode = TOUCH_MODE_REST;
                 setPressed(false);
@@ -1633,16 +1633,16 @@ ViewTreeObserver.OnGlobalLayoutListener, ViewTreeObserver.OnTouchModeChangeListe
                     motionView.setPressed(false);
                 }
                 clearScrollingCache();
-
+                
                 if (mVelocityTracker != null) {
                     mVelocityTracker.recycle();
                     mVelocityTracker = null;
                 }
-
+                
                 mActivePointerId = INVALID_POINTER;
                 break;
             }
-
+                
             case MotionEvent.ACTION_POINTER_UP: {
                 onSecondaryPointerUp(ev);
                 final int x = mMotionX;
@@ -1658,24 +1658,24 @@ ViewTreeObserver.OnGlobalLayoutListener, ViewTreeObserver.OnTouchModeChangeListe
                 break;
             }
         }
-
+        
         return true;
     }
-
+    
     @Override
     public boolean onInterceptTouchEvent(MotionEvent ev) {
-
+        
         int action = ev.getAction();
         View v;
-
+        
         switch (action & MotionEvent.ACTION_MASK) {
             case MotionEvent.ACTION_DOWN: {
                 int touchMode = mTouchMode;
-
+                
                 final int x = (int) ev.getX();
                 final int y = (int) ev.getY();
                 mActivePointerId = ev.getPointerId(0);
-
+                
                 int motionPosition = findMotionRow(y);
                 if (touchMode != TOUCH_MODE_FLING && motionPosition >= 0) {
                     // User clicked on an actual view (and was not stopping a fling).
@@ -1694,7 +1694,7 @@ ViewTreeObserver.OnGlobalLayoutListener, ViewTreeObserver.OnTouchModeChangeListe
                 }
                 break;
             }
-
+                
             case MotionEvent.ACTION_MOVE: {
                 switch (mTouchMode) {
                     case TOUCH_MODE_DOWN:
@@ -1707,23 +1707,23 @@ ViewTreeObserver.OnGlobalLayoutListener, ViewTreeObserver.OnTouchModeChangeListe
                 }
                 break;
             }
-
+                
             case MotionEvent.ACTION_UP: {
                 mTouchMode = TOUCH_MODE_REST;
                 mActivePointerId = INVALID_POINTER;
                 reportScrollStateChange(OnScrollListener.SCROLL_STATE_IDLE);
                 break;
             }
-
+                
             case MotionEvent.ACTION_POINTER_UP: {
                 onSecondaryPointerUp(ev);
                 break;
             }
         }
-
+        
         return false;
     }
-
+    
     private void onSecondaryPointerUp(MotionEvent ev) {
         final int pointerIndex = (ev.getAction() & MotionEvent.ACTION_POINTER_INDEX_MASK) >>
         MotionEvent.ACTION_POINTER_INDEX_SHIFT;
@@ -1741,7 +1741,7 @@ ViewTreeObserver.OnGlobalLayoutListener, ViewTreeObserver.OnTouchModeChangeListe
             }
         }
     }
-
+    
     /**
      * {@inheritDoc}
      */
@@ -1750,11 +1750,11 @@ ViewTreeObserver.OnGlobalLayoutListener, ViewTreeObserver.OnTouchModeChangeListe
         final int count = getChildCount();
         final int firstPosition = mFirstPosition;
         final ListAdapter adapter = mAdapter;
-
+        
         if (adapter == null) {
             return;
         }
-
+        
         for (int i = 0; i < count; i++) {
             final View child = getChildAt(i);
             if (adapter.isEnabled(firstPosition + i)) {
@@ -1763,7 +1763,7 @@ ViewTreeObserver.OnGlobalLayoutListener, ViewTreeObserver.OnTouchModeChangeListe
             child.addTouchables(views);
         }
     }
-
+    
     /**
      * Fires an "on scroll state changed" event to the registered
      * {@link android.widget.AbsListView.OnScrollListener}, if any. The state change
@@ -1779,7 +1779,7 @@ ViewTreeObserver.OnGlobalLayoutListener, ViewTreeObserver.OnTouchModeChangeListe
             }
         }
     }
-
+    
     /**
      * Responsible for fling behavior. Use {@link #start(int)} to
      * initiate a fling. Each frame of the fling is handled in {@link #run()}.
@@ -1791,27 +1791,27 @@ ViewTreeObserver.OnGlobalLayoutListener, ViewTreeObserver.OnTouchModeChangeListe
          * Tracks the decay of a fling scroll
          */
         private final Scroller mScroller;
-
+        
         /**
          * Y value reported by mScroller on the previous fling
          */
         private int mLastFlingY;
-
+        
         FlingRunnable() {
             mScroller = new Scroller(getContext());
         }
-
+        
         void start(int initialVelocity) {
             initialVelocity = modifyFlingInitialVelocity(initialVelocity);
-
+            
             int initialY = initialVelocity < 0 ? Integer.MAX_VALUE : 0;
             mLastFlingY = initialY;
             mScroller.fling(0, initialY, 0, initialVelocity,
-                    0, Integer.MAX_VALUE, 0, Integer.MAX_VALUE);
-
+                            0, Integer.MAX_VALUE, 0, Integer.MAX_VALUE);
+            
             mTouchMode = TOUCH_MODE_FLING;
             post(this);
-
+            
             if (PROFILE_FLINGING) {
                 if (!mFlingProfilingStarted) {
                     Debug.startMethodTracing("AbsListViewFling");
@@ -1819,7 +1819,7 @@ ViewTreeObserver.OnGlobalLayoutListener, ViewTreeObserver.OnTouchModeChangeListe
                 }
             }
         }
-
+        
         void startScroll(int distance, int duration) {
             int initialY = distance < 0 ? Integer.MAX_VALUE : 0;
             mLastFlingY = initialY;
@@ -1827,41 +1827,41 @@ ViewTreeObserver.OnGlobalLayoutListener, ViewTreeObserver.OnTouchModeChangeListe
             mTouchMode = TOUCH_MODE_FLING;
             post(this);
         }
-
+        
         private void endFling() {
             mLastFlingY = 0;
             mTouchMode = TOUCH_MODE_REST;
-
+            
             reportScrollStateChange(OnScrollListener.SCROLL_STATE_IDLE);
             clearScrollingCache();
-
+            
             removeCallbacks(this);
-
+            
             if (mPositionScroller != null) {
                 removeCallbacks(mPositionScroller);
             }
             mScroller.forceFinished(true);
         }
-
+        
         public void run() {
             switch (mTouchMode) {
                 default:
                     return;
-
+                    
                 case TOUCH_MODE_FLING: {
                     if (mItemCount == 0 || getChildCount() == 0) {
                         endFling();
                         return;
                     }
-
+                    
                     final Scroller scroller = mScroller;
                     boolean more = scroller.computeScrollOffset();
                     final int y = scroller.getCurrY();
-
+                    
                     // Flip sign to convert finger direction to list items direction
                     // (e.g. finger moving down means list is moving towards the top)
                     int delta = mLastFlingY - y;
-
+                    
                     // Pretend that each frame of a fling scroll is a touch scroll
                     if (delta > 0) {
                         // List is moving towards the top. Use first view as mMotionPosition
@@ -1869,7 +1869,7 @@ ViewTreeObserver.OnGlobalLayoutListener, ViewTreeObserver.OnTouchModeChangeListe
                         //final View firstView = getChildAt(0);
                         //mMotionViewOriginalTop = firstView.getTop();
                         mMotionViewOriginalTop = getScrollChildTop();
-
+                        
                         // Don't fling more than 1 screen
                         // delta = Math.min(getHeight() - mPaddingBottom - mPaddingTop - 1, delta);
                         delta = Math.min(getHeight() - getPaddingBottom() - getPaddingTop() - 1, delta);
@@ -1877,18 +1877,18 @@ ViewTreeObserver.OnGlobalLayoutListener, ViewTreeObserver.OnTouchModeChangeListe
                         // List is moving towards the bottom. Use last view as mMotionPosition
                         int offsetToLast = getChildCount() - 1;
                         mMotionPosition = mFirstPosition + offsetToLast;
-
+                        
                         //final View lastView = getChildAt(offsetToLast);
                         //mMotionViewOriginalTop = lastView.getTop();
                         mMotionViewOriginalTop = getScrollChildBottom();
-
+                        
                         // Don't fling more than 1 screen
                         // delta = Math.max(-(getHeight() - mPaddingBottom - mPaddingTop - 1), delta);
                         delta = Math.max(-(getHeight() - getPaddingBottom() - getPaddingTop() - 1), delta);
                     }
-
+                    
                     final boolean atEnd = trackMotionScroll(delta, delta);
-
+                    
                     if (more && !atEnd) {
                         invalidate();
                         mLastFlingY = y;
@@ -1907,33 +1907,33 @@ ViewTreeObserver.OnGlobalLayoutListener, ViewTreeObserver.OnTouchModeChangeListe
             }
         }
     }
-
-
+    
+    
     class PositionScroller implements Runnable {
         private static final int SCROLL_DURATION = 400;
-
+        
         private static final int MOVE_DOWN_POS = 1;
         private static final int MOVE_UP_POS = 2;
         private static final int MOVE_DOWN_BOUND = 3;
         private static final int MOVE_UP_BOUND = 4;
-
+        
         private int mMode;
         private int mTargetPos;
         private int mBoundPos;
         private int mLastSeenPos;
         private int mScrollDuration;
         private final int mExtraScroll;
-
+        
         PositionScroller() {
             mExtraScroll = ViewConfiguration.get(getContext()).getScaledFadingEdgeLength();
         }
-
+        
         void start(int position) {
             final int firstPos = mFirstPosition;
             final int lastPos = firstPos + getChildCount() - 1;
-
+            
             int viewTravelCount = 0;
-            if (position <= firstPos) {                
+            if (position <= firstPos) {
                 viewTravelCount = firstPos - position + 1;
                 mMode = MOVE_UP_POS;
             } else if (position >= lastPos) {
@@ -1943,7 +1943,7 @@ ViewTreeObserver.OnGlobalLayoutListener, ViewTreeObserver.OnTouchModeChangeListe
                 // Already on screen, nothing to do
                 return;
             }
-
+            
             if (viewTravelCount > 0) {
                 mScrollDuration = SCROLL_DURATION / viewTravelCount;
             } else {
@@ -1952,19 +1952,19 @@ ViewTreeObserver.OnGlobalLayoutListener, ViewTreeObserver.OnTouchModeChangeListe
             mTargetPos = position;
             mBoundPos = INVALID_POSITION;
             mLastSeenPos = INVALID_POSITION;
-
+            
             post(this);
         }
-
+        
         void start(int position, int boundPosition) {
             if (boundPosition == INVALID_POSITION) {
                 start(position);
                 return;
             }
-
+            
             final int firstPos = mFirstPosition;
             final int lastPos = firstPos + getChildCount() - 1;
-
+            
             int viewTravelCount = 0;
             if (position <= firstPos) {
                 final int boundPosFromLast = lastPos - boundPosition;
@@ -1972,7 +1972,7 @@ ViewTreeObserver.OnGlobalLayoutListener, ViewTreeObserver.OnTouchModeChangeListe
                     // Moving would shift our bound position off the screen. Abort.
                     return;
                 }
-
+                
                 final int posTravel = firstPos - position + 1;
                 final int boundTravel = boundPosFromLast - 1;
                 if (boundTravel < posTravel) {
@@ -1988,7 +1988,7 @@ ViewTreeObserver.OnGlobalLayoutListener, ViewTreeObserver.OnTouchModeChangeListe
                     // Moving would shift our bound position off the screen. Abort.
                     return;
                 }
-
+                
                 final int posTravel = position - lastPos + 1;
                 final int boundTravel = boundPosFromFirst - 1;
                 if (boundTravel < posTravel) {
@@ -2002,7 +2002,7 @@ ViewTreeObserver.OnGlobalLayoutListener, ViewTreeObserver.OnTouchModeChangeListe
                 // Already on screen, nothing to do
                 return;
             }
-
+            
             if (viewTravelCount > 0) {
                 mScrollDuration = SCROLL_DURATION / viewTravelCount;
             } else {
@@ -2011,121 +2011,121 @@ ViewTreeObserver.OnGlobalLayoutListener, ViewTreeObserver.OnTouchModeChangeListe
             mTargetPos = position;
             mBoundPos = boundPosition;
             mLastSeenPos = INVALID_POSITION;
-
+            
             post(this);
         }
-
+        
         void stop() {
             removeCallbacks(this);
         }
-
+        
         public void run() {
             final int listHeight = getHeight();
             final int firstPos = mFirstPosition;
-
+            
             switch (mMode) {
                 case MOVE_DOWN_POS: {
                     final int lastViewIndex = getChildCount() - 1;
                     final int lastPos = firstPos + lastViewIndex;
-
+                    
                     if (lastViewIndex < 0) {
                         return;
                     }
-
+                    
                     if (lastPos == mLastSeenPos) {
                         // No new views, let things keep going.
                         post(this);
                         return;
                     }
-
+                    
                     final View lastView = getChildAt(lastViewIndex);
                     final int lastViewHeight = lastView.getHeight();
                     final int lastViewTop = lastView.getTop();
                     final int lastViewPixelsShowing = listHeight - lastViewTop;
                     final int extraScroll = lastPos < mItemCount - 1 ? mExtraScroll : mListPadding.bottom;
-
+                    
                     smoothScrollBy(lastViewHeight - lastViewPixelsShowing + extraScroll,
-                            mScrollDuration);
-
+                                   mScrollDuration);
+                    
                     mLastSeenPos = lastPos;
                     if (lastPos < mTargetPos) {
                         post(this);
                     }
                     break;
                 }
-
+                    
                 case MOVE_DOWN_BOUND: {
                     final int nextViewIndex = 1;
                     final int childCount = getChildCount();
-
+                    
                     if (firstPos == mBoundPos || childCount <= nextViewIndex
-                            || firstPos + childCount >= mItemCount) {
+                        || firstPos + childCount >= mItemCount) {
                         return;
                     }
                     final int nextPos = firstPos + nextViewIndex;
-
+                    
                     if (nextPos == mLastSeenPos) {
                         // No new views, let things keep going.
                         post(this);
                         return;
                     }
-
+                    
                     final View nextView = getChildAt(nextViewIndex);
                     final int nextViewHeight = nextView.getHeight();
                     final int nextViewTop = nextView.getTop();
                     final int extraScroll = mExtraScroll;
                     if (nextPos < mBoundPos) {
                         smoothScrollBy(Math.max(0, nextViewHeight + nextViewTop - extraScroll),
-                                mScrollDuration);
-
+                                       mScrollDuration);
+                        
                         mLastSeenPos = nextPos;
-
+                        
                         post(this);
                     } else  {
-                        if (nextViewTop > extraScroll) { 
+                        if (nextViewTop > extraScroll) {
                             smoothScrollBy(nextViewTop - extraScroll, mScrollDuration);
                         }
                     }
                     break;
                 }
-
+                    
                 case MOVE_UP_POS: {
                     if (firstPos == mLastSeenPos) {
                         // No new views, let things keep going.
                         post(this);
                         return;
                     }
-
+                    
                     final View firstView = getChildAt(0);
                     if (firstView == null) {
                         return;
                     }
                     final int firstViewTop = firstView.getTop();
                     final int extraScroll = firstPos > 0 ? mExtraScroll : mListPadding.top;
-
+                    
                     smoothScrollBy(firstViewTop - extraScroll, mScrollDuration);
-
+                    
                     mLastSeenPos = firstPos;
-
+                    
                     if (firstPos > mTargetPos) {
                         post(this);
                     }
                     break;
                 }
-
+                    
                 case MOVE_UP_BOUND: {
                     final int lastViewIndex = getChildCount() - 2;
                     if (lastViewIndex < 0) {
                         return;
                     }
                     final int lastPos = firstPos + lastViewIndex;
-
+                    
                     if (lastPos == mLastSeenPos) {
                         // No new views, let things keep going.
                         post(this);
                         return;
                     }
-
+                    
                     final View lastView = getChildAt(lastViewIndex);
                     final int lastViewHeight = lastView.getHeight();
                     final int lastViewTop = lastView.getTop();
@@ -2143,13 +2143,13 @@ ViewTreeObserver.OnGlobalLayoutListener, ViewTreeObserver.OnTouchModeChangeListe
                     }
                     break;
                 }
-
+                    
                 default:
                     break;
             }
         }
     }
-
+    
     /**
      * Smoothly scroll to the specified adapter position. The view will
      * scroll such that the indicated position is displayed.
@@ -2161,12 +2161,12 @@ ViewTreeObserver.OnGlobalLayoutListener, ViewTreeObserver.OnTouchModeChangeListe
         }
         mPositionScroller.start(position);
     }
-
+    
     /**
      * Smoothly scroll to the specified adapter position. The view will
      * scroll such that the indicated position is displayed, but it will
      * stop early if scrolling further would scroll boundPosition out of
-     * view. 
+     * view.
      * @param position Scroll to this adapter position.
      * @param boundPosition Do not scroll if it would move this adapter
      *          position out of view.
@@ -2177,7 +2177,7 @@ ViewTreeObserver.OnGlobalLayoutListener, ViewTreeObserver.OnTouchModeChangeListe
         }
         mPositionScroller.start(position, boundPosition);
     }
-
+    
     /**
      * Smoothly scroll by distance pixels over duration milliseconds.
      * @param distance Distance to scroll in pixels.
@@ -2191,7 +2191,7 @@ ViewTreeObserver.OnGlobalLayoutListener, ViewTreeObserver.OnTouchModeChangeListe
         }
         mFlingRunnable.startScroll(distance, duration);
     }
-
+    
     private void createScrollingCache() {
         if (mScrollingCacheEnabled && !mCachingStarted) {
             setChildrenDrawnWithCacheEnabled(true);
@@ -2199,7 +2199,7 @@ ViewTreeObserver.OnGlobalLayoutListener, ViewTreeObserver.OnTouchModeChangeListe
             mCachingStarted = true;
         }
     }
-
+    
     private void clearScrollingCache() {
         if (mClearScrollingCache == null) {
             mClearScrollingCache = new Runnable() {
@@ -2220,7 +2220,7 @@ ViewTreeObserver.OnGlobalLayoutListener, ViewTreeObserver.OnTouchModeChangeListe
         }
         post(mClearScrollingCache);
     }
-
+    
     /**
      * Track a motion scroll
      *
@@ -2235,16 +2235,16 @@ ViewTreeObserver.OnGlobalLayoutListener, ViewTreeObserver.OnTouchModeChangeListe
         if (childCount == 0) {
             return true;
         }
-
+        
         final int firstTop = getScrollChildTop();	//check scroll.
         final int lastBottom = getScrollChildBottom();		//check scroll.
         final Rect listPadding = mListPadding;
-
+        
         // FIXME account for grid vertical spacing too?
         final int end = getHeight() - listPadding.bottom;
         final int spaceAbove = listPadding.top - getFillChildTop();	//check load more
         final int spaceBelow = getFillChildBottom() - end;	//check load more
-
+        
         //final int height = getHeight() - mPaddingBottom - mPaddingTop;
         final int height = getHeight() - getPaddingBottom() - getPaddingTop();
         if (deltaY < 0) {
@@ -2252,35 +2252,35 @@ ViewTreeObserver.OnGlobalLayoutListener, ViewTreeObserver.OnTouchModeChangeListe
         } else {
             deltaY = Math.min(height - 1, deltaY);
         }
-
+        
         if (incrementalDeltaY < 0) {
             incrementalDeltaY = Math.max(-(height - 1)/2, incrementalDeltaY);
         } else {
             incrementalDeltaY = Math.min((height - 1)/2, incrementalDeltaY);
         }
-
+        
         final int firstPosition = mFirstPosition;
-
+        
         if (firstPosition == 0 && firstTop >= listPadding.top && deltaY >= 0) {
             // Don't need to move views down if the top of the first position
             // is already visible
             return true;
         }
-
+        
         if (firstPosition + childCount == mItemCount && lastBottom <= end && deltaY <= 0) {
             // Don't need to move views up if the bottom of the last position
             // is already visible
             return true;
         }
-
+        
         final boolean down = incrementalDeltaY < 0;
-
+        
         final int headerViewsCount = getHeaderViewsCount();
         final int footerViewsStart = mItemCount - getFooterViewsCount();
-
+        
         int start = 0;
         int count = 0;
-
+        
         if (down) {
             final int top = listPadding.top - incrementalDeltaY;
             for (int i = 0; i < childCount; i++) {
@@ -2292,11 +2292,11 @@ ViewTreeObserver.OnGlobalLayoutListener, ViewTreeObserver.OnTouchModeChangeListe
                     int position = firstPosition + i;
                     if (position >= headerViewsCount && position < footerViewsStart) {
                         mRecycler.addScrapView(child);
-
+                        
                         if (ViewDebug.TRACE_RECYCLER) {
                             ViewDebug.trace(child,
-                                    ViewDebug.RecyclerTraceType.MOVE_TO_SCRAP_HEAP,
-                                    firstPosition + i, -1);
+                                            ViewDebug.RecyclerTraceType.MOVE_TO_SCRAP_HEAP,
+                                            firstPosition + i, -1);
                         }
                     }
                 }
@@ -2313,55 +2313,55 @@ ViewTreeObserver.OnGlobalLayoutListener, ViewTreeObserver.OnTouchModeChangeListe
                     int position = firstPosition + i;
                     if (position >= headerViewsCount && position < footerViewsStart) {
                         mRecycler.addScrapView(child);
-
+                        
                         if (ViewDebug.TRACE_RECYCLER) {
                             ViewDebug.trace(child,
-                                    ViewDebug.RecyclerTraceType.MOVE_TO_SCRAP_HEAP,
-                                    firstPosition + i, -1);
+                                            ViewDebug.RecyclerTraceType.MOVE_TO_SCRAP_HEAP,
+                                            firstPosition + i, -1);
                         }
                     }
                 }
             }
         }
-
+        
         mMotionViewNewTop = mMotionViewOriginalTop + deltaY;
-
+        
         mBlockLayoutRequests = true;
-
+        
         if (count > 0) {
             detachViewsFromParent(start, count);
         }
-
+        
         //offsetChildrenTopAndBottom(incrementalDeltaY);
         tryOffsetChildrenTopAndBottom(incrementalDeltaY);
-
+        
         if (down) {
             mFirstPosition += count;
         }
-
+        
         invalidate();
-
+        
         final int absIncrementalDeltaY = Math.abs(incrementalDeltaY);
         if (spaceAbove < absIncrementalDeltaY || spaceBelow < absIncrementalDeltaY) {
             fillGap(down);
         }
-
+        
         mBlockLayoutRequests = false;
         invokeOnItemScrollListener();
         awakenScrollBars();
-
+        
         return false;
     }
-
+    
     protected void tryOffsetChildrenTopAndBottom(int offset) {
         final int count = getChildCount();
-
+        
         for (int i = 0; i < count; i++) {
             final View v = getChildAt(i);
             v.offsetTopAndBottom(offset);
         }
     }
-
+    
     /**
      * Returns the number of header views in the list. Header views are special views
      * at the top of the list that should not be recycled during a layout.
@@ -2371,7 +2371,7 @@ ViewTreeObserver.OnGlobalLayoutListener, ViewTreeObserver.OnTouchModeChangeListe
     int getHeaderViewsCount() {
         return 0;
     }
-
+    
     /**
      * Returns the number of footer views in the list. Footer views are special views
      * at the bottom of the list that should not be recycled during a layout.
@@ -2381,7 +2381,7 @@ ViewTreeObserver.OnGlobalLayoutListener, ViewTreeObserver.OnTouchModeChangeListe
     int getFooterViewsCount() {
         return 0;
     }
-
+    
     /**
      * Fills the gap left open by a touch-scroll. During a touch scroll, children that
      * remain on screen are shifted and the other ones are discarded. The role of this
@@ -2391,7 +2391,22 @@ ViewTreeObserver.OnGlobalLayoutListener, ViewTreeObserver.OnTouchModeChangeListe
      * @param down true if the scroll is going down, false if it is going up
      */
     abstract void fillGap(boolean down);
-
+    
+    /**
+     * @return A position to select. First we try mSelectedPosition. If that has been clobbered by
+     * entering touch mode, we then try mResurrectToPosition. Values are pinned to the range
+     * of items available in the adapter
+     */
+    int reconcileSelectedPosition() {
+        int position = mSelectedPosition;
+        if (position < 0) {
+            position = mResurrectToPosition;
+        }
+        position = Math.max(0, position);
+        position = Math.min(position, mItemCount - 1);
+        return position;
+    }
+    
     /**
      * Find the row closest to y. This row will be used as the motion row when scrolling
      *
@@ -2399,10 +2414,10 @@ ViewTreeObserver.OnGlobalLayoutListener, ViewTreeObserver.OnTouchModeChangeListe
      * @return The position of the first (or only) item in the row containing y
      */
     abstract int findMotionRow(int y);
-
+    
     /**
      * Find the row closest to y. This row will be used as the motion row when scrolling.
-     * 
+     *
      * @param y Where the user touched
      * @return The position of the first (or only) item in the row closest to y
      */
@@ -2411,11 +2426,11 @@ ViewTreeObserver.OnGlobalLayoutListener, ViewTreeObserver.OnTouchModeChangeListe
         if (childCount == 0) {
             return INVALID_POSITION;
         }
-
+        
         final int motionRow = findMotionRow(y);
         return motionRow != INVALID_POSITION ? motionRow : mFirstPosition + childCount - 1;
     }
-
+    
     /**
      * Causes all the views to be rebuilt and redrawn.
      */
@@ -2426,26 +2441,26 @@ ViewTreeObserver.OnGlobalLayoutListener, ViewTreeObserver.OnTouchModeChangeListe
         requestLayout();
         invalidate();
     }
-
+    
     @Override
     protected void handleDataChanged() {
         int count = mItemCount;
         if (count > 0) {
-
+            
             int newPos;
             int selectablePos;
-
+            
             // Find the row we are supposed to sync to
             if (mNeedSync) {
                 // Update this first, since setNextSelectedPositionInt inspects it
                 mNeedSync = false;
                 if (mTranscriptMode == TRANSCRIPT_MODE_ALWAYS_SCROLL ||
-                        (mTranscriptMode == TRANSCRIPT_MODE_NORMAL &&
-                        mFirstPosition + getChildCount() >= mOldItemCount)) {
-                    mLayoutMode = LAYOUT_FORCE_BOTTOM;
-                    return;
-                }
-
+                    (mTranscriptMode == TRANSCRIPT_MODE_NORMAL &&
+                     mFirstPosition + getChildCount() >= mOldItemCount)) {
+                        mLayoutMode = LAYOUT_FORCE_BOTTOM;
+                        return;
+                    }
+                
                 switch (mSyncMode) {
                     case SYNC_FIRST_POSITION:
                         // Leave mSyncPosition as it is -- just pin to available range
@@ -2454,11 +2469,11 @@ ViewTreeObserver.OnGlobalLayoutListener, ViewTreeObserver.OnTouchModeChangeListe
                         return;
                 }
             }
-
+            
             if (!isInTouchMode()) {
                 // We couldn't find matching data -- try to use the same position
                 newPos = getSelectedItemPosition();
-
+                
                 // Pin position to the available range
                 if (newPos >= count) {
                     newPos = count - 1;
@@ -2466,44 +2481,44 @@ ViewTreeObserver.OnGlobalLayoutListener, ViewTreeObserver.OnTouchModeChangeListe
                 if (newPos < 0) {
                     newPos = 0;
                 }
-
+                
                 // Make sure we select something selectable -- first look down
                 selectablePos = lookForSelectablePosition(newPos, true);
-
+                
                 // Looking down didn't work -- try looking up
                 selectablePos = lookForSelectablePosition(newPos, false);
                 if (selectablePos >= 0) {
                     return;
                 }
             } else {
-
+                
                 // We already know where we want to resurrect the selection
                 if (mResurrectToPosition >= 0) {
                     return;
                 }
             }
-
+            
         }
-
+        
         // Nothing is selected. Give up and reset everything.
         mLayoutMode = mStackFromBottom ? LAYOUT_FORCE_BOTTOM : LAYOUT_FORCE_TOP;
         mNeedSync = false;
     }
-
+    
     /**
      * adapter data is changed.. should keep current view layout information..
      * @param mSyncPosition
      */
     protected void onLayoutSync(int syncPosition) {
     }
-
+    
     /**
      * adapter data is changed.. children layout manipulation is finished.
      * @param mSyncPosition
      */
     protected void onLayoutSyncFinished(int syncPosition) {
     }
-
+    
     /**
      * What is the distance between the source and destination rectangles given the direction of
      * focus navigation between them? The direction basically helps figure out more quickly what is
@@ -2544,33 +2559,33 @@ ViewTreeObserver.OnGlobalLayoutListener, ViewTreeObserver.OnTouchModeChangeListe
                 break;
             default:
                 throw new IllegalArgumentException("direction must be one of "
-                        + "{FOCUS_UP, FOCUS_DOWN, FOCUS_LEFT, FOCUS_RIGHT}.");
+                                                   + "{FOCUS_UP, FOCUS_DOWN, FOCUS_LEFT, FOCUS_RIGHT}.");
         }
         int deltaX = dX - sX;
         int deltaY = dY - sY;
         return deltaY * deltaY + deltaX * deltaX;
     }
-
-
+    
+    
     @Override
     public void onGlobalLayout() {
     }
-
+    
     @Override
     protected ViewGroup.LayoutParams generateLayoutParams(ViewGroup.LayoutParams p) {
         return new LayoutParams(p);
     }
-
+    
     @Override
     public LayoutParams generateLayoutParams(AttributeSet attrs) {
         return new PLA_AbsListView.LayoutParams(getContext(), attrs);
     }
-
+    
     @Override
     protected boolean checkLayoutParams(ViewGroup.LayoutParams p) {
         return p instanceof PLA_AbsListView.LayoutParams;
     }
-
+    
     /**
      * Puts the list or grid into transcript mode. In this mode the list or grid will always scroll
      * to the bottom to show new items.
@@ -2584,7 +2599,7 @@ ViewTreeObserver.OnGlobalLayoutListener, ViewTreeObserver.OnTouchModeChangeListe
     public void setTranscriptMode(int mode) {
         mTranscriptMode = mode;
     }
-
+    
     /**
      * Returns the current transcript mode.
      *
@@ -2594,12 +2609,12 @@ ViewTreeObserver.OnGlobalLayoutListener, ViewTreeObserver.OnTouchModeChangeListe
     public int getTranscriptMode() {
         return mTranscriptMode;
     }
-
+    
     @Override
     public int getSolidColor() {
         return mCacheColorHint;
     }
-
+    
     /**
      * When set to a non-zero value, the cache color hint indicates that this list is always drawn
      * on top of a solid, single-color, opaque background
@@ -2616,7 +2631,7 @@ ViewTreeObserver.OnGlobalLayoutListener, ViewTreeObserver.OnTouchModeChangeListe
             mRecycler.setCacheColorHint(color);
         }
     }
-
+    
     /**
      * When set to a non-zero value, the cache color hint indicates that this list is always drawn
      * on top of a solid, single-color, opaque background
@@ -2626,7 +2641,7 @@ ViewTreeObserver.OnGlobalLayoutListener, ViewTreeObserver.OnTouchModeChangeListe
     public int getCacheColorHint() {
         return mCacheColorHint;
     }
-
+    
     /**
      * Move all views (excluding headers and footers) held by this AbsListView into the supplied
      * List. This includes views displayed on the screen as well as views stored in AbsListView's
@@ -2637,7 +2652,7 @@ ViewTreeObserver.OnGlobalLayoutListener, ViewTreeObserver.OnTouchModeChangeListe
     public void reclaimViews(List<View> views) {
         int childCount = getChildCount();
         RecyclerListener listener = mRecycler.mRecyclerListener;
-
+        
         // Reclaim views on screen
         for (int i = 0; i < childCount; i++) {
             View child = getChildAt(i);
@@ -2654,7 +2669,7 @@ ViewTreeObserver.OnGlobalLayoutListener, ViewTreeObserver.OnTouchModeChangeListe
         mRecycler.reclaimScrapViews(views);
         removeAllViewsInLayout();
     }
-
+    
     //TODO I'm not sure the purpose of onConsistencyCheck mehtod. it looks like debug related.. so just comment out.
     //    /**
     //     * @hide
@@ -2690,7 +2705,7 @@ ViewTreeObserver.OnGlobalLayoutListener, ViewTreeObserver.OnTouchModeChangeListe
     //
     //        return result;
     //    }
-
+    
     //	private boolean checkScrap(ArrayList<View> scrap) {
     //		if (scrap == null) return true;
     //		boolean result = true;
@@ -2712,7 +2727,7 @@ ViewTreeObserver.OnGlobalLayoutListener, ViewTreeObserver.OnTouchModeChangeListe
     //
     //		return result;
     //	}
-
+    
     /**
      * Sets the recycler listener to be notified whenever a View is set aside in
      * the recycler for later reuse. This listener can be used to free resources
@@ -2727,7 +2742,7 @@ ViewTreeObserver.OnGlobalLayoutListener, ViewTreeObserver.OnTouchModeChangeListe
     public void setRecyclerListener(RecyclerListener listener) {
         mRecycler.mRecyclerListener = listener;
     }
-
+    
     /**
      * AbsListView extends LayoutParams to provide a place to hold the view type.
      */
@@ -2737,11 +2752,11 @@ ViewTreeObserver.OnGlobalLayoutListener, ViewTreeObserver.OnTouchModeChangeListe
          * {@link android.widget.Adapter#getItemViewType(int) }
          */
         @ViewDebug.ExportedProperty(mapping = {
-                @ViewDebug.IntToString(from = ITEM_VIEW_TYPE_IGNORE, to = "ITEM_VIEW_TYPE_IGNORE"),
-                @ViewDebug.IntToString(from = ITEM_VIEW_TYPE_HEADER_OR_FOOTER, to = "ITEM_VIEW_TYPE_HEADER_OR_FOOTER")
+            @ViewDebug.IntToString(from = ITEM_VIEW_TYPE_IGNORE, to = "ITEM_VIEW_TYPE_IGNORE"),
+            @ViewDebug.IntToString(from = ITEM_VIEW_TYPE_HEADER_OR_FOOTER, to = "ITEM_VIEW_TYPE_HEADER_OR_FOOTER")
         })
         public int viewType;
-
+        
         /**
          * When this boolean is set, the view has been added to the AbsListView
          * at least once. It is used to know whether headers/footers have already
@@ -2750,7 +2765,7 @@ ViewTreeObserver.OnGlobalLayoutListener, ViewTreeObserver.OnTouchModeChangeListe
          */
         @ViewDebug.ExportedProperty
         public boolean recycledHeaderFooter;
-
+        
         /**
          * When an AbsListView is measured with an AT_MOST measure spec, it needs
          * to obtain children views to measure itself. When doing so, the children
@@ -2761,25 +2776,25 @@ ViewTreeObserver.OnGlobalLayoutListener, ViewTreeObserver.OnTouchModeChangeListe
          */
         @ViewDebug.ExportedProperty
         public boolean forceAdd;
-
+        
         public LayoutParams(Context c, AttributeSet attrs) {
             super(c, attrs);
         }
-
+        
         public LayoutParams(int w, int h) {
             super(w, h);
         }
-
+        
         public LayoutParams(int w, int h, int viewType) {
             super(w, h);
             this.viewType = viewType;
         }
-
+        
         public LayoutParams(ViewGroup.LayoutParams source) {
             super(source);
         }
     }
-
+    
     /**
      * A RecyclerListener is used to receive a notification whenever a View is placed
      * inside the RecycleBin's scrap heap. This listener is used to free resources
@@ -2798,7 +2813,7 @@ ViewTreeObserver.OnGlobalLayoutListener, ViewTreeObserver.OnTouchModeChangeListe
          */
         void onMovedToScrapHeap(View view);
     }
-
+    
     /**
      * The RecycleBin facilitates reuse of views across layouts. The RecycleBin has two levels of
      * storage: ActiveViews and ScrapViews. ActiveViews are those views which were onscreen at the
@@ -2811,12 +2826,12 @@ ViewTreeObserver.OnGlobalLayoutListener, ViewTreeObserver.OnTouchModeChangeListe
      */
     class RecycleBin {
         private RecyclerListener mRecyclerListener;
-
+        
         /**
          * The position of the first view stored in mActiveViews.
          */
         private int mFirstActivePosition;
-
+        
         /**
          * Views that were on screen at the start of layout. This array is populated at the start of
          * layout, and at the end of layout all view in mActiveViews are moved to mScrapViews.
@@ -2824,16 +2839,16 @@ ViewTreeObserver.OnGlobalLayoutListener, ViewTreeObserver.OnTouchModeChangeListe
          * view store in mFirstActivePosition.
          */
         private View[] mActiveViews = new View[0];
-
+        
         /**
          * Unsorted views that can be used by the adapter as a convert view.
          */
         private Stack<View>[] mScrapViews;
-
+        
         private int mViewTypeCount;
-
+        
         private Stack<View> mCurrentScrap;
-
+        
         public void setViewTypeCount(int viewTypeCount) {
             if (viewTypeCount < 1) {
                 throw new IllegalArgumentException("Can't have a viewTypeCount < 1");
@@ -2848,7 +2863,7 @@ ViewTreeObserver.OnGlobalLayoutListener, ViewTreeObserver.OnTouchModeChangeListe
             mCurrentScrap = scrapViews[0];
             mScrapViews = scrapViews;
         }
-
+        
         public void markChildrenDirty() {
             if (mViewTypeCount == 1) {
                 final Stack<View> scrap = mCurrentScrap;
@@ -2867,11 +2882,11 @@ ViewTreeObserver.OnGlobalLayoutListener, ViewTreeObserver.OnTouchModeChangeListe
                 }
             }
         }
-
+        
         public boolean shouldRecycleViewType(int viewType) {
             return viewType >= 0;
         }
-
+        
         /**
          * Clears the scrap heap.
          */
@@ -2893,7 +2908,7 @@ ViewTreeObserver.OnGlobalLayoutListener, ViewTreeObserver.OnTouchModeChangeListe
                 }
             }
         }
-
+        
         /**
          * Fill ActiveViews with all of the children of the AbsListView.
          *
@@ -2906,7 +2921,7 @@ ViewTreeObserver.OnGlobalLayoutListener, ViewTreeObserver.OnTouchModeChangeListe
                 mActiveViews = new View[childCount];
             }
             mFirstActivePosition = firstActivePosition;
-
+            
             final View[] activeViews = mActiveViews;
             for (int i = 0; i < childCount; i++) {
                 View child = getChildAt(i);
@@ -2919,7 +2934,7 @@ ViewTreeObserver.OnGlobalLayoutListener, ViewTreeObserver.OnTouchModeChangeListe
                 }
             }
         }
-
+        
         /**
          * Get the view corresponding to the specified position. The view will be removed from
          * mActiveViews if it is found.
@@ -2937,7 +2952,7 @@ ViewTreeObserver.OnGlobalLayoutListener, ViewTreeObserver.OnTouchModeChangeListe
             }
             return null;
         }
-
+        
         /**
          * @return A view from the ScrapViews collection. These are unordered.
          */
@@ -2950,7 +2965,7 @@ ViewTreeObserver.OnGlobalLayoutListener, ViewTreeObserver.OnTouchModeChangeListe
                     //non scraped view.
                     return null;
                 }
-
+                
                 scrapViews = mCurrentScrap;
                 int size = scrapViews.size();
                 if (size > 0) {
@@ -2970,7 +2985,7 @@ ViewTreeObserver.OnGlobalLayoutListener, ViewTreeObserver.OnTouchModeChangeListe
             }
             return null;
         }
-
+        
         /**
          * Put a view into the ScapViews list. These views are unordered.
          *
@@ -2978,12 +2993,12 @@ ViewTreeObserver.OnGlobalLayoutListener, ViewTreeObserver.OnTouchModeChangeListe
          */
         void addScrapView(View scrap) {
             DebugUtil.i("addToScrap");
-
+            
             PLA_AbsListView.LayoutParams lp = (PLA_AbsListView.LayoutParams) scrap.getLayoutParams();
             if (lp == null) {
                 return;
             }
-
+            
             // Don't put header or footer views or views that should be ignored
             // into the scrap heap
             int viewType = lp.viewType;
@@ -2993,7 +3008,7 @@ ViewTreeObserver.OnGlobalLayoutListener, ViewTreeObserver.OnTouchModeChangeListe
                 }
                 return;
             }
-
+            
             if (mViewTypeCount == 1) {
                 //scrap.dispatchStartTemporaryDetach();
                 dispatchFinishTemporaryDetach(scrap);
@@ -3003,12 +3018,12 @@ ViewTreeObserver.OnGlobalLayoutListener, ViewTreeObserver.OnTouchModeChangeListe
                 dispatchFinishTemporaryDetach(scrap);
                 mScrapViews[viewType].push(scrap);
             }
-
+            
             if (mRecyclerListener != null) {
                 mRecyclerListener.onMovedToScrapHeap(scrap);
             }
         }
-
+        
         /**
          * Move all views remaining in mActiveViews to mScrapViews.
          */
@@ -3017,16 +3032,16 @@ ViewTreeObserver.OnGlobalLayoutListener, ViewTreeObserver.OnTouchModeChangeListe
             final View[] activeViews = mActiveViews;
             final boolean hasListener = mRecyclerListener != null;
             final boolean multipleScraps = mViewTypeCount > 1;
-
+            
             Stack<View> scrapViews = mCurrentScrap;
             final int count = activeViews.length;
             for (int i = count - 1; i >= 0; i--) {
                 final View victim = activeViews[i];
                 if (victim != null) {
                     int whichScrap = ((PLA_AbsListView.LayoutParams) victim.getLayoutParams()).viewType;
-
+                    
                     activeViews[i] = null;
-
+                    
                     if (!shouldRecycleViewType(whichScrap)) {
                         // Do not move views that should be ignored
                         if (whichScrap != ITEM_VIEW_TYPE_HEADER_OR_FOOTER) {
@@ -3034,7 +3049,7 @@ ViewTreeObserver.OnGlobalLayoutListener, ViewTreeObserver.OnTouchModeChangeListe
                         }
                         continue;
                     }
-
+                    
                     if (multipleScraps) {
                         scrapViews = mScrapViews[whichScrap];
                     }
@@ -3042,22 +3057,22 @@ ViewTreeObserver.OnGlobalLayoutListener, ViewTreeObserver.OnTouchModeChangeListe
                     dispatchFinishTemporaryDetach(victim);
                     DebugUtil.i("addToScrap from scrapActiveViews");
                     scrapViews.add(victim);
-
+                    
                     if (hasListener) {
                         mRecyclerListener.onMovedToScrapHeap(victim);
                     }
-
+                    
                     if (ViewDebug.TRACE_RECYCLER) {
                         ViewDebug.trace(victim,
-                                ViewDebug.RecyclerTraceType.MOVE_FROM_ACTIVE_TO_SCRAP_HEAP,
-                                mFirstActivePosition + i, -1);
+                                        ViewDebug.RecyclerTraceType.MOVE_FROM_ACTIVE_TO_SCRAP_HEAP,
+                                        mFirstActivePosition + i, -1);
                     }
                 }
             }
-
+            
             pruneScrapViews();
         }
-
+        
         /**
          * Makes sure that the size of mScrapViews does not exceed the size of mActiveViews.
          * (This can happen if an adapter does not recycle its views).
@@ -3077,7 +3092,7 @@ ViewTreeObserver.OnGlobalLayoutListener, ViewTreeObserver.OnTouchModeChangeListe
                 }
             }
         }
-
+        
         /**
          * Puts all views in the scrap heap into the supplied list.
          */
@@ -3094,7 +3109,7 @@ ViewTreeObserver.OnGlobalLayoutListener, ViewTreeObserver.OnTouchModeChangeListe
                 }
             }
         }
-
+        
         /**
          * Updates the cache color hint of all known views.
          *
@@ -3128,15 +3143,15 @@ ViewTreeObserver.OnGlobalLayoutListener, ViewTreeObserver.OnTouchModeChangeListe
             }
         }
     }
-
+    
     /////////////////////////////////////////////////////
     //Newly Added Methods.
     /////////////////////////////////////////////////////
-
+    
     private void dispatchFinishTemporaryDetach(View v) {
         if( v == null )
             return;
-
+        
         v.onFinishTemporaryDetach();
         if( v instanceof ViewGroup){
             ViewGroup group = (ViewGroup) v;
@@ -3146,15 +3161,15 @@ ViewTreeObserver.OnGlobalLayoutListener, ViewTreeObserver.OnTouchModeChangeListe
             }			
         }
     }
-
+    
     /////////////////////////////////////////////////////
     //Check available space of list view.
     /////////////////////////////////////////////////////
-
+    
     protected int modifyFlingInitialVelocity(int initialVelocity) {
         return initialVelocity;
     }
-
+    
     /**
      * used in order to determine fill list more or not.
      * @return 
@@ -3165,14 +3180,14 @@ ViewTreeObserver.OnGlobalLayoutListener, ViewTreeObserver.OnTouchModeChangeListe
             return 0;
         return getChildAt(0).getTop();
     }
-
+    
     protected int getFirstChildTop() {
         final int count = getChildCount();
         if( count == 0 )
             return 0;
         return getChildAt(0).getTop();
     }
-
+    
     /**
      * 
      * @return
@@ -3183,7 +3198,7 @@ ViewTreeObserver.OnGlobalLayoutListener, ViewTreeObserver.OnTouchModeChangeListe
             return 0;
         return getChildAt(0).getTop();
     }    
-
+    
     /**
      * 
      * @return
@@ -3194,7 +3209,7 @@ ViewTreeObserver.OnGlobalLayoutListener, ViewTreeObserver.OnTouchModeChangeListe
             return 0;
         return getChildAt(count - 1).getBottom();
     }
-
+    
     /**
      * 
      * @return
