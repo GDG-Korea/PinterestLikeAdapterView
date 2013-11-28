@@ -1363,6 +1363,7 @@ public class PLA_ListView extends PLA_AbsListView {
 					ViewGroup.LayoutParams.WRAP_CONTENT, 0);
 		}
 		p.viewType = mAdapter.getItemViewType(position);
+		p.scrappedFromPosition = position;
 
 		if ((recycled && !p.forceAdd) || (p.recycledHeaderFooter &&
 				p.viewType == PLA_AdapterView.ITEM_VIEW_TYPE_HEADER_OR_FOOTER)) {
