@@ -1,8 +1,5 @@
 package com.huewu.pla.sample;
 
-import java.util.Arrays;
-import java.util.Random;
-
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
@@ -12,10 +9,12 @@ import android.view.MenuItem;
 import android.widget.ArrayAdapter;
 import android.widget.TextView;
 
+import com.huewu.pla.R;
 import com.huewu.pla.lib.MultiColumnListView;
 import com.huewu.pla.lib.internal.PLA_AbsListView.LayoutParams;
-import com.huewu.pla.sample.extra.PullToRefreshSampleActivity;
-import com.huewu.pla.smaple.R;
+
+import java.util.Arrays;
+import java.util.Random;
 
 public class SampleActivity extends Activity {
 
@@ -32,7 +31,7 @@ public class SampleActivity extends Activity {
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		setContentView(R.layout.act_sample);
+		setContentView(R.layout.sample_act);
 		//mAdapterView = (PLA_AdapterView<Adapter>) findViewById(R.id.list);
 
 		mAdapterView = (MultiColumnListView) findViewById(R.id.list);
@@ -106,7 +105,7 @@ public class SampleActivity extends Activity {
 
 	private Random mRand = new Random();
 	private void initAdapter() {
-		mAdapter = new MySimpleAdapter(this, R.layout.item_sample);
+		mAdapter = new MySimpleAdapter(this, R.layout.sample_item);
 
 		for( int i = 0; i < 30; ++i){
 			//generate 30 random items.

@@ -20,11 +20,19 @@
     <attr name="absListViewStyle" format="reference" />
     <attr name="listViewStyle" format="reference" />
     
-    <declare-styleable name="PinterestLikeAdapterView">
+    <declare-styleable name="MultiColumnListView">
         <attr name="plaColumnNumber" format="integer" />
         <attr name="plaLandscapeColumnNumber" format="integer" />
         <attr name="plaColumnPaddingLeft" format="dimension" />
         <attr name="plaColumnPaddingRight" format="dimension" />
+    </declare-styleable>    
+    
+    <declare-styleable name="PullToRefreshView">
+        <attr name="ptrHeight" format="dimension" />
+        <attr name="ptrSpinnerMarginRight" format="dimension" />
+        <attr name="ptrArrowMarginRight" format="dimension" />
+        <attr name="ptrTextSize" format="dimension" />
+        <attr name="ptrLastUpdateTextSize" format="dimension" />
     </declare-styleable>    
 
     <declare-styleable name="View">

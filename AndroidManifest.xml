@@ -1,5 +1,5 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.huewu.pla.smaple"
+    package="com.huewu.pla"
     android:versionCode="1"
     android:versionName="1.0">
 
@@ -17,7 +17,7 @@
             </intent-filter>
         </activity>
         
-        <activity android:name="com.huewu.pla.sample.extra.PullToRefreshSampleActivity"/>
+        <activity android:name="com.huewu.pla.sample.PullToRefreshSampleActivity"/>
         
     </application>
 
