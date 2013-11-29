@@ -1,6 +1,5 @@
 PLA(PinterestLikeAdapterView)
 ==================================
--
 
 Open source project in order to implement pinterest like list view on android. 
 (You can check how pinterest app looks like form below link..)
@@ -195,14 +194,15 @@ TODO
 *그외 아주 많은 문제가 있습니다... 아직 열혈 개발 중 인걸요...  =) 
 
 Contributing
----------------------------------------------
-어떤 종류의 지원도 언제나 환영입니다 =)
+------------
+Any kinds of helps (bug report / pull request / suggestions) are welcomed =)
 
-Any kinds of helps ( bug report / push request / suggestionss ) are welcomed =)
+If you are submitting a patch, please add your name to [AUTHORS.md](https://github.com/huewu/PinterestLikeAdapterView/blob/master/AUTHORS.md).
 
-## License
+License
+-------
 
-    Copyright 2012 huewu.yang
+    Copyright 2012 PinterestLikeAdapterView authors. All rights reserved.
 
     Licensed under the Apache License, Version 2.0 (the "License");
     you may not use this file except in compliance with the License.
