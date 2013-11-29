@@ -23,7 +23,7 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.huewu.pla.lib.MultiColumnListView;
-import com.huewu.pla.smaple.R;
+import com.huewu.pla.sample.R;
 
 /**
  * A generic, customizable Android ListView implementation that has 'Pull to Refresh' functionality.

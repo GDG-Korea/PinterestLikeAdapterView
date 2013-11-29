@@ -14,7 +14,7 @@ import android.widget.ListAdapter;
 
 import com.huewu.pla.lib.internal.PLA_AdapterView;
 import com.huewu.pla.sample.extra.PullToRefreshSampleActivity;
-import com.huewu.pla.smaple.R;
+import com.huewu.pla.sample.R;
 
 public class PullToRefreshSampleActivity extends Activity {
 

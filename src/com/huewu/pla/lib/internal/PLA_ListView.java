@@ -37,7 +37,7 @@ import android.view.accessibility.AccessibilityEvent;
 import android.widget.ListAdapter;
 import android.widget.WrapperListAdapter;
 
-import com.huewu.pla.smaple.R;
+import com.huewu.pla.sample.R;
 
 /*
  * Implementation Notes:
