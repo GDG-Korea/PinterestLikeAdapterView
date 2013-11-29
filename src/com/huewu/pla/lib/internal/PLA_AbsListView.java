@@ -2734,6 +2734,8 @@ ViewTreeObserver.OnGlobalLayoutListener, ViewTreeObserver.OnTouchModeChangeListe
 		})
 		public int viewType;
 
+		public int scrappedFromPosition;
+		
 		/**
 		 * When this boolean is set, the view has been added to the AbsListView
 		 * at least once. It is used to know whether headers/footers have already
@@ -2948,6 +2950,17 @@ ViewTreeObserver.OnGlobalLayoutListener, ViewTreeObserver.OnTouchModeChangeListe
 				if (whichScrap >= 0 && whichScrap < mScrapViews.length) {
 					scrapViews = mScrapViews[whichScrap];
 					int size = scrapViews.size();
+					
+					// look for the exact same layout
+					LayoutParams lp;
+					for(int i = 0; i < size; i++) {
+						lp = (LayoutParams) scrapViews.get(i).getLayoutParams();
+						if(lp.scrappedFromPosition == position) {
+							return scrapViews.remove(i);
+						}
+					}
+					
+					// return the last scrapView
 					if (size > 0) {
 						return scrapViews.remove(size - 1);
 					}
