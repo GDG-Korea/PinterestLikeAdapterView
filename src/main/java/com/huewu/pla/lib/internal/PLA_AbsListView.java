@@ -2756,6 +2756,9 @@ ViewTreeObserver.OnGlobalLayoutListener, ViewTreeObserver.OnTouchModeChangeListe
             @ViewDebug.IntToString(from = ITEM_VIEW_TYPE_HEADER_OR_FOOTER, to = "ITEM_VIEW_TYPE_HEADER_OR_FOOTER")
         })
         public int viewType;
+
+        public int scrappedFromPosition;
+
         
         /**
          * When this boolean is set, the view has been added to the AbsListView
@@ -2957,33 +2960,40 @@ ViewTreeObserver.OnGlobalLayoutListener, ViewTreeObserver.OnTouchModeChangeListe
          * @return A view from the ScrapViews collection. These are unordered.
          */
         View getScrapView(int position) {
-            DebugUtil.i("getFromScrap: " + position);
-            
-            Stack<View> scrapViews;
-            if (mViewTypeCount == 1) {
-                if(getHeaderViewsCount() < position){
-                    //non scraped view.
-                    return null;
-                }
-                
-                scrapViews = mCurrentScrap;
-                int size = scrapViews.size();
-                if (size > 0) {
-                    return scrapViews.remove(0);
-                } else {
-                    return null;
-                }
-            } else {
-                int whichScrap = mAdapter.getItemViewType(position);
-                if (whichScrap >= 0 && whichScrap < mScrapViews.length) {
-                    scrapViews = mScrapViews[whichScrap];
-                    int size = scrapViews.size();
-                    if (size > 0) {
-                        return scrapViews.pop();
-                    }
-                }
-            }
-            return null;
+        	DebugUtil.i("getFromScrap: " + position);
+
+        	if(getHeaderViewsCount() > position){
+        		//non scraped view.
+        		return null;
+        	}
+
+        	final Stack<View> scrapViews;
+        	if (mViewTypeCount == 1) {
+        		scrapViews = mCurrentScrap;
+        	} else {
+        		final int whichScrap = mAdapter.getItemViewType(position);
+        		if (whichScrap >= 0 && whichScrap < mScrapViews.length) {
+        			scrapViews = mScrapViews[whichScrap];
+        		} else {
+        			return null;
+        		}
+        	}
+
+        	// look for the exact same layout
+        	int size = scrapViews.size();
+        	for(int i = size - 1; i >= 0; --i) {
+        		final LayoutParams lp = (LayoutParams) scrapViews.get(i).getLayoutParams();
+        		if(lp.scrappedFromPosition == position) {
+        			return scrapViews.remove(i);
+        		}
+        	}
+
+        	if (size > 0) {
+        		// reused the oldest one.
+        		return scrapViews.remove(0);
+        	} else {
+        		return null;
+        	}
         }
         
         /**
