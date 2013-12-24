@@ -1359,8 +1359,6 @@ ViewTreeObserver.OnGlobalLayoutListener, ViewTreeObserver.OnTouchModeChangeListe
         // scroll than a tap
         final int distance = Math.abs(deltaY);
         int touchSlop = mTouchSlop;
-        if(getFirstVisiblePosition() < getHeaderViewsCount())
-            touchSlop *= 5;
         if (distance > touchSlop) {
             createScrollingCache();
             mTouchMode = TOUCH_MODE_SCROLL;
