@@ -5,6 +5,8 @@ before_script:
 - sudo android-sdk-linux/tools/android -s update project --path ./GDG-Korea/PinterestLikeAdapterView --target "android-19" --subprojects
 
 script:
+- pwd
+- ls
 - cd ./GDG-Korea/PinterestLikeAdapterView
 - ant clean
 - ant debug
