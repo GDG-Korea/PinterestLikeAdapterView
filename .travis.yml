@@ -2,7 +2,7 @@ before_script:
 - sudo wget -q http://dl.google.com/android/android-sdk_r22-linux.tgz 
 - sudo tar xzvf android-sdk_r22-linux.tgz > /dev/null
 - echo y | sudo android-sdk-linux/tools/android -s update sdk --filter android-19,platform-tool --no-ui
-- mv android-sdk-linux ..
+- sudo mv android-sdk-linux ..
 - sudo ../android-sdk-linux/tools/android -s update project --path .  --target "android-19" --subprojects
 
 script:
