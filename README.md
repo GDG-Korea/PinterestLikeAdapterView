@@ -1,6 +1,8 @@
 PLA(PinterestLikeAdapterView)
 ==================================
 
+Branch **Master**: [![Build Status](https://travis-ci.org/GDG-Korea/PinterestLikeAdapterView.png?branch=master)](https://travis-ci.org/GDG-Korea/PinterestLikeAdapterView)
+
 Open source project in order to implement pinterest like list view on android. 
 (You can check how pinterest app looks like form below link..)
 
