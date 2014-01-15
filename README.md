@@ -1,21 +1,17 @@
 PLA(PinterestLikeAdapterView)
 ==================================
 
-Open source project in order to implement pinterest like list view on android. 
-(You can check how pinterest app looks like form below link..)
+Branch **Master**: [![Build Status](https://travis-ci.org/GDG-Korea/PinterestLikeAdapterView.png?branch=master)](https://travis-ci.org/GDG-Korea/PinterestLikeAdapterView)
 
-https://play.google.com/store/apps/details?id=com.pinterest&hl=en
+Open source project in order to implement pinterest like list view on android. (You can check how [pinterest app](https://play.google.com/store/apps/details?id=com.pinterest) looks like form)
 
-This project is statred based on sony deveoper's blog post 'making your own 3d list'. 
-
-http://developer.sonymobile.com/2010/05/20/android-tutorial-making-your-own-3d-list-part-1/
+This project is statred based on Anders Ericson's blog post '[making your own 3d list](http://developer.sonymobile.com/2010/05/20/android-tutorial-making-your-own-3d-list-part-1/)'.
 
 But, currenty it is implemented based on android framework 2.3's list view source. 
 You can check modified list view sources in internal package.
 
 Not supported Features
----------------
-
+----------------------
 * Entry from XML layout.
 * Choice Mode & Item Selection.
 * Filter
