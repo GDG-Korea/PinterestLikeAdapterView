@@ -1,0 +1,15 @@
+before_script:
+- if [ `uname -m` = x86_64 ]; then sudo apt-get update; fi
+- if [ `uname -m` = x86_64 ]; then sudo apt-get install -qq --force-yes libgd2-xpm ia32-libs ia32-libs-multiarch; fi
+- sudo wget -q http://dl.google.com/android/android-sdk_r22-linux.tgz 
+- sudo tar xzvf android-sdk_r22-linux.tgz > /dev/null
+- export ANDROID_HOME=`pwd`/android-sdk-linux
+- export PATH=${PATH}:${ANDROID_HOME}/tools:${ANDROID_HOME}/platform-tools
+- echo "sdk.dir=$ANDROID_HOME" > local.properties
+- echo y | sudo android-sdk-linux/tools/android update sdk -a -t tools,platform-tools,build-tools-19.0.1,android-19 --no-ui
+- sudo android-sdk-linux/tools/android update project --path .  --target "android-19" --subprojects
+
+script:
+- sudo ant clean
+- sudo ant debug
+
