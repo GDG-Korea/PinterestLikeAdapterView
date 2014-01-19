@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/ptr_id_header_container"
+    android:layout_width="match_parent"
+    android:layout_height="47dp"
+    android:background="@android:color/white" >
+
+    <RelativeLayout
+        android:id="@+id/ptr_id_header"
+        android:layout_width="match_parent"
+        android:layout_height="47dp" >
+
+        <LinearLayout
+            android:id="@+id/ptr_id_textwrapper"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:layout_centerInParent="true"
+            android:gravity="center"
+            android:orientation="vertical" >
+
+            <TextView
+                android:id="@+id/ptr_id_text"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:includeFontPadding="false"
+                android:textColor="#999999"
+                android:textStyle="bold" />
+
+            <!--
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:orientation="horizontal" >
+
+                <TextView
+                    android:id="@+id/ptr_id_loading_text"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:includeFontPadding="false"
+                    android:textColor="#999999"
+                    android:textStyle="bold"
+                    android:visibility="gone" />
+            </LinearLayout>
+            -->
+
+            <TextView
+                android:id="@+id/ptr_id_last_updated"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:includeFontPadding="false"
+                android:paddingTop="3dp"
+                android:textColor="#999999"
+                android:textStyle="bold"
+                android:visibility="gone" />
+        </LinearLayout>
+
+        <ImageView
+            android:id="@+id/ptr_id_arrow"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerVertical="true"
+            android:layout_toLeftOf="@id/ptr_id_textwrapper"
+            android:background="@drawable/ad_button_015_refresh_down_arrow" />
+
+        <ProgressBar
+            android:id="@+id/ptr_id_spinner"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerVertical="true"
+            android:layout_toLeftOf="@id/ptr_id_textwrapper"
+            android:indeterminate="true"
+            android:indeterminateDrawable="@drawable/updating" />
+    </RelativeLayout>
+
+</LinearLayout>
