@@ -127,4 +127,4 @@ License
     See the License for the specific language governing permissions and
     limitations under the License.
 
- [3]: http://cloud.github.com/downloads/huewu/PinterestLikeAdapterView/screenshot.png
+ [3]: https://raw.github.com/GDG-Korea/PinterestLikeAdapterView/master/screenshot.png
