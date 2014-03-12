@@ -3,6 +3,8 @@ gen/*
 bin/
 bin/*
 target/
+build/
+build/*
 target/*
 .settings
 tmp/
@@ -10,6 +12,7 @@ tmp/
 *.orig
 .idea
 .jhw-cache
+.gradle
 hardcopy.*
 local.properties
 
