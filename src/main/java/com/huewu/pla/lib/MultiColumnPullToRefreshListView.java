@@ -323,7 +323,7 @@ public class MultiColumnPullToRefreshListView extends MultiColumnListView {
         }
 
         TextView tv = new TextView(context);
-        tv.setText("Loading");
+        tv.setText(getContext().getString(R.string.ptr_loading));
         tv.setTypeface(Typeface.DEFAULT_BOLD);
         tv.setTextSize(getDimensionDpSize(R.styleable.PullToRefreshView_ptrTextSize, context, attrs));
 
@@ -363,7 +363,7 @@ public class MultiColumnPullToRefreshListView extends MultiColumnListView {
         header.setLayoutParams(mlp);
     }
 
-    private boolean isPulling = false;
+    private boolean isPulling = true;
 
     private boolean isPull(MotionEvent event) {
         return isPulling;
@@ -377,7 +377,7 @@ public class MultiColumnPullToRefreshListView extends MultiColumnListView {
         // header.getLayoutParams();
         // Log.i("Vingle", "interceptEvent  hx : " + mlp.topMargin);
         // Log.i("Vingle", "isHeaderRefresing : " + isHeaderRefreshing);
-
+		/*
         if (isHeaderRefreshing && isHeaderShowing) {
 
         }
@@ -405,7 +405,7 @@ public class MultiColumnPullToRefreshListView extends MultiColumnListView {
             case MotionEvent.ACTION_UP:
                 isPulling = false;
                 break;
-        }
+        }*/
 
         return super.onInterceptTouchEvent(event);
     }
@@ -433,7 +433,7 @@ public class MultiColumnPullToRefreshListView extends MultiColumnListView {
 
             case MotionEvent.ACTION_UP:
                 if (isPull(event)
-                        && (state == State.RELEASE_TO_REFRESH || getFirstVisiblePosition() == 0)) {
+                        && (state == State.RELEASE_TO_REFRESH && getFirstVisiblePosition() == 0)) {
                     switch (state) {
                         case RELEASE_TO_REFRESH:
                             setState(State.REFRESHING);
@@ -725,19 +725,19 @@ public class MultiColumnPullToRefreshListView extends MultiColumnListView {
 
             switch (msg.what) {
                 case LOADINGZERO:
-                    tv.setText("Loading");
+                    tv.setText(tv.getContext().getString(R.string.ptr_loading));
                     break;
 
                 case LOADINGONE:
-                    tv.setText("Loading.");
+                    tv.setText(tv.getContext().getString(R.string.ptr_loading)+".");
                     break;
 
                 case LOADINGTWO:
-                    tv.setText("Loading..");
+                    tv.setText(tv.getContext().getString(R.string.ptr_loading)+"..");
                     break;
 
                 case LOADINGTHREE:
-                    tv.setText("Loading...");
+                    tv.setText(tv.getContext().getString(R.string.ptr_loading)+"...");
                     break;
 
                 default:

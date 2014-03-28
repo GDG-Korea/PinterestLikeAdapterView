@@ -427,6 +427,52 @@ public class MultiColumnListView extends PLA_ListView {
 			return getScrollChildTop();
 		}
 
-	}//end of class
+	}
+	
+	
+	private boolean loadingMoreComplete = true;
+
+    public void onLoadMoreComplete() {
+        loadingMoreComplete = true;
+    }
+
+    public interface OnLoadMoreListener {
+        /**
+         * Method to be called when scroll to buttom is requested
+         */
+        void onLoadMore();
+    }
+
+    public OnScrollListener scroller = new OnScrollListener() {
+        private int visibleLastIndex = 0;
+        private static final int OFFSET = 2;
+
+        @Override
+        public void onScrollStateChanged(PLA_AbsListView view, int scrollState) {
+            int lastIndex = getAdapter().getCount() - OFFSET;
+            if (scrollState == OnScrollListener.SCROLL_STATE_IDLE
+                    && visibleLastIndex == lastIndex && loadingMoreComplete) {
+
+                loadMoreListener.onLoadMore();
+                loadingMoreComplete = false;
+
+            }
+        }
+
+        @Override
+        public void onScroll(PLA_AbsListView view, int firstVisibleItem,
+                             int visibleItemCount, int totalItemCount) {
+            visibleLastIndex = firstVisibleItem + visibleItemCount - OFFSET;
+        }
+    };
+    OnLoadMoreListener loadMoreListener;
+
+    public void setOnLoadMoreListener(OnLoadMoreListener listener) {
+
+        if (listener != null) {
+            this.loadMoreListener = listener;
+            this.setOnScrollListener(scroller);
+        }
+    }//end of class
 
 }//end of class
