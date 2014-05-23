@@ -838,6 +838,8 @@
         <!-- Drawable to draw below list content. -->
         
         <attr name="overScrollFooter" format="reference|color" />
+
+        <attr name="plaContentBackground" format="color" />
     </declare-styleable>
 
 </resources>
