@@ -315,7 +315,7 @@ public class PLA_ListView extends PLA_AbsListView {
     public boolean removeHeaderView(View v) {
         if (mHeaderViewInfos.size() > 0) {
             boolean result = false;
-            if (((PLA_HeaderViewListAdapter) mAdapter).removeHeader(v)) {
+            if (mAdapter != null && ((PLA_HeaderViewListAdapter) mAdapter).removeHeader(v)) {
                 mDataSetObserver.onChanged();
                 result = true;
             }
