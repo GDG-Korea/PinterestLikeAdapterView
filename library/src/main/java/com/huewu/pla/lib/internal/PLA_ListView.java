@@ -118,6 +118,7 @@ public class PLA_ListView extends PLA_AbsListView {
     // used for temporary calculations.
     private final Rect mTempRect = new Rect();
     private Paint mDividerPaint;
+    private Paint mContentPaint = new Paint();
 
     public PLA_ListView(Context context) {
         this(context, null);
@@ -160,6 +161,12 @@ public class PLA_ListView extends PLA_AbsListView {
 
         mHeaderDividersEnabled = a.getBoolean(R.styleable.ListView_headerDividersEnabled, true);
         mFooterDividersEnabled = a.getBoolean(R.styleable.ListView_footerDividersEnabled, true);
+
+        if (a.hasValue(R.styleable.ListView_plaContentBackground)) {
+            int contentBackgroundColor = a.getColor(R.styleable.ListView_plaContentBackground, 0);
+            mContentPaint = new Paint();
+            mContentPaint.setColor(contentBackgroundColor);
+        }
 
         a.recycle();
     }
@@ -1747,6 +1754,8 @@ public class PLA_ListView extends PLA_AbsListView {
         final boolean drawOverscrollFooter = overscrollFooter != null;
         final boolean drawDividers = dividerHeight > 0 && mDivider != null;
 
+        drawContentBackground(canvas);
+
         if (drawDividers || drawOverscrollHeader || drawOverscrollFooter) {
             // Only modify the top and bottom in the loop, we set the left and right here
             final Rect bounds = mTempRect;
@@ -1885,6 +1894,31 @@ public class PLA_ListView extends PLA_AbsListView {
 
         // Draw the indicators (these should be drawn above the dividers) and children
         super.dispatchDraw(canvas);
+    }
+
+    private void drawContentBackground(Canvas canvas) {
+        if (getHeaderViewsCount() > 0) {
+            Rect rect = mTempRect;
+            rect.left = getLeft();
+            rect.right = getRight();
+            View firstVisibleView = getChildAt(getFirstVisiblePosition());
+
+            if (isHeaderView(firstVisibleView)) {
+                View lastHeader = mHeaderViewInfos.get(mHeaderViewInfos.size() - 1).view;
+                rect.top = lastHeader.getBottom();
+            } else
+                rect.top = 0;
+            rect.bottom = getBottom();
+            canvas.drawRect(rect, mContentPaint);
+        }
+    }
+
+    private boolean isHeaderView(View view) {
+        for (FixedViewInfo info : mHeaderViewInfos) {
+            if (info.view == view)
+                return true;
+        }
+        return false;
     }
 
     /**
