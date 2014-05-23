@@ -5,16 +5,18 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>com.huewu.pla</groupId>
-    <artifactId>pla</artifactId>
-    <version>1.03-SNAPSHOT</version>
-    <packaging>apklib</packaging>
+    <artifactId>parent</artifactId>
+    <version>1.0.3-SNAPSHOT</version>
 
+    <name>PinterestLikeAdapterView</name>
+    <description>Multi column listview like Pinterest</description>
     <url>http://www.vingle.net</url>
 
     <scm>
         <url>https://github.com/balmbees/PinterestLikeAdapterView.git</url>
         <connection>scm:git@github.com:balmbees/PinterestLikeAdapterView.git</connection>
-        <developerConnection>scm:git@github.com:balmbees/PinterestLikeAdapterView.git</developerConnection>
+        <developerConnection>scm:git@github.com:balmbees/PinterestLikeAdapterView.git
+        </developerConnection>
     </scm>
 
     <issueManagement>
@@ -27,69 +29,58 @@
         <url>http://www.vingle.net/</url>
     </organization>
 
+    <modules>
+        <module>library</module>
+        <module>sample</module>
+    </modules>
+
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
+        <android.version>4.1.1.4</android.version>
+        <android.platform>19</android.platform>
+        <android-maven.version>3.8.2</android-maven.version>
         <java.version>1.6</java.version>
+        <sourceCompatibility>1.6</sourceCompatibility>
     </properties>
 
-    <dependencies>
-        <dependency>
-            <groupId>com.google.android</groupId>
-            <artifactId>android</artifactId>
-            <version>4.1.1.4</version>
-            <scope>provided</scope>
-        </dependency>
-    </dependencies>
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>com.google.android</groupId>
+                <artifactId>android</artifactId>
+                <version>${android.version}</version>
+                <scope>provided</scope>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
 
     <build>
-        <plugins>
-            <plugin>
-                <groupId>com.jayway.maven.plugins.android.generation2</groupId>
-                <artifactId>android-maven-plugin</artifactId>
-                <version>3.8.1</version>
-                <configuration>
-                    <sdk>
-                        <platform>16</platform>
-                    </sdk>
-                </configuration>
-                <extensions>true</extensions>
-            </plugin>
-
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-compiler-plugin</artifactId>
-                <version>3.0</version>
-                <configuration>
-                    <source>${java.version}</source>
-                    <target>${java.version}</target>
-                </configuration>
-            </plugin>
-
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-source-plugin</artifactId>
-                <executions>
-                    <execution>
-                        <id>attach-sources</id>
-                        <goals>
-                            <goal>jar</goal>
-                        </goals>
-                    </execution>
-                </executions>
-            </plugin>
-
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-javadoc-plugin</artifactId>
-                <executions>
-                    <execution>
-                        <id>attach-javadocs</id>
-                        <goals>
-                            <goal>jar</goal>
-                        </goals>
-                    </execution>
-                </executions>
-            </plugin>
-        </plugins>
+        <pluginManagement>
+            <plugins>
+                <!-- compiler settings -->
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-compiler-plugin</artifactId>
+                    <version>3.1</version>
+                </plugin>
+                <plugin>
+                    <groupId>com.jayway.maven.plugins.android.generation2</groupId>
+                    <artifactId>android-maven-plugin</artifactId>
+                    <version>${android-maven.version}</version>
+                    <configuration>
+                        <sdk>
+                            <platform>${android.platform}</platform>
+                        </sdk>
+                        <undeployBeforeDeploy>true</undeployBeforeDeploy>
+                        <source>${sourceCompatibility}</source>
+                        <target>${sourceCompatibility}</target>
+                        <androidManifestFile>${project.basedir}/src/main/AndroidManifest.xml</androidManifestFile>
+                        <resourceDirectory>${project.basedir}/src/main/res</resourceDirectory>
+                    </configuration>
+                    <extensions>true</extensions>
+                </plugin>
+            </plugins>
+        </pluginManagement>
     </build>
 </project>
