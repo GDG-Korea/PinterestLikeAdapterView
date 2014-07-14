@@ -653,12 +653,11 @@ public class PLA_ListView extends PLA_AbsListView {
     protected void fillGap(boolean down) {
         final int count = getChildCount();
         if (down) {
-            fillDown(mFirstPosition + count, getItemTop(mFirstPosition + count));
-            onAdjustChildViews( down );
+            fillDown(mFirstPosition + count, getFillChildBottom() + mDividerHeight);
         } else {
-            fillUp(mFirstPosition - 1, getItemBottom(mFirstPosition - 1));
-            onAdjustChildViews( down );
+            fillUp(mFirstPosition - 1, getFillChildTop());
         }
+        onAdjustChildViews(down);
     }
 
     /**
@@ -672,21 +671,16 @@ public class PLA_ListView extends PLA_AbsListView {
      * @return The view that is currently selected, if it happens to be in the
      *         range that we draw.
      */
-    private View fillDown(int pos, int top) {
-
+    private View fillDown(int pos, int nextTop) {
         DebugUtil.i("fill down: " + pos);
 
-        //int end = (mBottom - mTop) - mListPadding.bottom;
-        int end = (getBottom() - getTop()) - mListPadding.bottom;
-        int childTop = getFillChildBottom() + mDividerHeight;
-
-        while (childTop < end && pos < mItemCount) {
+        int end = getBottom() - getTop() - mListPadding.bottom;
+        while (nextTop < end && pos < mItemCount) {
             // is this the selected item?
             makeAndAddView(pos, getItemTop(pos), true, false);
             pos++;
-            childTop = getFillChildBottom() + mDividerHeight;
+            nextTop = getFillChildBottom() + mDividerHeight;
         }
-
         return null;
     }
 
@@ -700,22 +694,20 @@ public class PLA_ListView extends PLA_AbsListView {
      *
      * @return The view that is currently selected
      */
-    private View fillUp(int pos, int bottom) {
+    private View fillUp(int pos, int nextBottom) {
 
         DebugUtil.i("fill up: " + pos);
 
         int end = mListPadding.top;
-        int childBottom = getFillChildTop();
-        while (childBottom > end && pos >= 0) {
+        while (nextBottom > end && pos >= 0) {
             // is this the selected item?
             makeAndAddView(pos, getItemBottom(pos), false, false);
             //	nextBottom = child.getTop() - mDividerHeight;
             pos--;
-            childBottom = getItemBottom(pos);
+            nextBottom = getItemBottom(pos);
         }
 
         mFirstPosition = pos + 1;
-
         return null;
     }
 
@@ -946,16 +938,15 @@ public class PLA_ListView extends PLA_AbsListView {
             DebugUtil.i("fill specific: " + position + ":" + top);
 
         View temp = makeAndAddView(position, top, true, false);
-
         // Possibly changed again in fillUp if we add rows above this one.
-
         mFirstPosition = position;
+
         final int dividerHeight = mDividerHeight;
         if (!mStackFromBottom) {
-            fillUp(position - 1, temp.getTop() - dividerHeight);
+            fillUp(position - 1, getFillChildTop());
             // This will correct for the top of the first view not touching the top of the list
             adjustViewsUpOrDown();
-            fillDown(position + 1, temp.getBottom() + dividerHeight);
+            fillDown(position + 1, getFillChildBottom() + mDividerHeight);
             int childCount = getChildCount();
             if (childCount > 0) {
                 correctTooHigh(childCount);
@@ -964,7 +955,7 @@ public class PLA_ListView extends PLA_AbsListView {
             fillDown(position + 1, temp.getBottom() + dividerHeight);
             // This will correct for the bottom of the last view not touching the bottom of the list
             adjustViewsUpOrDown();
-            fillUp(position - 1, temp.getTop() - dividerHeight);
+            fillUp(position - 1, getFillChildTop());
             int childCount = getChildCount();
             if (childCount > 0) {
                 correctTooLow(childCount);
@@ -1007,7 +998,7 @@ public class PLA_ListView extends PLA_AbsListView {
 
             // Make sure we are 1) Too high, and 2) Either there are more rows above the
             // first row or the first row is scrolled off the top of the drawable area
-            if (bottomOffset > 0 && (mFirstPosition > 0 || firstTop < mListPadding.top))  {
+            if (bottomOffset > 0 && (mFirstPosition > 0 || firstTop < mListPadding.top)) {
                 if (mFirstPosition == 0) {
                     // Don't pull the top too far down
                     bottomOffset = Math.min(bottomOffset, mListPadding.top - firstTop);
@@ -1019,7 +1010,7 @@ public class PLA_ListView extends PLA_AbsListView {
                     // Fill the gap that was opened above mFirstPosition with more rows, if
                     // possible
                     int newFirstTop = getScrollChildTop();
-                    fillUp(mFirstPosition - 1, newFirstTop - mDividerHeight);
+                    fillUp(mFirstPosition - 1, getFillChildTop());
                     // Close up the remaining gap
                     adjustViewsUpOrDown();
                 }
@@ -1047,7 +1038,7 @@ public class PLA_ListView extends PLA_AbsListView {
             final int start = mListPadding.top;
 
             // This is bottom of our drawable area
-            final int end = (getBottom() -getTop()) - mListPadding.bottom;
+            final int end = (getBottom() - getTop()) - mListPadding.bottom;
 
             // This is how far the top edge of the first view is from the top of the drawable area
             int topOffset = firstTop - start;
@@ -1058,7 +1049,7 @@ public class PLA_ListView extends PLA_AbsListView {
             // Make sure we are 1) Too low, and 2) Either there are more rows below the
             // last row or the last row is scrolled off the bottom of the drawable area
             if (topOffset > 0) {
-                if (lastPosition < mItemCount - 1 || lastBottom > end)  {
+                if (lastPosition < mItemCount - 1 || lastBottom > end) {
                     if (lastPosition == mItemCount - 1) {
                         // Don't pull the bottom too far up
                         topOffset = Math.min(topOffset, lastBottom - end);
@@ -1068,7 +1059,7 @@ public class PLA_ListView extends PLA_AbsListView {
                     if (lastPosition < mItemCount - 1) {
                         // Fill the gap that was opened below the last position with more rows, if
                         // possible
-                        fillDown(lastPosition + 1, getFillChildTop() + mDividerHeight);
+                        fillDown(lastPosition + 1, getFillChildBottom() + mDividerHeight);
                         // Close up the remaining gap
                         adjustViewsUpOrDown();
                     }
@@ -1097,9 +1088,8 @@ public class PLA_ListView extends PLA_AbsListView {
                 return;
             }
 
-            int childrenTop = mListPadding.top;
-            //int childrenBottom = mBottom - mTop - mListPadding.bottom;
-            int childrenBottom = getBottom() - getTop() - mListPadding.bottom;
+            int childrenTop = getFillChildBottom() + mDividerHeight;
+            int childrenBottom = getFillChildTop();
 
             int childCount = getChildCount();
             int index = 0;
@@ -1191,10 +1181,10 @@ public class PLA_ListView extends PLA_AbsListView {
                         }
                     } else {
                         if (mFirstPosition < mItemCount) {
-                            onLayoutSync(mFirstPosition);
+                            // onLayoutSync(mFirstPosition);
                             detachAllViewsFromParent();
                             fillSpecific(mFirstPosition, oldFirst == null ? childrenTop : oldFirst.getTop());
-                            onLayoutSyncFinished(mFirstPosition);
+                            // onLayoutSyncFinished(mFirstPosition);
                         } else {
                             onLayoutSync(0);
                             detachAllViewsFromParent();
