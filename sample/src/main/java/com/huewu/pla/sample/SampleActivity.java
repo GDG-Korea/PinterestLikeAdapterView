@@ -1,7 +1,6 @@
 package com.huewu.pla.sample;
 
 import android.content.Context;
-import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
@@ -56,24 +55,6 @@ public class SampleActivity extends ActionBarActivity implements ActionBar.TabLi
             );
         }
 
-    }
-
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        menu.add(Menu.NONE, 1001, 0, "Launch Pull-To-Refresh Activity");
-        return super.onCreateOptionsMenu(menu);
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        switch (item.getItemId()) {
-            case 1001: {
-                Intent intent = new Intent(this, PullToRefreshSampleActivity.class);
-                startActivity(intent);
-                break;
-            }
-        }
-        return true;
     }
 
     @Override
