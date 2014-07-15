@@ -26,7 +26,6 @@ import android.view.View;
 
 import com.huewu.pla.R;
 import com.huewu.pla.lib.internal.PLA_ListView;
-import com.huewu.pla.lib.internal.SerializableSparseIntArray;
 
 /**
  * @author huewu.ynag
@@ -42,7 +41,7 @@ public class MultiColumnListView extends PLA_ListView {
 	private int mColumnNumber = 2;
 	private Column[] mColumns = null;
 	private Column mFixedColumn = null;	//column for footers & headers.
-	private SerializableSparseIntArray mItems = new SerializableSparseIntArray();
+	private ParcelableSparseIntArray mItems = new ParcelableSparseIntArray();
 
 	private int mColumnPaddingLeft = 0;
 	private int mColumnPaddingRight = 0;
@@ -160,7 +159,7 @@ public class MultiColumnListView extends PLA_ListView {
 	protected void onAdjustChildViews(boolean down) {
 
 		int firstItem = getFirstVisiblePosition();
-		if( down == false && firstItem == 0){
+		if(!down && firstItem == 0){
 			final int firstColumnTop = mColumns[0].getTop();
 			for( Column c : mColumns ){
 				final int top = c.getTop();
@@ -433,7 +432,7 @@ public class MultiColumnListView extends PLA_ListView {
 
 
     static class SavedState extends BaseSavedState {
-        SerializableSparseIntArray items;
+        ParcelableSparseIntArray items;
 
         /**
          * Constructor called from {@link MultiColumnListView#onSaveInstanceState()}
@@ -447,13 +446,13 @@ public class MultiColumnListView extends PLA_ListView {
          */
         private SavedState(Parcel in) {
             super(in);
-            items = (SerializableSparseIntArray) in.readSerializable();
+            items = in.readParcelable(ClassLoader.getSystemClassLoader());
         }
 
         @Override
         public void writeToParcel(Parcel out, int flags) {
             super.writeToParcel(out, flags);
-            out.writeSerializable(items);
+            out.writeParcelable(items, flags);
         }
 
         public static final Parcelable.Creator<SavedState> CREATOR = new Parcelable.Creator<SavedState>() {
