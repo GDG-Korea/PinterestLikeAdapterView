@@ -1,126 +1,161 @@
 package com.huewu.pla.sample;
 
-import android.app.Activity;
 import android.content.Context;
-import android.content.Intent;
 import android.os.Bundle;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentPagerAdapter;
+import android.support.v4.app.FragmentTransaction;
+import android.support.v4.view.ViewPager;
+import android.support.v7.app.ActionBar;
+import android.support.v7.app.ActionBarActivity;
+import android.view.LayoutInflater;
 import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.MenuItem;
+import android.view.View;
+import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
-import android.widget.TextView;
 
-import com.huewu.pla.sample.R;
 import com.huewu.pla.lib.MultiColumnListView;
-import com.huewu.pla.lib.internal.PLA_AbsListView.LayoutParams;
 
-import java.util.Arrays;
 import java.util.Random;
 
-public class SampleActivity extends Activity {
+public class SampleActivity extends ActionBarActivity implements ActionBar.TabListener {
+    private SectionsPagerAdapter mSectionsPagerAdapter;
+    private ViewPager mViewPager;
 
-	private class MySimpleAdapter extends ArrayAdapter<String> {
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.sample_act);
 
-		public MySimpleAdapter(Context context, int layoutRes) {
-			super(context, layoutRes, android.R.id.text1);
-		}
-	}
+        // Set up the action bar.
+        final ActionBar actionBar = getSupportActionBar();
+        actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_TABS);
 
-	private MultiColumnListView mAdapterView = null;
-	private MySimpleAdapter mAdapter = null;
+        mSectionsPagerAdapter = new SectionsPagerAdapter(getSupportFragmentManager());
 
-	@Override
-	protected void onCreate(Bundle savedInstanceState) {
-		super.onCreate(savedInstanceState);
-		setContentView(R.layout.sample_act);
-		//mAdapterView = (PLA_AdapterView<Adapter>) findViewById(R.id.list);
+        // Set up the ViewPager with the sections adapter.
+        mViewPager = (ViewPager) findViewById(R.id.pager);
+        mViewPager.setAdapter(mSectionsPagerAdapter);
 
-		mAdapterView = (MultiColumnListView) findViewById(R.id.list);
+        mViewPager.setOnPageChangeListener(new ViewPager.SimpleOnPageChangeListener() {
+            @Override
+            public void onPageSelected(int position) {
+                actionBar.setSelectedNavigationItem(position);
+            }
+        });
 
-		{
-			for( int i = 0; i < 3; ++i ){
-				//add header view.
-				TextView tv = new TextView(this);
-				tv.setLayoutParams(new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT));
-				tv.setText("Hello Header!! ........................................................................");
-				mAdapterView.addHeaderView(tv);
-			}
-		}
-		{
-			for( int i = 0; i < 3; ++i ){
-				//add footer view.
-				TextView tv = new TextView(this);
-				tv.setLayoutParams(new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT));
-				tv.setText("Hello Footer!! ........................................................................");
-				mAdapterView.addFooterView(tv);
-			}
-		}
-	}
+        for (int i = 0; i < mSectionsPagerAdapter.getCount(); i++) {
+            actionBar.addTab(
+                    actionBar.newTab()
+                            .setText(mSectionsPagerAdapter.getPageTitle(i))
+                            .setTabListener(this)
+            );
+        }
 
-	@Override
-	public boolean onCreateOptionsMenu(Menu menu) {
-		menu.add(Menu.NONE, 1001, 0, "Load More Contents");
-		menu.add(Menu.NONE, 1002, 0, "Launch Pull-To-Refresh Activity");
-		return super.onCreateOptionsMenu(menu);
-	}
+    }
 
-	@Override
-	public boolean onOptionsItemSelected(MenuItem item) {
+    @Override
+    public void onTabSelected(ActionBar.Tab tab, FragmentTransaction fragmentTransaction) {
+        mViewPager.setCurrentItem(tab.getPosition());
+    }
 
-		switch(item.getItemId()){
-		case 1001:
-		{
-			int startCount = mAdapter.getCount();
-			for( int i = 0; i < 100; ++i){
-				//generate 100 random items.
+    @Override
+    public void onTabUnselected(ActionBar.Tab tab, FragmentTransaction fragmentTransaction) {
+    }
 
-				StringBuilder builder = new StringBuilder();
-				builder.append("Hello!![");
-				builder.append(startCount + i);
-				builder.append("] ");
+    @Override
+    public void onTabReselected(ActionBar.Tab tab, FragmentTransaction fragmentTransaction) {
+    }
 
-				char[] chars = new char[mRand.nextInt(100)];
-				Arrays.fill(chars, '1');
-				builder.append(chars);
-				mAdapter.add(builder.toString());
-			}
-		}
-		break;
-		case 1002:
-		{
-			Intent intent = new Intent(this, PullToRefreshSampleActivity.class);
-			startActivity(intent);
-		}
-		break;
-		}
-		return true;
-	}
 
-	@Override
-	protected void onResume() {
-		super.onResume();
-		initAdapter();
-		mAdapterView.setAdapter(mAdapter);
-		//mAdapterView.setAdapter(mAdapter);
-	}
+    public class SectionsPagerAdapter extends FragmentPagerAdapter {
 
-	private Random mRand = new Random();
-	private void initAdapter() {
-		mAdapter = new MySimpleAdapter(this, R.layout.sample_item);
+        public SectionsPagerAdapter(FragmentManager fm) {
+            super(fm);
+        }
 
-		for( int i = 0; i < 30; ++i){
-			//generate 30 random items.
+        @Override
+        public Fragment getItem(int position) {
+            return PlaceholderFragment.newInstance(position);
+        }
 
-			StringBuilder builder = new StringBuilder();
-			builder.append("Hello!![");
-			builder.append(i);
-			builder.append("] ");
+        @Override
+        public int getCount() {
+            return 4;
+        }
 
-			char[] chars = new char[mRand.nextInt(500)];
-			Arrays.fill(chars, '1');
-			builder.append(chars);
-			mAdapter.add(builder.toString());
-		}
+        @Override
+        public CharSequence getPageTitle(int position) {
+            return "SECTION " + position;
+        }
+    }
 
-	}
+    public static class PlaceholderFragment extends Fragment {
 
-}//end of class
+        private PLAAdapter mAdapter;
+
+        public static PlaceholderFragment newInstance(int i) {
+            return new PlaceholderFragment();
+        }
+
+        public PlaceholderFragment() {
+        }
+
+        @Override
+        public void onCreate(Bundle savedInstanceState) {
+            super.onCreate(savedInstanceState);
+        }
+
+        @Override
+        public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+            return inflater.inflate(R.layout.sample_frag, container, false);
+        }
+
+        @Override
+        public void onViewCreated(View view, Bundle savedInstanceState) {
+
+            MultiColumnListView listView = (MultiColumnListView) view.findViewById(R.id.list);
+            mAdapter = new PLAAdapter(getActivity());
+            fillAdapter(mAdapter, 30);
+            listView.setAdapter(mAdapter);
+        }
+
+        private void fillAdapter(PLAAdapter adapter, int count) {
+            Random random = new Random();
+            for (int i = 0; i < count; ++i) {
+                StringBuilder builder = new StringBuilder();
+                for (int j = adapter.getCount(), max = 10 + random.nextInt(200); j < max; j++)
+                    builder.append(i).append(' ');
+                adapter.add(builder.toString());
+            }
+        }
+
+        @Override
+        public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+            menu.add(Menu.NONE, 1002, 0, "Load More Contents");
+            super.onCreateOptionsMenu(menu, inflater);
+        }
+
+        @Override
+        public boolean onOptionsItemSelected(MenuItem item) {
+
+            switch (item.getItemId()) {
+                case 1002: {
+                    int startCount = mAdapter.getCount();
+                    fillAdapter(mAdapter, 100);
+                }
+                break;
+            }
+            return super.onOptionsItemSelected(item);
+        }
+    }
+
+    private static class PLAAdapter extends ArrayAdapter<String> {
+        public PLAAdapter(Context context) {
+            super(context, R.layout.sample_item, android.R.id.text1);
+        }
+    }
+}
