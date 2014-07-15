@@ -1181,10 +1181,10 @@ public class PLA_ListView extends PLA_AbsListView {
                         }
                     } else {
                         if (mFirstPosition < mItemCount) {
-                            // onLayoutSync(mFirstPosition);
+                            onLayoutSync(mFirstPosition);
                             detachAllViewsFromParent();
                             fillSpecific(mFirstPosition, oldFirst == null ? childrenTop : oldFirst.getTop());
-                            // onLayoutSyncFinished(mFirstPosition);
+                            onLayoutSyncFinished(mFirstPosition);
                         } else {
                             onLayoutSync(0);
                             detachAllViewsFromParent();

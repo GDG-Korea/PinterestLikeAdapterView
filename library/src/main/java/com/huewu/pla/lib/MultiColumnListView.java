@@ -402,7 +402,7 @@ public class MultiColumnListView extends PLA_ListView {
 		}
 
 		public void save() {
-			mSynchedTop = getBottom();
+			mSynchedTop = 0;
 			mSynchedBottom = getTop();
 		}
 
