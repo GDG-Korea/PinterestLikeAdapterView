@@ -1146,7 +1146,12 @@ public class PLA_ListView extends PLA_AbsListView {
                     onLayoutSync(mSyncPosition);
                     // Clear out old views
                     detachAllViewsFromParent();
-                    fillSpecific(mSyncPosition, mSpecificTop);
+                    if (mSpecificTops != null) {
+                        fillSynced(mSyncPosition, mSpecificTops);
+                        mSpecificTops = null;
+                    } else {
+                        fillSpecific(mSyncPosition, mSpecificTop);
+                    }
                     onLayoutSyncFinished(mSyncPosition);
                     break;
                 case LAYOUT_FORCE_BOTTOM:
@@ -1215,6 +1220,14 @@ public class PLA_ListView extends PLA_AbsListView {
         }
     }
 
+    private void fillSynced(int position, int[] specificTops) {
+        for (int i = 0; i < specificTops.length; i++) {
+            makeAndAddView(position + i, specificTops[i], true, false);
+            adjustViewsUpOrDown();
+        }
+        mFirstPosition = position;
+    }
+
     /**
      * Obtain the view and add it to our list of children. The view can be made
      * fresh, converted from an unused view, or used as is if it was in the
@@ -1224,7 +1237,6 @@ public class PLA_ListView extends PLA_AbsListView {
      * @param childrenBottomOrTop Top or bottom edge of the view to add
      * @param flow If flow is true, align top edge to y. If false, align bottom
      *        edge to y.
-     * @param childrenLeft Left edge where children should be positioned
      * @param selected Is this position selected?
      * @return View that was added
      */
@@ -2113,7 +2125,7 @@ public class PLA_ListView extends PLA_AbsListView {
      * Sets the checked state of the specified position. The is only valid if
      * the choice mode has been set to {@link #CHOICE_MODE_SINGLE} or
      * {@link #CHOICE_MODE_MULTIPLE}.
-     * 
+     *
      * @param position The item whose checked state is to be checked
      * @param value The new checked state for the item
      */
@@ -2164,10 +2176,10 @@ public class PLA_ListView extends PLA_AbsListView {
     /**
      * Returns the set of checked items ids. The result is only valid if the
      * choice mode has not been set to {@link #CHOICE_MODE_NONE}.
-     * 
+     *
      * @return A new array which contains the id of each checked item in the
      *         list.
-     *         
+     *
      * @deprecated Use {@link #getCheckedItemIds()} instead.
      */
     @Deprecated
@@ -2184,7 +2196,7 @@ public class PLA_ListView extends PLA_AbsListView {
      * Returns the set of checked items ids. The result is only valid if the
      * choice mode has not been set to {@link #CHOICE_MODE_NONE} and the adapter
      * has stable IDs. ({@link android.widget.ListAdapter#hasStableIds()} == {@code true})
-     * 
+     *
      * @return A new array which contains the id of each checked item in the
      *         list.
      */

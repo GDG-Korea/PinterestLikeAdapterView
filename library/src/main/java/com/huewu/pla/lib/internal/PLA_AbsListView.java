@@ -65,6 +65,8 @@ import java.util.Stack;
 public abstract class PLA_AbsListView extends PLA_AdapterView<ListAdapter> implements
 ViewTreeObserver.OnGlobalLayoutListener, ViewTreeObserver.OnTouchModeChangeListener {
 
+    private static final String TAG = "PLA_AbsListView";
+
     //FIXME not supported features... (removed from original AbsListView)...
     //Filter
     //Fast Scroll
@@ -2551,7 +2553,7 @@ ViewTreeObserver.OnGlobalLayoutListener, ViewTreeObserver.OnTouchModeChangeListe
 
     /**
      * adapter data is changed.. children layout manipulation is finished.
-     * @param mSyncPosition
+     * @param syncPosition
      */
     protected void onLayoutSyncFinished(int syncPosition) {
     }
@@ -3271,6 +3273,8 @@ ViewTreeObserver.OnGlobalLayoutListener, ViewTreeObserver.OnTouchModeChangeListe
         int viewTop;
         int position;
         int height;
+        int childCount;
+        int[] viewTops;
 
         /**
          * Constructor called from {@link PLA_AbsListView#onSaveInstanceState()}
@@ -3286,6 +3290,9 @@ ViewTreeObserver.OnGlobalLayoutListener, ViewTreeObserver.OnTouchModeChangeListe
             super(in);
             firstId = in.readLong();
             viewTop = in.readInt();
+            childCount = in.readInt();
+            viewTops = new int[childCount];
+            in.readIntArray(viewTops);
             position = in.readInt();
             height = in.readInt();
         }
@@ -3295,18 +3302,23 @@ ViewTreeObserver.OnGlobalLayoutListener, ViewTreeObserver.OnTouchModeChangeListe
             super.writeToParcel(out, flags);
             out.writeLong(firstId);
             out.writeInt(viewTop);
+            out.writeInt(childCount);
+            out.writeIntArray(viewTops);
             out.writeInt(position);
             out.writeInt(height);
         }
 
         @Override
         public String toString() {
-            return "AbsListView.SavedState{"
+            return "PLA_AbsListView.SavedState{"
                     + Integer.toHexString(System.identityHashCode(this))
                     + " firstId=" + firstId
                     + " viewTop=" + viewTop
                     + " position=" + position
-                    + " height=" + height + "}";
+                    + " height=" + height
+                    + " childCount=" + childCount
+                    + " viewTops=" + viewTops
+                    + "}";
         }
 
         public static final Parcelable.Creator<SavedState> CREATOR = new Parcelable.Creator<SavedState>() {
@@ -3332,12 +3344,16 @@ ViewTreeObserver.OnGlobalLayoutListener, ViewTreeObserver.OnTouchModeChangeListe
             // Just keep what we last restored.
             ss.firstId = mPendingSync.firstId;
             ss.viewTop = mPendingSync.viewTop;
+            ss.viewTops = mPendingSync.viewTops;
             ss.position = mPendingSync.position;
             ss.height = mPendingSync.height;
+            ss.childCount = mPendingSync.childCount;
             return ss;
         }
 
-        boolean haveChildren = getChildCount() > 0 && mItemCount > 0;
+        ss.height = getHeight();
+        int childCount = getChildCount();
+        boolean haveChildren = childCount > 0 && mItemCount > 0;
         if (haveChildren && mFirstPosition > 0) {
             // Remember the position of the first child.
             // We only do this if we are not currently at the top of
@@ -3348,18 +3364,24 @@ ViewTreeObserver.OnGlobalLayoutListener, ViewTreeObserver.OnTouchModeChangeListe
             // (2) Being "at the top" seems like a special case, anyway,
             // and the user wouldn't expect to end up somewhere else when
             // they revisit the list even if its content has changed.
-            View v = getChildAt(0);
-            ss.viewTop = v.getTop();
             int firstPos = mFirstPosition;
             if (firstPos >= mItemCount) {
                 firstPos = mItemCount - 1;
             }
             ss.position = firstPos;
             ss.firstId = mAdapter.getItemId(firstPos);
+            ss.childCount = childCount;
+            View v = getChildAt(0);
+            ss.viewTop = v.getTop();
+            ss.viewTops = new int[childCount];
+            for (int i = 0; i < childCount; i++) {
+                ss.viewTops[i] = getChildAt(i).getTop();
+            }
         } else {
             ss.viewTop = 0;
             ss.firstId = INVALID_POSITION;
             ss.position = 0;
+            ss.viewTops = new int[1];
         }
         return ss;
     }
@@ -3380,6 +3402,7 @@ ViewTreeObserver.OnGlobalLayoutListener, ViewTreeObserver.OnTouchModeChangeListe
             mSyncRowId = ss.firstId;
             mSyncPosition = ss.position;
             mSpecificTop = ss.viewTop;
+            mSpecificTops = ss.viewTops;
         }
         requestLayout();
     }

@@ -124,10 +124,9 @@ public class SampleActivity extends ActionBarActivity implements ActionBar.TabLi
         }
 
         private void fillAdapter(PLAAdapter adapter, int count) {
-            Random random = new Random();
             for (int i = 0; i < count; ++i) {
                 StringBuilder builder = new StringBuilder();
-                for (int j = adapter.getCount(), max = 10 + random.nextInt(200); j < max; j++)
+                for (int j = adapter.getCount(), max = (i * 1234) % 500; j < max; j++)
                     builder.append(i).append(' ');
                 adapter.add(builder.toString());
             }
@@ -144,7 +143,6 @@ public class SampleActivity extends ActionBarActivity implements ActionBar.TabLi
 
             switch (item.getItemId()) {
                 case 1002: {
-                    int startCount = mAdapter.getCount();
                     fillAdapter(mAdapter, 100);
                 }
                 break;
