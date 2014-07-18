@@ -64,10 +64,11 @@ public abstract class PLA_AdapterView<T extends Adapter> extends ViewGroup {
 	/**
 	 * The offset in pixels from the top of the AdapterView to the top
 	 * of the view to select during the next layout.
-	 */
-	int mSpecificTop;
-    
-	/**
+     */
+    int mSpecificTop;
+    int[] mSpecificTops;
+
+    /**
 	 * Position from which to start looking for mSyncRowId
 	 */
 	int mSyncPosition;

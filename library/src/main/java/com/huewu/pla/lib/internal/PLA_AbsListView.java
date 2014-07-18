@@ -23,6 +23,7 @@ import android.graphics.Rect;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.TransitionDrawable;
 import android.os.Debug;
+import android.os.Parcel;
 import android.os.Parcelable;
 import android.util.AttributeSet;
 import android.view.ContextMenu.ContextMenuInfo;
@@ -34,6 +35,8 @@ import android.view.ViewConfiguration;
 import android.view.ViewDebug;
 import android.view.ViewGroup;
 import android.view.ViewTreeObserver;
+import android.widget.Filter;
+import android.widget.Filterable;
 import android.widget.ListAdapter;
 import android.widget.Scroller;
 
@@ -61,6 +64,8 @@ import java.util.Stack;
  */
 public abstract class PLA_AbsListView extends PLA_AdapterView<ListAdapter> implements
 ViewTreeObserver.OnGlobalLayoutListener, ViewTreeObserver.OnTouchModeChangeListener {
+
+    private static final String TAG = "PLA_AbsListView";
 
     //FIXME not supported features... (removed from original AbsListView)...
     //Filter
@@ -303,6 +308,8 @@ ViewTreeObserver.OnGlobalLayoutListener, ViewTreeObserver.OnTouchModeChangeListe
      * bitmap cache after scrolling.
      */
     boolean mScrollingCacheEnabled;
+
+    private SavedState mPendingSync;
 
     /**
      * Optional callback to notify client when scroll position has changed
@@ -641,16 +648,6 @@ ViewTreeObserver.OnGlobalLayoutListener, ViewTreeObserver.OnTouchModeChangeListe
             requestLayout();
             invalidate();
         }
-    }
-
-    @Override
-    public void onRestoreInstanceState(Parcelable state) {
-        super.onRestoreInstanceState(state);
-
-        DebugUtil.LogDebug("data changed by onRestoreInstanceState()");
-
-        mDataChanged = true;
-        requestLayout();
     }
 
     @Override
@@ -2451,14 +2448,51 @@ ViewTreeObserver.OnGlobalLayoutListener, ViewTreeObserver.OnTouchModeChangeListe
             if (mNeedSync) {
                 // Update this first, since setNextSelectedPositionInt inspects it
                 mNeedSync = false;
+                mPendingSync = null;
+
                 if (mTranscriptMode == TRANSCRIPT_MODE_ALWAYS_SCROLL ||
                         (mTranscriptMode == TRANSCRIPT_MODE_NORMAL &&
-                        mFirstPosition + getChildCount() >= mOldItemCount)) {
+                                mFirstPosition + getChildCount() >= mOldItemCount)) {
                     mLayoutMode = LAYOUT_FORCE_BOTTOM;
                     return;
                 }
 
                 switch (mSyncMode) {
+                    case SYNC_SELECTED_POSITION:
+                        if (isInTouchMode()) {
+                            // We saved our state when not in touch mode. (We know this because
+                            // mSyncMode is SYNC_SELECTED_POSITION.) Now we are trying to
+                            // restore in touch mode. Just leave mSyncPosition as it is (possibly
+                            // adjusting if the available range changed) and return.
+                            mLayoutMode = LAYOUT_SYNC;
+                            mSyncPosition = Math.min(Math.max(0, mSyncPosition), count - 1);
+
+                            return;
+                        } else {
+                            // See if we can find a position in the new data with the same
+                            // id as the old selection. This will change mSyncPosition.
+                            newPos = findSyncPosition();
+                            if (newPos >= 0) {
+                                // Found it. Now verify that new selection is still selectable
+                                selectablePos = lookForSelectablePosition(newPos, true);
+                                if (selectablePos == newPos) {
+                                    // Same row id is selected
+                                    mSyncPosition = newPos;
+
+                                    if (mSyncHeight == getHeight()) {
+                                        // If we are at the same height as when we saved state, try
+                                        // to restore the scroll position too.
+                                        mLayoutMode = LAYOUT_SYNC;
+                                    } else {
+                                        // We are not the same height as when the selection was saved, so
+                                        // don't try to restore the exact position
+                                        mLayoutMode = LAYOUT_SET_SELECTION;
+                                    }
+                                    return;
+                                }
+                            }
+                        }
+                        break;
                     case SYNC_FIRST_POSITION:
                         // Leave mSyncPosition as it is -- just pin to available range
                         mLayoutMode = LAYOUT_SYNC;
@@ -2482,10 +2516,14 @@ ViewTreeObserver.OnGlobalLayoutListener, ViewTreeObserver.OnTouchModeChangeListe
                 // Make sure we select something selectable -- first look down
                 selectablePos = lookForSelectablePosition(newPos, true);
 
-                // Looking down didn't work -- try looking up
-                selectablePos = lookForSelectablePosition(newPos, false);
                 if (selectablePos >= 0) {
                     return;
+                } else {
+                    // Looking down didn't work -- try looking up
+                    selectablePos = lookForSelectablePosition(newPos, false);
+                    if (selectablePos >= 0) {
+                        return;
+                    }
                 }
             } else {
 
@@ -2499,7 +2537,11 @@ ViewTreeObserver.OnGlobalLayoutListener, ViewTreeObserver.OnTouchModeChangeListe
 
         // Nothing is selected. Give up and reset everything.
         mLayoutMode = mStackFromBottom ? LAYOUT_FORCE_BOTTOM : LAYOUT_FORCE_TOP;
+        mSelectedPosition = INVALID_POSITION;
+        mSelectedRowId = INVALID_ROW_ID;
         mNeedSync = false;
+        mPendingSync = null;
+        checkSelectionChanged();
     }
 
     /**
@@ -2511,7 +2553,7 @@ ViewTreeObserver.OnGlobalLayoutListener, ViewTreeObserver.OnTouchModeChangeListe
 
     /**
      * adapter data is changed.. children layout manipulation is finished.
-     * @param mSyncPosition
+     * @param syncPosition
      */
     protected void onLayoutSyncFinished(int syncPosition) {
     }
@@ -2731,9 +2773,7 @@ ViewTreeObserver.OnGlobalLayoutListener, ViewTreeObserver.OnTouchModeChangeListe
      * associated to the View.
      *
      * @param listener The recycler listener to be notified of views set aside
-     *        in the recycler.
-     *
-     * @see android.widget.PLA_AbsListView.RecycleBin
+     *                 in the recycler.
      * @see android.widget.AbsListView.RecyclerListener
      */
     public void setRecyclerListener(RecyclerListener listener) {
@@ -2800,7 +2840,6 @@ ViewTreeObserver.OnGlobalLayoutListener, ViewTreeObserver.OnTouchModeChangeListe
      * inside the RecycleBin's scrap heap. This listener is used to free resources
      * associated to Views placed in the RecycleBin.
      *
-     * @see android.widget.PLA_AbsListView.RecycleBin
      * @see android.widget.AbsListView#setRecyclerListener(android.widget.AbsListView.RecyclerListener)
      */
     public static interface RecyclerListener {
@@ -3226,5 +3265,145 @@ ViewTreeObserver.OnGlobalLayoutListener, ViewTreeObserver.OnTouchModeChangeListe
         if( count == 0 )
             return 0;
         return getChildAt(count - 1).getBottom();
+    }
+
+
+    static class SavedState extends BaseSavedState {
+        long firstId;
+        int viewTop;
+        int position;
+        int height;
+        int childCount;
+        int[] viewTops;
+
+        /**
+         * Constructor called from {@link PLA_AbsListView#onSaveInstanceState()}
+         */
+        SavedState(Parcelable superState) {
+            super(superState);
+        }
+
+        /**
+         * Constructor called from {@link #CREATOR}
+         */
+        private SavedState(Parcel in) {
+            super(in);
+            firstId = in.readLong();
+            viewTop = in.readInt();
+            childCount = in.readInt();
+            viewTops = new int[childCount];
+            in.readIntArray(viewTops);
+            position = in.readInt();
+            height = in.readInt();
+        }
+
+        @Override
+        public void writeToParcel(Parcel out, int flags) {
+            super.writeToParcel(out, flags);
+            out.writeLong(firstId);
+            out.writeInt(viewTop);
+            out.writeInt(childCount);
+            out.writeIntArray(viewTops);
+            out.writeInt(position);
+            out.writeInt(height);
+        }
+
+        @Override
+        public String toString() {
+            return "PLA_AbsListView.SavedState{"
+                    + Integer.toHexString(System.identityHashCode(this))
+                    + " firstId=" + firstId
+                    + " viewTop=" + viewTop
+                    + " position=" + position
+                    + " height=" + height
+                    + " childCount=" + childCount
+                    + " viewTops=" + viewTops
+                    + "}";
+        }
+
+        public static final Parcelable.Creator<SavedState> CREATOR = new Parcelable.Creator<SavedState>() {
+            @Override
+            public SavedState createFromParcel(Parcel in) {
+                return new SavedState(in);
+            }
+
+            @Override
+            public SavedState[] newArray(int size) {
+                return new SavedState[size];
+            }
+        };
+    }
+
+    @Override
+    public Parcelable onSaveInstanceState() {
+        Parcelable superState = super.onSaveInstanceState();
+
+        SavedState ss = new SavedState(superState);
+
+        if (mPendingSync != null) {
+            // Just keep what we last restored.
+            ss.firstId = mPendingSync.firstId;
+            ss.viewTop = mPendingSync.viewTop;
+            ss.viewTops = mPendingSync.viewTops;
+            ss.position = mPendingSync.position;
+            ss.height = mPendingSync.height;
+            ss.childCount = mPendingSync.childCount;
+            return ss;
+        }
+
+        ss.height = getHeight();
+        int childCount = getChildCount();
+        boolean haveChildren = childCount > 0 && mItemCount > 0;
+        if (haveChildren && mFirstPosition > 0) {
+            // Remember the position of the first child.
+            // We only do this if we are not currently at the top of
+            // the list, for two reasons:
+            // (1) The list may be in the process of becoming empty, in
+            // which case mItemCount may not be 0, but if we try to
+            // ask for any information about position 0 we will crash.
+            // (2) Being "at the top" seems like a special case, anyway,
+            // and the user wouldn't expect to end up somewhere else when
+            // they revisit the list even if its content has changed.
+            int firstPos = mFirstPosition;
+            if (firstPos >= mItemCount) {
+                firstPos = mItemCount - 1;
+            }
+            ss.position = firstPos;
+            ss.firstId = mAdapter.getItemId(firstPos);
+            ss.childCount = childCount;
+            View v = getChildAt(0);
+            ss.viewTop = v.getTop();
+            ss.viewTops = new int[childCount];
+            for (int i = 0; i < childCount; i++) {
+                ss.viewTops[i] = getChildAt(i).getTop();
+            }
+        } else {
+            ss.viewTop = 0;
+            ss.firstId = INVALID_POSITION;
+            ss.position = 0;
+            ss.viewTops = new int[1];
+        }
+        return ss;
+    }
+
+    @Override
+    public void onRestoreInstanceState(Parcelable state) {
+        SavedState ss = (SavedState) state;
+
+        DebugUtil.LogDebug("data changed by onRestoreInstanceState()");
+        super.onRestoreInstanceState(ss.getSuperState());
+        mDataChanged = true;
+
+        mSyncHeight = ss.height;
+
+        if (ss.firstId >= 0) {
+            mNeedSync = true;
+            mPendingSync = ss;
+            mSyncRowId = ss.firstId;
+            mSyncPosition = ss.position;
+            mSpecificTop = ss.viewTop;
+            mSpecificTops = ss.viewTops;
+        }
+        requestLayout();
     }
 }//end of class
