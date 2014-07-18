@@ -1,31 +1,22 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>com.huewu.pla</groupId>
-    <artifactId>pla</artifactId>
-    <version>1.02</version>
-    <packaging>apklib</packaging>
+    <artifactId>parent</artifactId>
+    <version>1.0.3-SNAPSHOT</version>
 
-    <name>Vingle Android App</name>
-    <description></description>
+    <name>PinterestLikeAdapterView</name>
+    <description>Multi column listview like Pinterest</description>
     <url>http://www.vingle.net</url>
-
-    <properties>
-        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <project.reporting.sourceEncoding>UTF-8</project.reporting.sourceEncoding>
-
-        <!-- Compilation -->
-        <java.version>1.6</java.version>
-        <!-- Dependencies -->
-        <android.version>4.1.1.4</android.version>
-        <android.platform>17</android.platform>
-    </properties>
 
     <scm>
         <url>https://github.com/balmbees/PinterestLikeAdapterView.git</url>
         <connection>scm:git@github.com:balmbees/PinterestLikeAdapterView.git</connection>
-        <developerConnection>scm:git@github.com:balmbees/PinterestLikeAdapterView.git</developerConnection>
+        <developerConnection>scm:git@github.com:balmbees/PinterestLikeAdapterView.git
+        </developerConnection>
     </scm>
 
     <issueManagement>
@@ -38,55 +29,58 @@
         <url>http://www.vingle.net/</url>
     </organization>
 
-    <distributionManagement>
-        <repository>
-            <id>repo</id>
-            <url>https://github.com/balmbees/vingle-maven-repo/raw/PLA/master/releases</url>
-        </repository>
-        <snapshotRepository>
-            <id>snapshot-repo</id>
-            <url>https://github.com/balmbees/vingle-maven-repo/raw/PLA/master/snapshots</url>
-        </snapshotRepository>
-    </distributionManagement>
+    <modules>
+        <module>library</module>
+        <module>sample</module>
+    </modules>
+
+    <properties>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
+        <android.version>4.1.1.4</android.version>
+        <android.platform>19</android.platform>
+        <android-maven.version>3.8.2</android-maven.version>
+        <java.version>1.6</java.version>
+        <sourceCompatibility>1.6</sourceCompatibility>
+    </properties>
+
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>com.google.android</groupId>
+                <artifactId>android</artifactId>
+                <version>${android.version}</version>
+                <scope>provided</scope>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
+
     <build>
-       <plugins>
-           <plugin>
-              <groupId>com.jayway.maven.plugins.android.generation2</groupId>
-              <artifactId>android-maven-plugin</artifactId>
-              <extensions>true</extensions>
-              <version>3.5.3</version>
-              <configuration>
-                  <nativeLibrariesDirectory>ignored</nativeLibrariesDirectory>
-                  <sdk>
-                      <platform>${android.platform}</platform>
-                  </sdk>
-              </configuration>
-           </plugin>
-       </plugins>
+        <pluginManagement>
+            <plugins>
+                <!-- compiler settings -->
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-compiler-plugin</artifactId>
+                    <version>3.1</version>
+                </plugin>
+                <plugin>
+                    <groupId>com.jayway.maven.plugins.android.generation2</groupId>
+                    <artifactId>android-maven-plugin</artifactId>
+                    <version>${android-maven.version}</version>
+                    <configuration>
+                        <sdk>
+                            <platform>${android.platform}</platform>
+                        </sdk>
+                        <undeployBeforeDeploy>true</undeployBeforeDeploy>
+                        <source>${sourceCompatibility}</source>
+                        <target>${sourceCompatibility}</target>
+                        <androidManifestFile>${project.basedir}/src/main/AndroidManifest.xml</androidManifestFile>
+                        <resourceDirectory>${project.basedir}/src/main/res</resourceDirectory>
+                    </configuration>
+                    <extensions>true</extensions>
+                </plugin>
+            </plugins>
+        </pluginManagement>
     </build>
-    <repositories>
-        <repository>
-            <id>pusher-java-client-mvn-repo</id>
-            <name>Pusher Java Client Library</name>
-            <url>https://raw.github.com/pusher/pusher-java-client/mvn-repo/</url>
-            <!-- Update the following as required -->
-            <releases>
-                <enabled>true</enabled>
-            </releases>
-            <snapshots>
-                <enabled>true</enabled>
-            </snapshots>
-        </repository>
-    </repositories>
-    
-    
-    <dependencies>
-        <dependency>
-            <groupId>com.google.android</groupId>
-            <artifactId>android</artifactId>
-            <version>${android.version}</version>
-            <scope>provided</scope>
-        </dependency>
-    </dependencies>
-    
 </project>
