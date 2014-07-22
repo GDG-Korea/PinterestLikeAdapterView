@@ -16,16 +16,16 @@
 
 package com.huewu.pla.lib;
 
+import com.huewu.pla.R;
+import com.huewu.pla.lib.internal.PLA_ListView;
+
 import android.content.Context;
 import android.content.res.TypedArray;
 import android.graphics.Rect;
-import android.os.Parcel;
+import android.os.Bundle;
 import android.os.Parcelable;
 import android.util.AttributeSet;
 import android.view.View;
-
-import com.huewu.pla.R;
-import com.huewu.pla.lib.internal.PLA_ListView;
 
 /**
  * @author huewu.ynag
@@ -431,55 +431,21 @@ public class MultiColumnListView extends PLA_ListView {
 	}//end of class
 
 
-    static class SavedState extends BaseSavedState {
-        ParcelableSparseIntArray items;
-
-        /**
-         * Constructor called from {@link MultiColumnListView#onSaveInstanceState()}
-         */
-        SavedState(Parcelable superState) {
-            super(superState);
-        }
-
-        /**
-         * Constructor called from {@link #CREATOR}
-         */
-        private SavedState(Parcel in) {
-            super(in);
-            items = in.readParcelable(ClassLoader.getSystemClassLoader());
-        }
-
-        @Override
-        public void writeToParcel(Parcel out, int flags) {
-            super.writeToParcel(out, flags);
-            out.writeParcelable(items, flags);
-        }
-
-        public static final Parcelable.Creator<SavedState> CREATOR = new Parcelable.Creator<SavedState>() {
-            @Override
-            public SavedState createFromParcel(Parcel in) {
-                return new SavedState(in);
-            }
-
-            @Override
-            public SavedState[] newArray(int size) {
-                return new SavedState[size];
-            }
-        };
-    }
-
     @Override
     public Parcelable onSaveInstanceState() {
-        Parcelable superState = super.onSaveInstanceState();
-        SavedState ss = new SavedState(superState);
-        ss.items = mItems;
-        return ss;
+        Bundle bundle = new Bundle();
+        bundle.putParcelable("instanceState", super.onSaveInstanceState());
+        bundle.putParcelable("items", mItems);
+        return bundle;
     }
 
     @Override
     public void onRestoreInstanceState(Parcelable state) {
-        SavedState ss = (SavedState) state;
-        super.onRestoreInstanceState(ss.getSuperState());
-        mItems = ss.items;
+        if (state instanceof  Bundle) {
+            Bundle bundle = (Bundle) state;
+            mItems = bundle.getParcelable("items");
+            state = bundle.getParcelable("instanceState");
+        }
+        super.onRestoreInstanceState(state);
     }
 }//end of class

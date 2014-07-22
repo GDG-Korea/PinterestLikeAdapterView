@@ -17,6 +17,7 @@ public class ParcelableSparseIntArray extends SparseIntArray implements Parcelab
         super(initialCapacity);
     }
 
+    @SuppressWarnings("unchecked")
     private ParcelableSparseIntArray(Parcel in) {
         append(in.readSparseArray (ClassLoader.getSystemClassLoader()));
     }

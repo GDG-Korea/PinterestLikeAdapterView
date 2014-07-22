@@ -22,6 +22,7 @@ import android.graphics.Canvas;
 import android.graphics.Rect;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.TransitionDrawable;
+import android.os.Bundle;
 import android.os.Debug;
 import android.os.Parcel;
 import android.os.Parcelable;
@@ -2546,7 +2547,7 @@ ViewTreeObserver.OnGlobalLayoutListener, ViewTreeObserver.OnTouchModeChangeListe
 
     /**
      * adapter data is changed.. should keep current view layout information..
-     * @param mSyncPosition
+     * @param syncPosition
      */
     protected void onLayoutSync(int syncPosition) {
     }
@@ -3268,91 +3269,35 @@ ViewTreeObserver.OnGlobalLayoutListener, ViewTreeObserver.OnTouchModeChangeListe
     }
 
 
-    static class SavedState extends BaseSavedState {
+    static class SavedState {
         long firstId;
         int viewTop;
         int position;
         int height;
         int childCount;
         int[] viewTops;
-
-        /**
-         * Constructor called from {@link PLA_AbsListView#onSaveInstanceState()}
-         */
-        SavedState(Parcelable superState) {
-            super(superState);
-        }
-
-        /**
-         * Constructor called from {@link #CREATOR}
-         */
-        private SavedState(Parcel in) {
-            super(in);
-            firstId = in.readLong();
-            viewTop = in.readInt();
-            childCount = in.readInt();
-            viewTops = new int[childCount];
-            in.readIntArray(viewTops);
-            position = in.readInt();
-            height = in.readInt();
-        }
-
-        @Override
-        public void writeToParcel(Parcel out, int flags) {
-            super.writeToParcel(out, flags);
-            out.writeLong(firstId);
-            out.writeInt(viewTop);
-            out.writeInt(childCount);
-            out.writeIntArray(viewTops);
-            out.writeInt(position);
-            out.writeInt(height);
-        }
-
-        @Override
-        public String toString() {
-            return "PLA_AbsListView.SavedState{"
-                    + Integer.toHexString(System.identityHashCode(this))
-                    + " firstId=" + firstId
-                    + " viewTop=" + viewTop
-                    + " position=" + position
-                    + " height=" + height
-                    + " childCount=" + childCount
-                    + " viewTops=" + viewTops
-                    + "}";
-        }
-
-        public static final Parcelable.Creator<SavedState> CREATOR = new Parcelable.Creator<SavedState>() {
-            @Override
-            public SavedState createFromParcel(Parcel in) {
-                return new SavedState(in);
-            }
-
-            @Override
-            public SavedState[] newArray(int size) {
-                return new SavedState[size];
-            }
-        };
     }
 
     @Override
     public Parcelable onSaveInstanceState() {
-        Parcelable superState = super.onSaveInstanceState();
 
-        SavedState ss = new SavedState(superState);
+        Bundle ss = new Bundle();
+        ss.putParcelable("instanceState", super.onSaveInstanceState());
 
         if (mPendingSync != null) {
             // Just keep what we last restored.
-            ss.firstId = mPendingSync.firstId;
-            ss.viewTop = mPendingSync.viewTop;
-            ss.viewTops = mPendingSync.viewTops;
-            ss.position = mPendingSync.position;
-            ss.height = mPendingSync.height;
-            ss.childCount = mPendingSync.childCount;
+            ss.putLong("firstId", mPendingSync.firstId);
+            ss.putInt("viewTop",  mPendingSync.viewTop);
+            ss.putIntArray("viewTops", mPendingSync.viewTops);
+            ss.putInt("position", mPendingSync.position);
+            ss.putInt("height", mPendingSync.height);
+            ss.putInt("childCount", mPendingSync.childCount);
             return ss;
         }
 
-        ss.height = getHeight();
+        ss.putInt("height", getHeight());
         int childCount = getChildCount();
+        ss.putInt("childCount", childCount);
         boolean haveChildren = childCount > 0 && mItemCount > 0;
         if (haveChildren && mFirstPosition > 0) {
             // Remember the position of the first child.
@@ -3364,46 +3309,54 @@ ViewTreeObserver.OnGlobalLayoutListener, ViewTreeObserver.OnTouchModeChangeListe
             // (2) Being "at the top" seems like a special case, anyway,
             // and the user wouldn't expect to end up somewhere else when
             // they revisit the list even if its content has changed.
+
             int firstPos = mFirstPosition;
             if (firstPos >= mItemCount) {
                 firstPos = mItemCount - 1;
             }
-            ss.position = firstPos;
-            ss.firstId = mAdapter.getItemId(firstPos);
-            ss.childCount = childCount;
+            ss.putInt("position", firstPos);
+            ss.putLong("firstId", mAdapter.getItemId(firstPos));
             View v = getChildAt(0);
-            ss.viewTop = v.getTop();
-            ss.viewTops = new int[childCount];
+            ss.putInt("viewTop",  v.getTop());
+            int[] viewTops = new int[childCount];
             for (int i = 0; i < childCount; i++) {
-                ss.viewTops[i] = getChildAt(i).getTop();
+                viewTops[i] = getChildAt(i).getTop();
             }
+            ss.putIntArray("viewTops", viewTops);
         } else {
-            ss.viewTop = 0;
-            ss.firstId = INVALID_POSITION;
-            ss.position = 0;
-            ss.viewTops = new int[1];
+            ss.putInt("viewTop",  0);
+            ss.putLong("firstId", INVALID_POSITION);
+            ss.putInt("position", 0);
+            ss.putIntArray("viewTops", new int[1]);
         }
         return ss;
     }
 
     @Override
     public void onRestoreInstanceState(Parcelable state) {
-        SavedState ss = (SavedState) state;
-
-        DebugUtil.LogDebug("data changed by onRestoreInstanceState()");
-        super.onRestoreInstanceState(ss.getSuperState());
-        mDataChanged = true;
-
-        mSyncHeight = ss.height;
-
-        if (ss.firstId >= 0) {
-            mNeedSync = true;
-            mPendingSync = ss;
-            mSyncRowId = ss.firstId;
-            mSyncPosition = ss.position;
-            mSpecificTop = ss.viewTop;
-            mSpecificTops = ss.viewTops;
+        if (state instanceof  Bundle) {
+            Bundle bundle = (Bundle) state;
+            mDataChanged = true;
+            mSyncHeight = bundle.getInt("height");
+            long firstId = bundle.getLong("firstId");
+            if (firstId >= 0) {
+                mNeedSync = true;
+                SavedState ss = new SavedState();
+                ss.firstId = firstId;
+                ss.height = (int) mSyncHeight;
+                ss.position = bundle.getInt("position");
+                ss.viewTop = bundle.getInt("viewTop");
+                ss.childCount = bundle.getInt("childCount");
+                ss.viewTops = bundle.getIntArray("viewTops");
+                mPendingSync = ss;
+                mSyncRowId = ss.firstId;
+                mSyncPosition = ss.position;
+                mSpecificTop = ss.viewTop;
+                mSpecificTops = ss.viewTops;
+            }
+            state = bundle.getParcelable("instanceState");
         }
+        super.onRestoreInstanceState(state);
         requestLayout();
     }
 }//end of class
