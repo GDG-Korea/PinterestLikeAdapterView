@@ -399,7 +399,7 @@ public class PLA_ListView extends PLA_AbsListView {
     public boolean removeFooterView(View v) {
         if (mFooterViewInfos.size() > 0) {
             boolean result = false;
-            if (((PLA_HeaderViewListAdapter) mAdapter).removeFooter(v)) {
+            if (mAdapter != null && ((PLA_HeaderViewListAdapter) mAdapter).removeFooter(v)) {
                 mDataSetObserver.onChanged();
                 result = true;
             }
