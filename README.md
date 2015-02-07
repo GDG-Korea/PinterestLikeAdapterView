@@ -26,10 +26,6 @@ This is a screen shot of sample activity.
 
 How to use
 -------------
-*Import this library with Eclipse*
-
-There's a issue with Eclipse when using `Existing Android Code Into Workspace.` (It' s a known bug with Eclipse.) Use `Existing Projects Into Workspace` instead. It works perfectly.
-
 *To run Sample App.*
 
   1. clone project.
