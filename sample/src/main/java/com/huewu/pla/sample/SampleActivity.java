@@ -9,6 +9,7 @@ import android.support.v4.app.FragmentTransaction;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBarActivity;
+import android.support.v7.widget.Toolbar;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -18,8 +19,7 @@ import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 
 import com.huewu.pla.lib.MultiColumnListView;
-
-import java.util.Random;
+import com.huewu.pla.sample.view.SlidingTabLayout;
 
 public class SampleActivity extends ActionBarActivity implements ActionBar.TabListener {
     private SectionsPagerAdapter mSectionsPagerAdapter;
@@ -30,9 +30,8 @@ public class SampleActivity extends ActionBarActivity implements ActionBar.TabLi
         super.onCreate(savedInstanceState);
         setContentView(R.layout.sample_act);
 
-        // Set up the action bar.
-        final ActionBar actionBar = getSupportActionBar();
-        actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_TABS);
+        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
 
         mSectionsPagerAdapter = new SectionsPagerAdapter(getSupportFragmentManager());
 
@@ -40,21 +39,8 @@ public class SampleActivity extends ActionBarActivity implements ActionBar.TabLi
         mViewPager = (ViewPager) findViewById(R.id.pager);
         mViewPager.setAdapter(mSectionsPagerAdapter);
 
-        mViewPager.setOnPageChangeListener(new ViewPager.SimpleOnPageChangeListener() {
-            @Override
-            public void onPageSelected(int position) {
-                actionBar.setSelectedNavigationItem(position);
-            }
-        });
-
-        for (int i = 0; i < mSectionsPagerAdapter.getCount(); i++) {
-            actionBar.addTab(
-                    actionBar.newTab()
-                            .setText(mSectionsPagerAdapter.getPageTitle(i))
-                            .setTabListener(this)
-            );
-        }
-
+        final SlidingTabLayout tabLayout = (SlidingTabLayout)findViewById(R.id.sliding_tabs);
+        tabLayout.setViewPager(mViewPager);
     }
 
     @Override
