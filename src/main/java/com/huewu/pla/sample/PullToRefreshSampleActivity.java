@@ -1,39 +1,43 @@
 package com.huewu.pla.sample;
 
-import android.app.Activity;
 import android.content.Context;
-import android.content.Intent;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.ArrayAdapter;
-import android.widget.ListAdapter;
-
 import com.huewu.pla.R;
-import com.huewu.pla.lib.internal.PLA_AdapterView;
+import com.huewu.pla.lib.MultiColumnListView;
+import com.huewu.pla.lib.MultiColumnPullToRefreshListView;
 
-import java.util.Arrays;
-import java.util.Random;
+import java.net.URL;
+import java.text.SimpleDateFormat;
 
-public class PullToRefreshSampleActivity extends Activity {
+public class PullToRefreshSampleActivity extends SampleActivity {
 
 	private class MySimpleAdapter extends ArrayAdapter<String> {
-
 		public MySimpleAdapter(Context context, int layoutRes) {
 			super(context, layoutRes, android.R.id.text1);
 		}
 	}
-
-	private PLA_AdapterView<ListAdapter> mAdapterView = null;
-	private MySimpleAdapter mAdapter = null;
+    private MultiColumnPullToRefreshListView multiColumnPullToRefreshListView = null;
 
 	@SuppressWarnings("unchecked")
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.sample_pull_to_refresh_act);
-		//mAdapterView = (PLA_AdapterView<Adapter>) findViewById(R.id.list);
-		mAdapterView = (PLA_AdapterView<ListAdapter>) findViewById(R.id.list);
+        multiColumnPullToRefreshListView = (MultiColumnPullToRefreshListView) findViewById(R.id.list);
+        super.multiColumnListView = this.multiColumnPullToRefreshListView;
+        this.multiColumnPullToRefreshListView.setShowLastUpdatedText(true);
+        this.multiColumnPullToRefreshListView.setLastUpdatedDateFormat(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss"));
+        this.multiColumnPullToRefreshListView.setOnRefreshListener(new MultiColumnPullToRefreshListView.OnRefreshListener() {
+            @Override
+            public void onRefresh() {
+                PullToRefreshSampleActivity.super.initAdapter();
+                //setting load flag
+                PullToRefreshSampleActivity.this.multiColumnPullToRefreshListView.onRefreshComplete();
+            }
+        });
 	}
 
 	@Override
@@ -44,62 +48,12 @@ public class PullToRefreshSampleActivity extends Activity {
 
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
-
-		switch(item.getItemId()){
-		case 1001:
-		{
-			int startCount = mAdapter.getCount();
-			for( int i = 0; i < 100; ++i){
-				//generate 100 random items.
-
-				StringBuilder builder = new StringBuilder();
-				builder.append("Hello!![");
-				builder.append(startCount + i);
-				builder.append("] ");
-
-				char[] chars = new char[mRand.nextInt(100)];
-				Arrays.fill(chars, '1');
-				builder.append(chars);
-				mAdapter.add(builder.toString());
-			}
-		}
-		break;
-		case 1002:
-		{
-			Intent intent = new Intent(this, PullToRefreshSampleActivity.class);
-			startActivity(intent);
-		}
-		break;
-		}
-		return true;
+		return super.onOptionsItemSelected(item);
 	}
 
 	@Override
 	protected void onResume() {
 		super.onResume();
-		initAdapter();
-		mAdapterView.setAdapter(mAdapter);
-		//mAdapterView.setAdapter(mAdapter);
-	}
-
-	private Random mRand = new Random();
-	private void initAdapter() {
-		mAdapter = new MySimpleAdapter(this, R.layout.sample_item);
-
-		for( int i = 0; i < 30; ++i){
-			//generate 30 random items.
-
-			StringBuilder builder = new StringBuilder();
-			builder.append("Hello!![");
-			builder.append(i);
-			builder.append("] ");
-
-			char[] chars = new char[mRand.nextInt(500)];
-			Arrays.fill(chars, '1');
-			builder.append(chars);
-			mAdapter.add(builder.toString());
-		}
-
 	}
 
 }//end of class
