@@ -95,6 +95,14 @@ public class MultiColumnListView extends PLA_ListView {
 		mFixedColumn = new FixedColumn();
 	}
 
+    public void setColumnPaddingLeft(int columnPaddingLeft) {
+        this.mColumnPaddingLeft = columnPaddingLeft;
+    }
+
+    public void setColumnPaddingRight(int columnPaddingRight) {
+        this.mColumnPaddingRight = columnPaddingRight;
+    }
+
 	///////////////////////////////////////////////////////////////////////
 	//Override Methods...
 	///////////////////////////////////////////////////////////////////////
