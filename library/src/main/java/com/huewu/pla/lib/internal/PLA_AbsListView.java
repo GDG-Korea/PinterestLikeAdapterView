@@ -44,6 +44,8 @@ import android.widget.Scroller;
 import com.huewu.pla.R;
 import com.huewu.pla.lib.DebugUtil;
 
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Stack;
@@ -456,7 +458,18 @@ ViewTreeObserver.OnGlobalLayoutListener, ViewTreeObserver.OnTouchModeChangeListe
 
         setVerticalScrollBarEnabled(true);
         TypedArray a = context.obtainStyledAttributes(R.styleable.View);
-        initializeScrollbars(a);
+
+        // FIXME: ad hoc patch
+        try {
+            // initializeScrollbars(TypedArray)
+            final Method initializeScrollbars =
+                    android.view.View.class.getDeclaredMethod("initializeScrollbars",
+                            TypedArray.class);
+            initializeScrollbars.invoke(this, a);
+        } catch (NoSuchMethodException | InvocationTargetException | IllegalAccessException e) {
+            e.printStackTrace();
+        }
+
         a.recycle();
     }
 
