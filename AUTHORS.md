@@ -6,6 +6,7 @@ Keep the list sorted please.
  * Dane Lipscombe - dane at 77hz.jp
  * DongSoo Moon - donxu at naver.com
  * Feng Tao - stategrace2013 at gmail.com
+ * Jason Cao - mzule4j at gmail.com
  * Juyeong - juyeong9 at gmail.com
  * Leonardo TaeHwan Kim - liger745547 at gmail.com
  * Leonardo YongUk Kim - dalinaum at gmail.com
