@@ -9,4 +9,5 @@ Keep the list sorted please.
  * Leonardo TaeHwan Kim - liger745547 at gmail.com
  * Leonardo YongUk Kim - dalinaum at gmail.com
  * Thomas Urbanitsch - urbtom at bluesource.at
+ * Wonsik Sung - kai4th at gmail.com
 
