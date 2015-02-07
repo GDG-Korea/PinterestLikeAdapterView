@@ -8,4 +8,8 @@ android {
         minSdkVersion 8
         targetSdkVersion 21
     }
+
+    lintOptions {
+        abortOnError false
+    }
 }
