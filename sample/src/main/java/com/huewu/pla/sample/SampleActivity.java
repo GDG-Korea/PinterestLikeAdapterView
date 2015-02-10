@@ -21,7 +21,7 @@ import android.widget.ArrayAdapter;
 import com.huewu.pla.lib.MultiColumnListView;
 import com.huewu.pla.sample.view.SlidingTabLayout;
 
-public class SampleActivity extends ActionBarActivity implements ActionBar.TabListener {
+public class SampleActivity extends ActionBarActivity {
     private SectionsPagerAdapter mSectionsPagerAdapter;
     private ViewPager mViewPager;
 
@@ -42,20 +42,6 @@ public class SampleActivity extends ActionBarActivity implements ActionBar.TabLi
         final SlidingTabLayout tabLayout = (SlidingTabLayout)findViewById(R.id.sliding_tabs);
         tabLayout.setViewPager(mViewPager);
     }
-
-    @Override
-    public void onTabSelected(ActionBar.Tab tab, FragmentTransaction fragmentTransaction) {
-        mViewPager.setCurrentItem(tab.getPosition());
-    }
-
-    @Override
-    public void onTabUnselected(ActionBar.Tab tab, FragmentTransaction fragmentTransaction) {
-    }
-
-    @Override
-    public void onTabReselected(ActionBar.Tab tab, FragmentTransaction fragmentTransaction) {
-    }
-
 
     public class SectionsPagerAdapter extends FragmentPagerAdapter {
 
