@@ -32,20 +32,11 @@ How to use
 
   2. run on your android phone.
 
-  3. in option menu, you can add items or lunch pull-to-refresh sample.
-
-
 *To use Pinterest Like Multi Column View.*
 
   1. check this project as library project.
 
   2. MultiColumListView is the view what you need.
-
-*To use pull-to-refresh features.*
-  
-  1. check this project as library project.
-
-  2. MultiColumnPullToRefreshListView class in extra folder is what you need.
 
 Attributes
 -----------
