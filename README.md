@@ -1,8 +1,7 @@
-[![Stories in Ready](https://badge.waffle.io/GDG-Korea/PinterestLikeAdapterView.png?label=ready&title=Ready)](https://waffle.io/GDG-Korea/PinterestLikeAdapterView)
 PLA(PinterestLikeAdapterView)
 ==================================
 
-Branch **Master**: [![Build Status](https://travis-ci.org/GDG-Korea/PinterestLikeAdapterView.png?branch=master)](https://travis-ci.org/GDG-Korea/PinterestLikeAdapterView)
+[![Build Status](https://travis-ci.org/GDG-Korea/PinterestLikeAdapterView.png?branch=master)](https://travis-ci.org/GDG-Korea/PinterestLikeAdapterView)[![Stories in Ready](https://badge.waffle.io/GDG-Korea/PinterestLikeAdapterView.png?label=ready&title=Ready)](https://waffle.io/GDG-Korea/PinterestLikeAdapterView)
 
 Open source project in order to implement pinterest like list view on android. (You can check how [pinterest app](https://play.google.com/store/apps/details?id=com.pinterest) looks like form)
 
