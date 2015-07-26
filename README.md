@@ -1,3 +1,4 @@
+[![Stories in Ready](https://badge.waffle.io/GDG-Korea/PinterestLikeAdapterView.png?label=ready&title=Ready)](https://waffle.io/GDG-Korea/PinterestLikeAdapterView)
 PLA(PinterestLikeAdapterView)
 ==================================
 
