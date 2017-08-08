@@ -1,5 +1,7 @@
-PLA(PinterestLikeAdapterView)
+[Deprecated] PLA(PinterestLikeAdapterView)
 ==================================
+
+**Deprecated**: This project is not maintaned anymore. Thanks.
 
 [![Build Status](https://travis-ci.org/GDG-Korea/PinterestLikeAdapterView.png?branch=master)](https://travis-ci.org/GDG-Korea/PinterestLikeAdapterView)[![Stories in Ready](https://badge.waffle.io/GDG-Korea/PinterestLikeAdapterView.png?label=ready&title=Ready)](https://waffle.io/GDG-Korea/PinterestLikeAdapterView)
 
